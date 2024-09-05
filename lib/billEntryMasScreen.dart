@@ -56,7 +56,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   double qty=0.0;
   double discount=0.0;
 
+  var selected = false;
+  var index  =-1;
+
   TextEditingController date = new TextEditingController();
+  TextEditingController _itemController = new TextEditingController();
+  final DataGridController _dataGridController = DataGridController();
+
 
   DateTime currentDate = DateTime.now();
 
@@ -112,7 +118,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     // getGridData();
   }
 
-  Future<void> getGridData() async {
+  Future<void> getGridData( bool delChk) async {
     // billEntryList = [
     //   BillEntry(1, '222', 'ALMOND', 'PCS', '1234', 557.00, 10, 500.00, 5000.00, 5.00, 250.00, 450.00, 5700.00),
     //   BillEntry(2, '888', 'NUTS', 'PCS', '4678', 557.00, 10, 500.00, 5000.00, 5.00, 250.00, 450.00, 5700.00),
@@ -125,20 +131,54 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       double totalamount = amount - discAmount - gstAmount;
 
 
-      billEntryList.add(BillEntry(
-          val,
-          '0',
-          item,
-          'PCS',
-          '0',
-          0,
-          qty,
-          500.00,
-          amount,
-          discount,
-          discAmount,
-          gstAmount,
-          totalamount));
+      if(!selected) {
+        billEntryList.add(BillEntry(
+            val,
+            '0',
+            item,
+            'PCS',
+            '0',
+            0,
+            qty,
+            500.00,
+            amount,
+            discount,
+            discAmount,
+            gstAmount,
+            totalamount));
+      }else if(delChk) {
+        billEntryList.removeAt(index);
+        for(int i =0;i<billEntryList.length;i++){
+          billEntryList[i].id= i+1;
+        }
+      }else
+      {
+        print("Edit Check Point Working");
+        print(index);
+
+        for(int i =0;i<billEntryList.length;i++){
+          if(index==i) {
+            billEntryList[i].designation=item;
+            billEntryList[i].quantity =qty;
+            billEntryList[i].disc=discount;
+            billEntryList[i].amount =amount;
+            billEntryList[i].discAmt=discAmount;
+            billEntryList[i].GSTAmt = gstAmount;
+            billEntryList[i].TotAmt = totalamount;
+          }
+        }
+
+        List<BillEntry> tempBillEntryArray=[];
+        billEntryList.removeAt(1);
+        for(int i =0;i<billEntryList.length;i++){
+          billEntryList[i].id = i+1;
+        }
+      //  print(tempBillEntryArray);
+      //   print(billEntryList);
+        //billEntryList=tempBillEntryArray;
+       // print(billEntryList);
+        //print(billEntryList.getRange(0, 1));
+      }
 
       setState(() {
         _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
@@ -154,6 +194,21 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   @override
   void dispose(){
     super.dispose();
+  }
+
+  setSelectedData(){
+    DataGridRow? data= _dataGridController.selectedRow;
+    print(data);
+    // print(data);
+    //
+    // print(data?.getCells()[2].value);
+    // print(data?.getCells()[6].value);
+    // print(data?.getCells()[9].value);
+    // setState(() {
+    //   qty=data?.getCells()[6].value;
+    //   _itemController..text=data?.getCells()[2].value;
+    //   discount=data?.getCells()[9].value;
+    // });
   }
 
 
@@ -667,6 +722,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           }
                                         },
                                         fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                          _itemController=controller;
                                           return TextField(
                                             controller: controller,
                                             focusNode: focusNode,
@@ -789,25 +845,42 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
                               Center(
                                 child:
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Navigator.pushAndRemoveUntil(
-                                    //   context,
-                                    //   MaterialPageRoute(builder: (context) => EmployeeDataGrid()),
-                                    //       (Route<dynamic> route) => true, // This disables back navigation
-                                    // );
-                                    getGridData();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.black,
-                                      backgroundColor: Color(0xFF004D40),
-                                      textStyle: TextStyle(color: Colors.black,
-                                          fontWeight: FontWeight.bold)
-                                  ),
-                                  child: Text('Add', style: TextStyle(
-                                    color: Colors.white
-                                  ),),
-                                ),
+                                    Row( mainAxisAlignment: MainAxisAlignment.center,children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          // Navigator.pushAndRemoveUntil(
+                                          //   context,
+                                          //   MaterialPageRoute(builder: (context) => EmployeeDataGrid()),
+                                          //       (Route<dynamic> route) => true, // This disables back navigation
+                                          // );
+                                          getGridData(false);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            foregroundColor: Colors.black,
+                                            backgroundColor: Color(0xFF004D40),
+                                            textStyle: TextStyle(color: Colors.black,
+                                                fontWeight: FontWeight.bold)
+                                        ),
+                                        child: Text('Save', style: TextStyle(
+                                            color: Colors.white
+                                        ),),
+                                      ),
+                                      SizedBox(width: 10),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          getGridData(true);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            foregroundColor: Colors.black,
+                                            backgroundColor: Color(0xFF004D40),
+                                            textStyle: TextStyle(color: Colors.black,
+                                                fontWeight: FontWeight.bold)
+                                        ),
+                                        child: Text('Delete', style: TextStyle(
+                                            color: Colors.white
+                                        ),),
+                                      ),
+                                    ],)
                               ),
                               Padding(padding: EdgeInsets.fromLTRB(0, 100, 0, 0)),
                               SfDataGridTheme(
@@ -952,6 +1025,27 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         ),
                                       ),
                                     ],
+                                    controller : _dataGridController,
+                                    onSelectionChanged:
+                                        (List<DataGridRow> addedRows, List<DataGridRow> removedRows) {
+                                      // apply your logic
+                                          selected=true;
+                                          index=_dataGridController.selectedIndex;
+                                          DataGridRow? data= _dataGridController.selectedRow;
+                                          print(_dataGridController.selectedIndex);
+
+                                          print(data);
+                                          print(data);
+
+                                          print(data?.getCells()[2].value);
+                                          print(data?.getCells()[6].value);
+                                          print(data?.getCells()[9].value);
+                                          setState(() {
+                                            qty=data?.getCells()[6].value;
+                                            _itemController..text=data?.getCells()[2].value;
+                                            discount=data?.getCells()[9].value;
+                                          });
+                                    },
                                     columnWidthMode: ColumnWidthMode.fill,
                                   ),
                                 ),
