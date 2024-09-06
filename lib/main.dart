@@ -1,82 +1,278 @@
-import 'package:billentry/billEntryMasScreen.dart';
+import 'dart:convert';
+
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'billgrid.dart';
+import "package:http/http.dart" as http;
+import 'BillSales.dart';
+import 'billEntryMasScreen.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Home(),
+    )
+);
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      home: billEntryFirstScreen(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+var globalUserName="";
+var globalCompId=-1;
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<Home> createState() => _HomeState();
 }
+class _HomeState extends State<Home>  {
+  List<String> user = [];
+  String userName="";
+  String password="";
+  bool logChk=false;
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  TextEditingController name=TextEditingController();
+  TextEditingController pass=TextEditingController();
 
+  var chkCnt = 0;
   void _incrementCounter() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      chkCnt++;
     });
   }
 
+  Future<void> fetchCheckPassword(String username, String password) async{
+    String cutTableApi ="http://192.168.2.11:3000/api/postLoginCheck";
+    print(username);
+    print(password);
+    print(cutTableApi);
+    final response=await http.post(Uri.parse(cutTableApi),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        }, body: jsonEncode({
+          "userName": username,
+          "password":password
+        }));
+    if (response.statusCode == 200) {
+      final Map<String,dynamic> data =  json.decode(response.body);
+      print(data);
+      print(data['authenticated']);
+      logChk=data['authenticated'];
+
+      if(logChk) {
+        globalUserName=username;
+        globalCompId = data['result'];
+        Navigator.of(context).push(
+            MaterialPageRoute(
+                builder: (context) => billEntryFirstScreen())
+        );
+      }else{
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return
+              AlertDialog(
+                title: Text('REASON'),
+                content: Text("Please enter the valid userName/Password"), // Content of the dialog
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ],
+              );
+          },
+        );
+      }
+
+      _incrementCounter();
+    }else{
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return
+            AlertDialog(
+              title: Text('REASON'),
+              content: Text("Conn Err"), // Content of the dialog
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                ),
+              ],
+            );
+        },
+      );
+    }
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
+      body: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                colors: [
+                  Color(0xFF004D40),
+                  Color(0xFF004D40),
+                  Color(0xFF004D40)
+                ]
+            )
+        ),
+        child: Center(
+          child:
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(50),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    FadeInUp( child: Text("Login", style: TextStyle(color: Colors.white, fontSize: 40),)),
+                    FadeInUp( child: Text("Welcome Back", style: TextStyle(color: Colors.white, fontSize: 18),)),
+                  ],
+                ),
+              ),
+              Expanded(
+                  child:
 
+                  Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(60), topRight: Radius.circular(60))
+                      ),
+                      child: Padding(
+                          padding: EdgeInsets.all(30),
+                          child:
+                          SingleChildScrollView(
+                              child:
+                              Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: <Widget>[
+
+                                    FadeInUp( child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                          boxShadow: [BoxShadow(
+                                              color: Color.fromRGBO(225, 95, 27, .3),
+                                              blurRadius: 20,
+                                              offset: Offset(0, 10)
+                                          )]
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: <Widget>[
+                                          Container(
+                                            padding: EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                                border: Border(bottom: BorderSide(color: Colors.grey.shade200))
+                                            ),
+                                            child: TextFormField(
+                                              onChanged: (String newValue){
+                                                userName = newValue ;
+                                              },
+                                              controller: name,
+                                              decoration: InputDecoration(
+                                                  hintText: "USERNAME",
+                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                  border: InputBorder.none
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                    ),
+                                    Padding(padding: EdgeInsets.all(5)),
+                                    FadeInUp( child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                          boxShadow: [BoxShadow(
+                                              color: Color.fromRGBO(225, 95, 27, .3),
+                                              blurRadius: 20,
+                                              offset: Offset(0, 10)
+                                          )]
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: <Widget>[
+                                          Container(
+                                            padding: EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                                border: Border(bottom: BorderSide(color: Colors.grey.shade200))
+                                            ),
+                                            child: TextFormField(
+                                              onChanged: (String newValue){
+                                                password=newValue;
+                                              },
+                                              obscureText: true,
+                                              controller: pass,
+                                              decoration: InputDecoration(
+                                                  hintText: "PASSWORD",
+                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                  border: InputBorder.none
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                    ),
+                                    Padding(padding: EdgeInsets.all(10)),
+                                    FadeInUp(child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(10),
+                                          boxShadow: [BoxShadow(
+                                              color: Color.fromRGBO(225, 95, 27, .3),
+                                              blurRadius: 20,
+                                              offset: Offset(0, 10)
+                                          )]
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: <Widget>[
+                                          Container(
+                                              decoration: BoxDecoration(
+                                                  border: Border(bottom: BorderSide(color: Colors.grey.shade200))
+                                              ),
+                                              child: IconButton(
+                                                color: Colors.indigo[900],
+                                                onPressed: () {
+                                                  // fetchCheckPassword(userName,password);
+                                                  Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                          builder: (context) => billEntryFirstScreen())
+                                                  );
+                                                }, icon: Icon(Icons.login),
+                                              )
+                                          ),
+                                        ],
+
+                                      ),
+                                    ),
+                                    )
+                                  ]
+                              )
+                          )
+                      )
+                  )
+              )
+            ],
+          ),
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

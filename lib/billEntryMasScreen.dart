@@ -45,8 +45,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   List<String> BillTypeList=[];
   List<String> PayTypeList=[];
   List<String> ItemList=[];
+  List<double> RateList=[];
+  List<String> UomList=[];
+  List<String> HsnList=[];
+  List<double> StockQtyList=[];
   List<double>  QtyList=[];
   List<double> DiscList=[];
+  List<double> ItemIdList =[];
   String billType="";
   String payType="";
   String customer="";
@@ -102,6 +107,49 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     }
   }
 
+
+  Future<void> fetchItemData() async {
+    try {
+      // String tempResult=docId;
+      // docId = docId.replaceAll("/","%2F");
+      //String getLayPrep = "http://${ipAddress}:5025/api/getLayprep/" + docId ;
+      String getApi="http://192.168.2.11:3000/api/getItemData";
+      final response = await http.get(Uri.parse(getApi));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        ItemList.clear();
+        RateList.clear();
+        UomList.clear();
+        HsnList.clear();
+        StockQtyList.clear();
+        ItemIdList.clear();
+        List<dynamic> result1 = data['result'][0];
+        print(result1);
+
+        for (var list in result1){
+          ItemList.add(list['Item'].toString());
+          RateList.add(list['SalesRate']);
+          UomList.add(list['UOM'].toString());
+          HsnList.add(list['Hsn'].toString());
+          StockQtyList.add(list['StockQty'] !=null ? list['StockQty'] : 0 );
+          ItemIdList.add(list['ItemId']);
+        }
+        print("Check Point 1");
+        print(RateList);
+
+       // _itemController..text=ItemList[0];
+
+
+        _incrementCounter();
+      }
+    } catch (e) {
+      print("chkErr");
+      print(e);
+    }
+  }
+
   late EmployeeDataSource _employeeDataSource;
   @override
   void initState() {
@@ -114,6 +162,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     payType = PayTypeList[0];
     date.text= currentDate.toString().split(' ')[0];
     fetchSupplierData();
+    fetchItemData();
     _employeeDataSource = EmployeeDataSource(billEntry: []);
     // getGridData();
   }
@@ -124,9 +173,23 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     //   BillEntry(2, '888', 'NUTS', 'PCS', '4678', 557.00, 10, 500.00, 5000.00, 5.00, 250.00, 450.00, 5700.00),
     // ];
     // if(item !="") {
+      int idx = ItemList.indexOf(item);
+      print("idx :- "+ idx.toString());
+      double rate =0;
+      String uom ="";
+      String hsn="";
+      double StkQty=0;
+      double code=0;
+      if(idx != -1){
+        rate = RateList[idx];
+        uom = UomList[idx];
+        hsn = HsnList[idx];
+        StkQty= StockQtyList[idx];
+        code = ItemIdList[idx];
+      }
       int val = billEntryList.length + 1;
-      double amount = qty * 500.0;
-      double discAmount = ((discount / 100) * 500.0) * qty;
+      double amount = qty * rate;
+      double discAmount = ((discount / 100) * rate) * qty;
       double gstAmount = 0;
       double totalamount = amount - discAmount - gstAmount;
 
@@ -134,13 +197,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       if(!selected) {
         billEntryList.add(BillEntry(
             val,
-            '0',
+            code.toString(),
             item,
-            'PCS',
-            '0',
-            0,
+            uom,
+            hsn,
+            StkQty,
             qty,
-            500.00,
+            rate,
             amount,
             discount,
             discAmount,
@@ -245,19 +308,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                 Column(
                                     crossAxisAlignment: CrossAxisAlignment.stretch,
                                     children:[
-                                      Row(
-                                        children: [
-                                          Text("Bill Type")
-                                        ],
-                                      ),
                                       DropdownButtonFormField2<String>(
                                         isExpanded: true,
+                                        value: billType,
                                         decoration: InputDecoration(
                                           filled: true,
                                           fillColor: Colors.white,
-                                          // Add Horizontal padding using menuItemStyleData.padding so it matches
-                                          // the menu padding when button's width is not specified.
-                                          contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                                          labelText: "Bill Type",
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(5),
                                           ),
@@ -583,21 +640,16 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                 Column(
                                     crossAxisAlignment: CrossAxisAlignment.stretch,
                                     children:[
-                                      Row(
-                                        children: [
-                                          Text("Pay Type")
-                                        ],
-                                      ),
                                       DropdownButtonFormField2<String>(
                                         isExpanded: true,
+                                        value: payType,
                                         decoration: InputDecoration(
+                                          //alignLabelWithHint: true,
                                           fillColor: Colors.white,
                                           filled: true,
-                                          // Add Horizontal padding using menuItemStyleData.padding so it matches
-                                          // the menu padding when button's width is not specified.
-                                          contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                                          labelText: "Pay Type",
+
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(5),
                                           ),
                                           // Add more decoration..
                                         ),
@@ -631,7 +683,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
                                         },
                                         buttonStyleData: const ButtonStyleData(
-                                          padding: EdgeInsets.only(right: 8),
+                                          //padding: EdgeInsets.only(right: 8),
                                         ),
                                         iconStyleData: const IconStyleData(
                                           icon: Icon(
@@ -642,11 +694,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         ),
                                         dropdownStyleData: DropdownStyleData(
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(15),
+                                           // borderRadius: BorderRadius.circular(15),
                                           ),
                                         ),
                                         menuItemStyleData: const MenuItemStyleData(
-                                          padding: EdgeInsets.symmetric(horizontal: 16),
+                                          //padding: EdgeInsets.symmetric(horizontal: 16),
                                         ),
                                       ),
 
@@ -775,6 +827,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                   onTap: () {
                                                     onSelected(option);
                                                     setState(() {
+                                                      print("Selection : "+option);
                                                       item = option!;
                                                       // int idx = CustomerList.indexOf(customer);
                                                       // stateCode=StateCodeList[idx];
@@ -899,7 +952,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                     allowEditing: true,
                                     selectionMode: SelectionMode.single,
                                     headerGridLinesVisibility: GridLinesVisibility.both,
-                                    navigationMode: GridNavigationMode.cell,
+                                   // navigationMode: GridNavigationMode.cell,
                                     source: _employeeDataSource,
                                     editingGestureType: EditingGestureType.tap,
                                     columnWidthCalculationRange: ColumnWidthCalculationRange.visibleRows,
@@ -1050,6 +1103,24 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                   ),
                                 ),
                               ),
+                              Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
+                              Center(child: Expanded(
+                                  child:
+                                  ElevatedButton(
+                                    onPressed: () {
+
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                        foregroundColor: Colors.black,
+                                        backgroundColor: Color(0xFF004D40),
+                                        textStyle: TextStyle(color: Colors.black,
+                                            fontWeight: FontWeight.bold)
+                                    ),
+                                    child: Text('Save', style: TextStyle(
+                                        color: Colors.white
+                                    ),),
+                                  ),
+                              ))
                             ]
                         ),
                       ),
