@@ -214,6 +214,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         for(int i =0;i<billEntryList.length;i++){
           billEntryList[i].id= i+1;
         }
+        selected=false;
       }else
       {
         print("Edit Check Point Working");
@@ -231,11 +232,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           }
         }
 
-        List<BillEntry> tempBillEntryArray=[];
-        billEntryList.removeAt(1);
-        for(int i =0;i<billEntryList.length;i++){
-          billEntryList[i].id = i+1;
-        }
+        // List<BillEntry> tempBillEntryArray=[];
+        // billEntryList.removeAt(1);
+        // for(int i =0;i<billEntryList.length;i++){
+        //   billEntryList[i].id = i+1;
+        // }
+
+        selected=false;
       //  print(tempBillEntryArray);
       //   print(billEntryList);
         //billEntryList=tempBillEntryArray;

@@ -15,6 +15,7 @@ void main() => runApp(
 
 var globalUserName="";
 var globalCompId=-1;
+var globalPrefix="";
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -36,12 +37,29 @@ class _HomeState extends State<Home>  {
       chkCnt++;
     });
   }
+  showLoaderDialog(BuildContext context){
+    AlertDialog alert=AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(color: Color(0xFF004D40),),
+          Container(margin: EdgeInsets.only(left: 7),child:Text("Logging In..." )),
+        ],),
+    );
+    showDialog(barrierDismissible: false,
+      context:context,
+      builder:(BuildContext context){
+        return alert;
+      },
+    );
+  }
+
 
   Future<void> fetchCheckPassword(String username, String password) async{
     String cutTableApi ="http://192.168.2.11:3000/api/postLoginCheck";
     print(username);
     print(password);
     print(cutTableApi);
+    showLoaderDialog(context);
     final response=await http.post(Uri.parse(cutTableApi),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -58,11 +76,16 @@ class _HomeState extends State<Home>  {
       if(logChk) {
         globalUserName=username;
         globalCompId = data['result'];
+        globalPrefix = data['result2'];
+        print("Prefix Check Point");
+        print(globalPrefix);
+        Navigator.pop(context);
         Navigator.of(context).push(
             MaterialPageRoute(
                 builder: (context) => billEntryFirstScreen())
         );
       }else{
+        Navigator.pop(context);
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -85,6 +108,7 @@ class _HomeState extends State<Home>  {
 
       _incrementCounter();
     }else{
+      Navigator.pop(context);
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -250,11 +274,11 @@ class _HomeState extends State<Home>  {
                                               child: IconButton(
                                                 color: Colors.indigo[900],
                                                 onPressed: () {
-                                                  // fetchCheckPassword(userName,password);
-                                                  Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                          builder: (context) => billEntryFirstScreen())
-                                                  );
+                                                  fetchCheckPassword(userName,password);
+                                                  // Navigator.of(context).push(
+                                                  //     MaterialPageRoute(
+                                                  //         builder: (context) => billEntryFirstScreen())
+                                                  // );
                                                 }, icon: Icon(Icons.login),
                                               )
                                           ),
