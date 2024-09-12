@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:billentry/GlobalVariables.dart';
+import 'package:billentry/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bootstrap/flutter_bootstrap.dart';
 import 'package:http/http.dart' as http;
@@ -49,9 +51,10 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   List<String> UomList=[];
   List<String> HsnList=[];
   List<double> StockQtyList=[];
+  List<double> CGstList=[];
   List<double>  QtyList=[];
   List<double> DiscList=[];
-  List<double> ItemIdList =[];
+  List<int> ItemIdList =[];
   String billType="";
   String payType="";
   String customer="";
@@ -60,12 +63,17 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   String item="";
   double qty=0.0;
   double discount=0.0;
+  String invoiceNum="";
+  double grandTotalAmount=0.0;
 
   var selected = false;
   var index  =-1;
 
   TextEditingController date = new TextEditingController();
   TextEditingController _itemController = new TextEditingController();
+  TextEditingController qtyTextController = new TextEditingController();
+  TextEditingController itemTextController = new TextEditingController();
+  TextEditingController discTextController = new TextEditingController();
   final DataGridController _dataGridController = DataGridController();
 
 
@@ -77,8 +85,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       // String tempResult=docId;
       // docId = docId.replaceAll("/","%2F");
       //String getLayPrep = "http://${ipAddress}:5025/api/getLayprep/" + docId ;
-      String getApi="https://appsail-50021991814.development.catalystappsail.in/api/getSupplierData";
-       final response = await http.get(Uri.parse(getApi));
+      String url=ipAddress+"api/getSupplierData/"+globalCompId.toString();
+      String getApi="http://192.168.2.11:3000/api/getSupplierData";
+       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
          final Map<String, dynamic> data = json.decode(response.body);
@@ -113,7 +122,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       // String tempResult=docId;
       // docId = docId.replaceAll("/","%2F");
       //String getLayPrep = "http://${ipAddress}:5025/api/getLayprep/" + docId ;
-      String getApi="http://192.168.2.11:3000/api/getItemData";
+      String getApi=ipAddress+"api/getItemData/"+globalCompId.toString();;
       final response = await http.get(Uri.parse(getApi));
 
       if (response.statusCode == 200) {
@@ -121,6 +130,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
         ItemList.clear();
         RateList.clear();
+        CGstList.clear();
         UomList.clear();
         HsnList.clear();
         StockQtyList.clear();
@@ -130,14 +140,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
         for (var list in result1){
           ItemList.add(list['Item'].toString());
-          RateList.add(list['SalesRate']);
+          RateList.add(double.parse(list['SalesRate'].toString()));
           UomList.add(list['UOM'].toString());
           HsnList.add(list['Hsn'].toString());
-          StockQtyList.add(list['StockQty'] !=null ? list['StockQty'] : 0 );
+          CGstList.add(double.parse(list['GstP'].toString()));
+          StockQtyList.add(list['StockQty'].toString() !="null" ? double.parse(list['StockQty'].toString()) : 0 );
           ItemIdList.add(list['ItemId']);
         }
-        print("Check Point 1");
-        print(RateList);
 
        // _itemController..text=ItemList[0];
 
@@ -150,6 +159,25 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     }
   }
 
+  Future<void> getInvoiceNumber(String payType) async{
+    String cutTableApi =ipAddress+"api/getInvoiceNumber";
+    print(cutTableApi);
+    final response=await http.post(Uri.parse(cutTableApi),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        }, body: jsonEncode({
+          "compId": globalCompId,
+          "payType": payType
+        }));
+    if (response.statusCode == 200) {
+      final Map<String,dynamic> data =  json.decode(response.body);
+      setState(() {
+        invoiceNum=data['result'];
+      });
+      _incrementCounter();
+    }
+  }
+
   late EmployeeDataSource _employeeDataSource;
   @override
   void initState() {
@@ -159,6 +187,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     PayTypeList.add("Credit");
     PayTypeList.add("Cash");
     billType=BillTypeList[0];
+    getInvoiceNumber("NGST");
     payType = PayTypeList[0];
     date.text= currentDate.toString().split(' ')[0];
     fetchSupplierData();
@@ -179,22 +208,36 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       String uom ="";
       String hsn="";
       double StkQty=0;
-      double code=0;
+      int code=0;
+      double gst=0.0;
       if(idx != -1){
+        print("Check 0");
         rate = RateList[idx];
+        print("Check 1");
         uom = UomList[idx];
+        print("Check 2");
         hsn = HsnList[idx];
+        print("Check 3");
         StkQty= StockQtyList[idx];
+        print("Check 4");
         code = ItemIdList[idx];
+        print("Check 5");
+        gst=CGstList[idx];
       }
       int val = billEntryList.length + 1;
       double amount = qty * rate;
       double discAmount = ((discount / 100) * rate) * qty;
-      double gstAmount = 0;
+      double gstAmount;
+      if(billType =="Non-GST Bill"){
+        gstAmount=0.0;
+      }else {
+       gstAmount= ((gst/100) * rate)*qty;
+      }
       double totalamount = amount - discAmount - gstAmount;
 
-
-      if(!selected) {
+      print("Total Amount");
+      print(totalamount);
+      if(!selected && !delChk) {
         billEntryList.add(BillEntry(
             val,
             code.toString(),
@@ -215,7 +258,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           billEntryList[i].id= i+1;
         }
         selected=false;
-      }else
+      }
+      else
       {
         print("Edit Check Point Working");
         print(index);
@@ -246,6 +290,14 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         //print(billEntryList.getRange(0, 1));
       }
 
+      grandTotalAmount=0.0;
+      if(billEntryList.length > 0){
+        for(int i =0;i<billEntryList.length;i++){
+         grandTotalAmount= billEntryList[i].TotAmt+grandTotalAmount;
+        }
+      }
+      print("grandTotalAmount");
+      print(grandTotalAmount);
       setState(() {
         _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
       });
@@ -346,6 +398,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         },
                                         onChanged: (value) {
                                           billType = value!;
+                                          print("Check Point Working 2");
+                                          if(value.toString()=="Non-GST Bill"){
+                                            getInvoiceNumber("NGST");
+                                          }else{
+                                            print("Check Point Working");
+                                            getInvoiceNumber("GST");
+                                          }
                                           //Do something when selected item is changed.
                                         },
                                         onSaved: (value) {
@@ -353,7 +412,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
                                         },
                                         buttonStyleData: const ButtonStyleData(
-                                          padding: EdgeInsets.only(right: 8),
+                                         // padding: EdgeInsets.only(right: 8),
                                         ),
                                         iconStyleData: const IconStyleData(
                                           icon: Icon(
@@ -364,11 +423,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         ),
                                         dropdownStyleData: DropdownStyleData(
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(15),
+                                           // borderRadius: BorderRadius.circular(15),
                                           ),
                                         ),
                                         menuItemStyleData: const MenuItemStyleData(
-                                          padding: EdgeInsets.symmetric(horizontal: 16),
+                                        //  padding: EdgeInsets.symmetric(horizontal: 16),
                                         ),
                                       ),
                                     ]
@@ -384,9 +443,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         BootstrapCol(
                                           sizes: 'col-md-12',
                                           child: TextFormField(
-                                            //showCursor: false,
-                                            //readOnly: true,
-                                            //controller: TextEditingController()..text= OcnnoVal,
+                                            showCursor: false,
+                                            readOnly: true,
+                                            controller: TextEditingController()..text= invoiceNum.toString(),
                                             decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Invoice No',
                                                 fillColor: Colors.white, filled: true),
                                           ),
@@ -651,7 +710,6 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           fillColor: Colors.white,
                                           filled: true,
                                           labelText: "Pay Type",
-
                                           border: OutlineInputBorder(
                                           ),
                                           // Add more decoration..
@@ -672,21 +730,23 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         ))
                                             .toList(),
                                         validator: (value) {
+                                          //print("Check Point Working 2");
                                           if (value == null) {
                                             return 'Please pay type.';
                                           }
                                           return null;
                                         },
-                                        onChanged: (value) {
-                                          payType = value!;
-                                          //Do something when selected item is changed.
+                                        onChanged: (String? value) {
+                                          setState(() {
+                                            payType = value!;
+                                          });
                                         },
-                                        onSaved: (value) {
-                                          // selectedValue = value.toString();
+                                        onSaved: (String? value) {
+                                          payType = value!;
 
                                         },
                                         buttonStyleData: const ButtonStyleData(
-                                          //padding: EdgeInsets.only(right: 8),
+                                          padding: EdgeInsets.only(right: 0),
                                         ),
                                         iconStyleData: const IconStyleData(
                                           icon: Icon(
@@ -857,10 +917,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           child: TextFormField(
                                             // showCursor: false,
                                             // readOnly: true,
+                                            keyboardType: TextInputType.number,
                                             onChanged:(String newValue){
                                               qty=double.parse(newValue);
                                             },
-                                            controller: TextEditingController()..text= qty.toString(),
+                                            controller: qtyTextController,
                                             decoration: InputDecoration(border: OutlineInputBorder(),
                                                 labelText: 'Quantity',
                                                 fillColor: Colors.white, filled: true),
@@ -885,7 +946,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             onChanged: (String newValue){
                                               discount = double.parse(newValue);
                                             },
-                                            controller: TextEditingController()..text= discount.toString(),
+                                            controller: discTextController,
                                             decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Disc',
                                                 fillColor: Colors.white, filled: true),
                                           ),
@@ -910,6 +971,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           //       (Route<dynamic> route) => true, // This disables back navigation
                                           // );
                                           getGridData(false);
+                                          _itemController.clear();
+                                          qtyTextController.clear();
+                                          discTextController.clear();
                                         },
                                         style: ElevatedButton.styleFrom(
                                             foregroundColor: Colors.black,
@@ -925,6 +989,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       ElevatedButton(
                                         onPressed: () {
                                           getGridData(true);
+                                          _itemController.clear();
+                                          qtyTextController.clear();
+                                          discTextController.clear();
                                         },
                                         style: ElevatedButton.styleFrom(
                                             foregroundColor: Colors.black,
@@ -974,6 +1041,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       GridColumn(
                                         columnName: 'name',
                                         width: 75,
+                                        visible: false,
                                         label: Container(
                                           padding: EdgeInsets.symmetric(horizontal: 16.0),
                                           alignment: Alignment.center,
@@ -1001,6 +1069,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       GridColumn(
                                         columnName: 'hsnCode',
                                         width: 100,
+                                        visible: false,
                                         label: Container(
                                           padding: EdgeInsets.symmetric(horizontal: 16.0),
                                           alignment: Alignment.center,
@@ -1046,6 +1115,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       ),
                                       GridColumn(
                                         columnName: 'disc',
+                                        visible: false,
                                         width: 100,
                                         label: Container(
                                           padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -1107,23 +1177,25 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                 ),
                               ),
                               Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
-                              Center(child: Expanded(
-                                  child:
-                                  ElevatedButton(
-                                    onPressed: () {
+                              Center(child:
+                              Row(children: [
+                                SizedBox(width: 20,),Text("Total Amount : - ${grandTotalAmount}"),
+                                SizedBox(width: 20,),
+                                ElevatedButton(
+                                  onPressed: () {
 
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                        foregroundColor: Colors.black,
-                                        backgroundColor: Color(0xFF004D40),
-                                        textStyle: TextStyle(color: Colors.black,
-                                            fontWeight: FontWeight.bold)
-                                    ),
-                                    child: Text('Save', style: TextStyle(
-                                        color: Colors.white
-                                    ),),
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.black,
+                                      backgroundColor: Color(0xFF004D40),
+                                      textStyle: TextStyle(color: Colors.black,
+                                          fontWeight: FontWeight.bold)
                                   ),
-                              ))
+                                  child: Text('Save', style: TextStyle(
+                                      color: Colors.white
+                                  ),),
+                                ),],)
+                              )
                             ]
                         ),
                       ),

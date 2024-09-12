@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:billentry/GlobalVariables.dart';
 import 'package:flutter/material.dart';
 import "package:http/http.dart" as http;
 import 'BillSales.dart';
@@ -55,7 +56,7 @@ class _HomeState extends State<Home>  {
 
 
   Future<void> fetchCheckPassword(String username, String password) async{
-    String cutTableApi ="http://192.168.2.11:3000/api/postLoginCheck";
+    String cutTableApi =ipAddress+"api/postLoginCheck";
     print(username);
     print(password);
     print(cutTableApi);
