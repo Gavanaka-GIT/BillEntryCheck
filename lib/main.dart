@@ -4,7 +4,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:billentry/GlobalVariables.dart';
 import 'package:flutter/material.dart';
 import "package:http/http.dart" as http;
-import 'BillSales.dart';
 import 'billEntryMasScreen.dart';
 
 void main() => runApp(

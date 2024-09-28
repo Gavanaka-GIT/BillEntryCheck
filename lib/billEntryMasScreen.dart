@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:billentry/GlobalVariables.dart';
 import 'package:billentry/main.dart';
+import 'package:billentry/purchaseEntryMasScreen.dart';
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bootstrap/flutter_bootstrap.dart';
 import 'package:http/http.dart' as http;
@@ -142,7 +144,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         CustomerIdList.clear();
          StateCodeList.clear();
          StateCodeIdList.clear();
-        List<dynamic> result1 = data['result'][0];
+        List<dynamic> result1 = data['result'];
         print(result1);
 
         for (var list in result1){
@@ -496,9 +498,12 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       if (billType == "Non-GST Bill") {
         gstAmount = 0.0;
       } else {
-        if (stateCodeId == 68) { //checking TN Gst
+        if(!delChk){
+        if (stateCodeId == 68 ) { //checking TN Gst
+          print("State Code "+stateCodeId.toString());
           cgstp = CGstList[idx];
           sgstp = SGstList[idx];
+          print("State Code "+stateCodeId.toString());
           cgstA = (cgstp / 100) * totalamount;
           sgstA = (sgstp / 100) * totalamount;
           gstAmount = cgstA + sgstA;
@@ -506,6 +511,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           igstp = IGstList[idx];
           igstA = (igstp / 100) * totalamount;
           gstAmount = igstA;
+        }
+        }else{
+          gstAmount=0.0;
         }
       }
       totalamount = totalamount + gstAmount;
@@ -690,9 +698,38 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         child: Scaffold(
             appBar: AppBar(
               backgroundColor: Color(0xFF004D40),
-              title: const Text(" BILL ENTRY ", style: TextStyle(color: Colors.white),),
+              leading:Builder(builder: (BuildContext context){
+                return IconButton(onPressed: () {
+                Scaffold.of(context).openDrawer();
+              }, icon: Icon(Icons.menu_rounded, color: Colors.white,));},),
+              title: const Text(" SALES ENTRY ", style: TextStyle(color: Colors.white),),
               centerTitle: true,
             ),
+            drawer: Drawer(child:
+            ListView( children: [
+              ListTile( leading : Icon(Icons.shopping_cart),title: Text("Sales"),
+                  onTap: (){
+                     Navigator.of(context).push(
+                     MaterialPageRoute(
+                     builder: (context) => billEntryFirstScreen())
+                     );
+                  },),
+              ListTile(leading: Icon(Icons.shopping_bag),title: Text("Puchase"),
+              onTap: (){
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context)=> purchaseEntryFirstScreen())
+                );
+              },),
+             ListTile( leading : Icon(Icons.logout_rounded),title: Text("Logout"), onTap: (){
+               // Navigator.of(context).push(
+               //   MaterialPageRoute(builder: (context)=> Home())
+               // );
+               Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>Home())
+                   ,
+                   ModalRoute.withName('/'));
+               // Navigator.pop(context);
+             },)
+            ],),),
             body:Container(
               color: Colors.pink[50],
               child: Row(
@@ -744,13 +781,24 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           return null;
                                         },
                                         onChanged: (value) {
+                                          if(billType.toString() == value.toString()){
+                                            return;
+                                          }
                                           billType = value!;
                                           print("Check Point Working 2");
                                           if(value.toString()=="Non-GST Bill"){
                                             getInvoiceNumber("NGST",false);
+                                            setState(() {
+                                              billEntryList=[];
+                                              _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
+                                            });
                                           }else{
                                             print("Check Point Working");
                                             getInvoiceNumber("GST",false);
+                                            setState(() {
+                                              billEntryList=[];
+                                              _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
+                                            });
                                           }
                                           //Do something when selected item is changed.
                                         },
