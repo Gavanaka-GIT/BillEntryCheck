@@ -48,7 +48,7 @@ class _HomeState extends State<Home>  {
     showDialog(barrierDismissible: false,
       context:context,
       builder:(BuildContext context){
-        return alert;
+        return WillPopScope(child: alert, onWillPop: ()=> Future.value(false)) ;
       },
     );
   }
@@ -60,6 +60,7 @@ class _HomeState extends State<Home>  {
     print(password);
     print(cutTableApi);
     showLoaderDialog(context);
+    try{
     final response= await http.post(Uri.parse(cutTableApi),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -128,8 +129,27 @@ class _HomeState extends State<Home>  {
         },
       );
     }
-
-
+    }catch(e){
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return
+            AlertDialog(
+              title: Text('REASON'),
+              content: Text("Conn Err"), // Content of the dialog
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                ),
+              ],
+            );
+        },
+      );
+    }
   }
 
   @override

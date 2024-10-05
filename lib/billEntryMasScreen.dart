@@ -6,6 +6,7 @@ import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bootstrap/flutter_bootstrap.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
@@ -43,6 +44,8 @@ class billEntryFirstScreen extends StatefulWidget {
 }
 
 class _billEntryFirstState extends State<billEntryFirstScreen> {
+
+
   List<String> ENAME =[];
   List<String> CustomerList =[];
   List<int> CustomerIdList=[];
@@ -67,7 +70,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   int stateCodeId=0;
   int customerId=0;
   String stateCode="";
-  String shipTo="";
+  int shipTo=0;
   String item="";
   double qty=0.0;
   double discount=0.0;
@@ -76,6 +79,12 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   double grandTotalAmount=0.0;
   List<String> SalesType=["Sales", "Sales B"];
   int salesTypeidx=0;
+  late DateTime now;
+  var edate;
+  _billEntryFirstState(){
+    now = DateTime.now();
+    edate =  DateFormat('yyyy-MM-dd').format(now);
+  }
 
   var selected = false;
   var index  =-1;
@@ -87,6 +96,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   TextEditingController discTextController = new TextEditingController();
   TextEditingController rateTextController = new TextEditingController();
   final DataGridController _dataGridController = DataGridController();
+  TextEditingController toDateController = new TextEditingController();
+  TextEditingController _controller= new TextEditingController();
 
 
   DateTime currentDate = DateTime.now();
@@ -99,10 +110,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           Container(margin: EdgeInsets.only(left: 7),child:Text("..In Progress" )),
         ],),
     );
-    showDialog(barrierDismissible: false,
+    showDialog(
+      barrierDismissible: false,
       context:context,
       builder:(BuildContext context){
-        return alert;
+        return WillPopScope(child: alert, onWillPop: ()=> Future.value(false));
       },
     );
   }
@@ -121,7 +133,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     showDialog(barrierDismissible: false,
       context:context,
       builder:(BuildContext context){
-        return alert;
+        return WillPopScope(child: alert, onWillPop: ()=> Future.value(false));
       },
     );
 
@@ -163,7 +175,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         stateCode=StateCodeList[0];
         stateCodeId = StateCodeIdList[0];
         customerId = CustomerIdList[0];
-        shipTo=CustomerList[0];
+        //shipTo=CustomerIdList[0];
 
 
         _incrementCounter();
@@ -206,7 +218,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           CGstList.add(double.parse(list['Cgstp'].toString()));
           IGstList.add(double.parse(list['Igstp'].toString()));
           SGstList.add(double.parse(list['Sgstp'].toString()));
-          StockQtyList.add(list['StockQty'].toString() !="null" ? double.parse(list['StockQty'].toString()) : 0 );
+          StockQtyList.add(list['STK'].toString() !="null" ? double.parse(list['STK'].toString()) : 0 );
           ItemIdList.add(list['ItemId']);
         }
 
@@ -257,13 +269,15 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           QtyList.clear();
           DiscList.clear();
           ItemIdList.clear();
+          _controller.clear();
+          edate =  DateFormat('yyyy-MM-dd').format(now);
           billType = "";
           payType = "";
           customer = "";
           stateCodeId = 0;
           customerId = 0;
           stateCode = "";
-          shipTo = "";
+          shipTo = 0;
           item = "";
           qty = 0.0;
           discount = 0.0;
@@ -410,22 +424,121 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           }));
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        setState(() {
-          invoiceNum = data['result'];
-          if(!chk) {
-            Navigator.pop(context);
-          }
-        });
+        print(data);
+        if(data['valid']) {
+          setState(() {
+            invoiceNum = data['result'];
+            if (!chk) {
+              Navigator.pop(context);
+            }
+          });
+        }else{
+          Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return
+                AlertDialog(
+                  title: Text('Connection Error'),
+                  content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                  ],
+                );
+            },
+          );
+        }
         _incrementCounter();
       } else {
         if(!chk) {
           Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return
+                AlertDialog(
+                  title: Text('Connection Error'),
+                  content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                  ],
+                );
+            },
+          );
+        }else{
+          Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return
+                AlertDialog(
+                  title: Text('Connection Error'),
+                  content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                  ],
+                );
+            },
+          );
         }
       }
     }catch(e){
-      if(!chk) {
+     if(!chk) {
         Navigator.pop(context);
-      }
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return
+              AlertDialog(
+                title: Text('Connection Error'),
+                content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ],
+              );
+          },
+        );
+     }else{
+       Navigator.pop(context);
+       showDialog(
+         context: context,
+         builder: (BuildContext context) {
+           return
+             AlertDialog(
+               title: Text('Connection Error'),
+               content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+               actions: <Widget>[
+                 TextButton(
+                   child: Text('OK'),
+                   onPressed: () {
+                     Navigator.of(context).pop(); // Close the dialog
+                   },
+                 ),
+               ],
+             );
+         },
+       );
+     }
     }
   }
 
@@ -748,83 +861,84 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                     crossAxisAlignment: CrossAxisAlignment.stretch,
                                     children:[
                                       DropdownButtonFormField2<String>(
-                                        isExpanded: true,
-                                        value: billType,
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          labelText: "Bill Type",
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(5),
+                                          isExpanded: true,
+                                          value: billType,
+                                          decoration: InputDecoration(
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            labelText: "Bill Type",
+                                            border: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(5),
+                                            ),
+                                            // Add more decoration..
                                           ),
-                                          // Add more decoration..
-                                        ),
-                                        hint: const Text(
-                                          'Select your bill type',
-                                          style: TextStyle(fontSize: 14),
-                                        ),
-                                        items: BillTypeList
-                                            .map((item) => DropdownMenuItem<String>(
-                                          value: item,
-                                          child: Text(
-                                            item,
-                                            style: const TextStyle(
-                                              fontSize: 14,
+                                          hint: const Text(
+                                            'Select your bill type',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                          items: BillTypeList
+                                              .map((item) => DropdownMenuItem<String>(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ))
+                                              .toList(),
+                                          validator: (value) {
+                                            if (value == null) {
+                                              return 'Please bill type.';
+                                            }
+                                            return null;
+                                          },
+                                          onChanged: (value) {
+                                            if(billType.toString() == value.toString()){
+                                              return;
+                                            }
+                                            billType = value!;
+                                            print("Check Point Working 2");
+                                            if(value.toString()=="Non-GST Bill"){
+                                              getInvoiceNumber("NGST",false);
+                                              setState(() {
+                                                billEntryList=[];
+                                                _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
+                                              });
+                                            }else{
+                                              print("Check Point Working");
+                                              getInvoiceNumber("GST",false);
+                                              setState(() {
+                                                billEntryList=[];
+                                                _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
+                                              });
+                                            }
+                                            //Do something when selected item is changed.
+                                          },
+                                          onSaved: (value) {
+                                            // selectedValue = value.toString();
+
+                                          },
+                                          buttonStyleData: const ButtonStyleData(
+                                            // padding: EdgeInsets.only(right: 8),
+                                          ),
+                                          iconStyleData: const IconStyleData(
+                                            icon: Icon(
+                                              Icons.arrow_drop_down,
+                                              color: Colors.black45,
+                                            ),
+                                            iconSize: 24,
+                                          ),
+                                          dropdownStyleData: DropdownStyleData(
+                                            decoration: BoxDecoration(
+                                              // borderRadius: BorderRadius.circular(15),
                                             ),
                                           ),
-                                        ))
-                                            .toList(),
-                                        validator: (value) {
-                                          if (value == null) {
-                                            return 'Please bill type.';
-                                          }
-                                          return null;
-                                        },
-                                        onChanged: (value) {
-                                          if(billType.toString() == value.toString()){
-                                            return;
-                                          }
-                                          billType = value!;
-                                          print("Check Point Working 2");
-                                          if(value.toString()=="Non-GST Bill"){
-                                            getInvoiceNumber("NGST",false);
-                                            setState(() {
-                                              billEntryList=[];
-                                              _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
-                                            });
-                                          }else{
-                                            print("Check Point Working");
-                                            getInvoiceNumber("GST",false);
-                                            setState(() {
-                                              billEntryList=[];
-                                              _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
-                                            });
-                                          }
-                                          //Do something when selected item is changed.
-                                        },
-                                        onSaved: (value) {
-                                          // selectedValue = value.toString();
-
-                                        },
-                                        buttonStyleData: const ButtonStyleData(
-                                         // padding: EdgeInsets.only(right: 8),
-                                        ),
-                                        iconStyleData: const IconStyleData(
-                                          icon: Icon(
-                                            Icons.arrow_drop_down,
-                                            color: Colors.black45,
+                                          menuItemStyleData: const MenuItemStyleData(
+                                            //  padding: EdgeInsets.symmetric(horizontal: 16),
                                           ),
-                                          iconSize: 24,
-                                        ),
-                                        dropdownStyleData: DropdownStyleData(
-                                          decoration: BoxDecoration(
-                                           // borderRadius: BorderRadius.circular(15),
-                                          ),
-                                        ),
-                                        menuItemStyleData: const MenuItemStyleData(
-                                        //  padding: EdgeInsets.symmetric(horizontal: 16),
-                                        ),
-                                      ),
+                                        )
+                                      ,
                                     ]
                                 ),
                               ),
@@ -879,9 +993,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                   );
                                                   if (pickedDate != null) {
                                                     setState(() {
-                                                      // toDateController.text = pickedDate.toString().split(' ')[0];
-                                                      // edate = pickedDate.toString().split(' ')[0];
-                                                      // print(edate);
+                                                      date.text = pickedDate.toString().split(' ')[0];
+                                                      edate = pickedDate.toString().split(' ')[0];
                                                     });
                                                   }
                                                 },
@@ -956,7 +1069,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                   stateCode=StateCodeList[idx];
                                                   stateCodeId = StateCodeIdList[idx];
                                                   customerId = CustomerIdList[idx];
-                                                  shipTo = customer;
+                                                  // shipTo = customer;
                                                 });
                                               }
                                             },
@@ -987,7 +1100,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                       stateCode=StateCodeList[idx];
                                                       stateCodeId = StateCodeIdList[idx];
                                                       customerId = CustomerIdList[idx];
-                                                      shipTo = customer;
+                                                      // shipTo = customer;
                                                     });
                                                   },
                                                 );
@@ -996,7 +1109,6 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           );
                                         },
                                       ),
-
                                     ]
                                 ),
                               ),
@@ -1186,13 +1298,83 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       children: <BootstrapCol>[
                                         BootstrapCol(
                                           sizes: 'col-md-12',
-                                          child: TextFormField(
-                                            showCursor: false,
-                                            readOnly: true,
-                                            controller: TextEditingController()..text= shipTo,
-                                            decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Ship To',
-                                                fillColor: Colors.white, filled: true),
+                                          child:
+                                          Autocomplete<String>(
+                                            optionsBuilder: (TextEditingValue textEditingValue) {
+                                              if (textEditingValue.text.isEmpty) {
+                                                return const Iterable<String>.empty();
+                                              } else {
+                                                return CustomerList.where((String item) {
+                                                  return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                                                });
+                                              }
+                                            },
+                                            fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                              return TextField(
+                                                controller: controller,
+                                                focusNode: focusNode,
+                                                onTapOutside: (value) {
+                                                  // String value=controller.text.toString();
+                                                  // if(CustomerList.indexOf(value)==-1){
+                                                  //   controller..text="";
+                                                  // }else{
+                                                  //   setState(() {
+                                                  //     customer = value!;
+                                                  //     int idx = CustomerList.indexOf(customer);
+                                                  //     stateCode=StateCodeList[idx];
+                                                  //     shipTo = customer;
+                                                  //   });
+                                                  // }
+                                                },
+                                                onSubmitted: (value) {
+                                                  if(CustomerList.indexOf(value)==-1){
+                                                    controller..text="";
+                                                  }else{
+                                                    setState(() {
+                                                      int idx = CustomerList.indexOf(value.toString());
+                                                      shipTo = CustomerIdList[idx];
+                                                    });
+                                                  }
+                                                },
+                                                decoration: InputDecoration(
+                                                  fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
+                                                  filled: true,
+                                                  labelText: "Ship To",
+                                                  hintText: 'Please search for a ship to [destination]',
+                                                  border: OutlineInputBorder(),
+                                                ),
+                                              );
+                                            },
+                                            optionsViewBuilder: (context, onSelected, options) {
+                                              return Material(
+                                                elevation: 4.0,
+                                                child: ListView.builder(
+                                                  padding: EdgeInsets.zero,
+                                                  itemCount: options.length,
+                                                  itemBuilder: (context, index) {
+                                                    late final option = options.elementAt(index);
+                                                    return ListTile(
+                                                      title: Text(option),
+                                                      onTap: () {
+                                                        onSelected(option);
+                                                        setState(() {
+                                                          int idx = CustomerList.indexOf(option.toString());
+                                                          shipTo = CustomerIdList[idx];
+                                                        });
+                                                      },
+                                                    );
+                                                  },
+                                                ),
+                                              );
+                                            },
                                           ),
+                                          // TextFormField(
+                                          //   showCursor: false,
+                                          //   readOnly: true,
+                                          //   controller: TextEditingController()..text= shipTo,
+                                          //   decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Ship To',
+                                          //       fillColor: Colors.white, filled: true),
+                                          // ),
                                         ),
                                       ],
                                     ),
@@ -1646,7 +1828,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                 SizedBox(width: 20,),
                                 ElevatedButton(
                                   onPressed: () {
-                                   if(billEntryList.length>0){
+                                   if(billEntryList.length>0 && shipTo != 0 ){
                                      List<dynamic> detList=[];
                                      double totalAmount=0.0;
                                      double totalQty=0.0;
@@ -1712,8 +1894,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                        "Sgst" : sGst,
                                        "Igst" : iGst,
                                        "Gst" : Gst,
-                                       "ShipTo" : customerId,
-                                       "BillType" : salesTypeidx==0? "A" : "B"
+                                       "ShipTo" : shipTo,
+                                       "BillType" : salesTypeidx==0? "A" : "B",
+                                       "dat" : edate
                                      });
                                      print("jsonObject");
                                      print(masList.length);
@@ -1722,13 +1905,14 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                      saveBillEntryData(masList,detList);
                                    }
                                    else{
+                                     print(shipTo);
                                      showDialog(
                                        context: context,
                                        builder: (BuildContext context) {
                                          return
                                            AlertDialog(
                                              title: Text('ALERT'),
-                                             content: Text("Please Save The Item, Before Generating The Bill"), // Content of the dialog
+                                             content: shipTo==0?Text("Please select/Reselect the shipTo"):Text("Please Save The Item, Before Generating The Bill"), // Content of the dialog
                                              actions: <Widget>[
                                                TextButton(
                                                  child: Text('OK'),

@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
+import 'package:intl/intl.dart';
 
 import 'package:syncfusion_flutter_core/theme.dart';
 
@@ -67,25 +68,37 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
   int stateCodeId=0;
   int customerId=0;
   String stateCode="";
-  String shipTo="";
+  int shipTo=0;
   String item="";
   double qty=0.0;
   double discount=0.0;
   double itemRate=0.0;
   String invoiceNum="";
+  String supInvNumber="";
+  String narration="";
   double grandTotalAmount=0.0;
   List<String> SalesType=["Purchase"];
   int salesTypeidx=0;
+  late DateTime now;
+  var edate;
+  var sdate;
+  _billEntryFirstState(){
+    now = DateTime.now();
+    edate =  DateFormat('yyyy-MM-dd').format(now);
+    sdate = DateFormat('yyyy-MM-dd').format(now);
+  }
 
   var selected = false;
   var index  =-1;
 
   TextEditingController date = new TextEditingController();
+  TextEditingController supplierInDateController = new TextEditingController();
   TextEditingController _itemController = new TextEditingController();
   TextEditingController qtyTextController = new TextEditingController();
   TextEditingController itemTextController = new TextEditingController();
   TextEditingController discTextController = new TextEditingController();
   TextEditingController rateTextController = new TextEditingController();
+  TextEditingController narrationController = new TextEditingController();
   final DataGridController _dataGridController = DataGridController();
 
 
@@ -102,7 +115,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
     showDialog(barrierDismissible: false,
       context:context,
       builder:(BuildContext context){
-        return alert;
+        return WillPopScope(child: alert, onWillPop: ()=> Future.value(false));
       },
     );
   }
@@ -121,7 +134,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
     showDialog(barrierDismissible: false,
       context:context,
       builder:(BuildContext context){
-        return alert;
+        return WillPopScope(child: alert,onWillPop: ()=> Future.value(false));
       },
     );
 
@@ -163,7 +176,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
         stateCode=StateCodeList[0];
         stateCodeId = StateCodeIdList[0];
         customerId = CustomerIdList[0];
-        shipTo=CustomerList[0];
+        // shipTo=CustomerList[0];
 
 
         _incrementCounter();
@@ -206,7 +219,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           CGstList.add(double.parse(list['Cgstp'].toString()));
           IGstList.add(double.parse(list['Igstp'].toString()));
           SGstList.add(double.parse(list['Sgstp'].toString()));
-          StockQtyList.add(list['StockQty'].toString() !="null" ? double.parse(list['StockQty'].toString()) : 0 );
+          StockQtyList.add(list['STK'].toString() !="null" ? double.parse(list['STK'].toString()) : 0 );
           ItemIdList.add(list['ItemId']);
         }
 
@@ -263,12 +276,14 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           stateCodeId = 0;
           customerId = 0;
           stateCode = "";
-          shipTo = "";
+          shipTo = 0;
           item = "";
           qty = 0.0;
           discount = 0.0;
           itemRate = 0.0;
           invoiceNum = "";
+          supInvNumber ="";
+          narration="";
           grandTotalAmount = 0.0;
           SalesType = ["Sales", "Sales B"];
           salesTypeidx = 0;
@@ -277,6 +292,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           index = -1;
 
           date.clear();
+          supplierInDateController.clear();
+          edate =  DateFormat('yyyy-MM-dd').format(now);
+          sdate =  DateFormat('yyyy-MM-dd').format(now);
+          narrationController.clear();
+
           _itemController.clear();
           qtyTextController.clear();
           itemTextController.clear();
@@ -293,7 +313,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
               return
                 AlertDialog(
                   title: Text('REASON'),
-                  content: Text("Bill Generated Successfully"),
+                  content: Text("Purchase Bill Generated Successfully"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
@@ -315,6 +335,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           getInvoiceNumber("NGST",true);
           payType = PayTypeList[0];
           date.text = currentDate.toString().split(' ')[0];
+          supplierInDateController.text = currentDate.toString().split(' ')[0];
           fetchSupplierData();
           fetchItemData();
           billEntryList = [];
@@ -410,21 +431,118 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           }));
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        setState(() {
-          invoiceNum = data['result'];
-          if(!chk) {
-            Navigator.pop(context);
-          }
-        });
+        if(data['valid']) {
+          setState(() {
+            invoiceNum = data['result'];
+            if (!chk) {
+              Navigator.pop(context);
+            }
+          });
+        }else{
+          Navigator.pop(context);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return
+              AlertDialog(
+                title: Text('Connection Error'),
+                content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ],
+              );
+          },
+        );
+      }
         _incrementCounter();
       } else {
         if(!chk) {
           Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return
+                AlertDialog(
+                  title: Text('Connection Error'),
+                  content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                  ],
+                );
+            },
+          );
+        }else{
+          Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return
+                AlertDialog(
+                  title: Text('Connection Error'),
+                  content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                  ],
+                );
+            },
+          );
         }
       }
     }catch(e){
       if(!chk) {
         Navigator.pop(context);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return
+              AlertDialog(
+                title: Text('Connection Error'),
+                content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ],
+              );
+          },
+        );
+      }else{
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return
+              AlertDialog(
+                title: Text('Connection Error'),
+                content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ],
+              );
+          },
+        );
       }
     }
   }
@@ -441,6 +559,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
     getInvoiceNumber("NGST",false);
     payType = PayTypeList[0];
     date.text= currentDate.toString().split(' ')[0];
+    supplierInDateController.text= currentDate.toString().split(' ')[0];
     fetchSupplierData();
     fetchItemData();
     _employeeDataSource = EmployeeDataSource(billEntry: []);
@@ -837,7 +956,8 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                   children: <BootstrapCol>[
                                     BootstrapCol(
                                       sizes: 'col-md-12',
-                                      child: TextFormField(
+                                      child:
+                                      TextFormField(
                                         showCursor: false,
                                         readOnly: true,
                                         controller: TextEditingController()..text= invoiceNum.toString(),
@@ -858,7 +978,8 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                   children: <BootstrapCol>[
                                     BootstrapCol(
                                       sizes: 'col-md-12',
-                                      child: TextField(
+                                      child:
+                                      TextField(
                                         controller: date,
                                         // readOnly: true,
                                         decoration: InputDecoration(
@@ -879,9 +1000,10 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                               );
                                               if (pickedDate != null) {
                                                 setState(() {
-                                                  // toDateController.text = pickedDate.toString().split(' ')[0];
-                                                  // edate = pickedDate.toString().split(' ')[0];
-                                                  // print(edate);
+                                                  date.text = pickedDate.toString().split(' ')[0];
+                                                  edate = pickedDate.toString().split(' ')[0];
+                                                  print("edate");
+                                                  print(edate);
                                                 });
                                               }
                                             },
@@ -956,7 +1078,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                               stateCode=StateCodeList[idx];
                                               stateCodeId = StateCodeIdList[idx];
                                               customerId = CustomerIdList[idx];
-                                              shipTo = customer;
+                                             // shipTo = customer;
                                             });
                                           }
                                         },
@@ -987,7 +1109,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                                   stateCode=StateCodeList[idx];
                                                   stateCodeId = StateCodeIdList[idx];
                                                   customerId = CustomerIdList[idx];
-                                                  shipTo = customer;
+                                                 // shipTo = customer;
                                                 });
                                               },
                                             );
@@ -996,7 +1118,6 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       );
                                     },
                                   ),
-
                                 ]
                             ),
                           ),
@@ -1081,7 +1202,6 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                           //       ),
                           //     ]
                           // ),
-
                           Padding(
                             padding: EdgeInsets.fromLTRB(25, 25, 25, 0),
                             child:
@@ -1186,13 +1306,136 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                   children: <BootstrapCol>[
                                     BootstrapCol(
                                       sizes: 'col-md-12',
-                                      child: TextFormField(
-                                        showCursor: false,
-                                        readOnly: true,
-                                        controller: TextEditingController()..text= shipTo,
-                                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Ship To',
-                                            fillColor: Colors.white, filled: true),
+                                      child:
+                                      Autocomplete<String>(
+                                        optionsBuilder: (TextEditingValue textEditingValue) {
+                                          if (textEditingValue.text.isEmpty) {
+                                            return const Iterable<String>.empty();
+                                          } else {
+                                            return CustomerList.where((String item) {
+                                              return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                                            });
+                                          }
+                                        },
+                                        fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                          return TextField(
+                                            controller: controller,
+                                            focusNode: focusNode,
+                                            onTapOutside: (value) {
+                                              // String value=controller.text.toString();
+                                              // if(CustomerList.indexOf(value)==-1){
+                                              //   controller..text="";
+                                              // }else{
+                                              //   setState(() {
+                                              //     customer = value!;
+                                              //     int idx = CustomerList.indexOf(customer);
+                                              //     stateCode=StateCodeList[idx];
+                                              //     shipTo = customer;
+                                              //   });
+                                              // }
+                                            },
+                                            onSubmitted: (value) {
+                                              if(CustomerList.indexOf(value)==-1){
+                                                controller..text="";
+                                              }else{
+                                                setState(() {
+                                                  int idx = CustomerList.indexOf(value.toString());
+                                                  shipTo = CustomerIdList[idx];
+                                                });
+                                              }
+                                            },
+                                            decoration: InputDecoration(
+                                              fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
+                                              filled: true,
+                                              labelText: "Ship To",
+                                              hintText: 'Please search for a ship to [destination]',
+                                              border: OutlineInputBorder(),
+                                            ),
+                                          );
+                                        },
+                                        optionsViewBuilder: (context, onSelected, options) {
+                                          return Material(
+                                            elevation: 4.0,
+                                            child: ListView.builder(
+                                              padding: EdgeInsets.zero,
+                                              itemCount: options.length,
+                                              itemBuilder: (context, index) {
+                                                late final option = options.elementAt(index);
+                                                return ListTile(
+                                                  title: Text(option),
+                                                  onTap: () {
+                                                    onSelected(option);
+                                                    setState(() {
+                                                      int idx = CustomerList.indexOf(option.toString());
+                                                      shipTo = CustomerIdList[idx];
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        },
                                       ),
+                                    ),
+                                  ],
+                                ),
+                              ]
+                          ),
+                          const Padding(padding:EdgeInsets.all(5)),
+                          BootstrapContainer(
+                              fluid: true,
+                              children:[
+                                BootstrapRow(
+                                  children: <BootstrapCol>[
+                                    BootstrapCol(
+                                      sizes: 'col-md-12',
+                                      child:
+                                        Row(children: [
+                                          Expanded(child:
+                                          TextField(
+                                            controller: supplierInDateController,
+                                            // readOnly: true,
+                                            decoration: InputDecoration(
+                                              labelText: 'Supplier Date',
+                                              border: OutlineInputBorder(
+                                                borderSide: BorderSide(color: Colors.red), // Change the border color here
+                                              ),
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              suffixIcon: IconButton(
+                                                icon: Icon(Icons.calendar_today),
+                                                onPressed: () async {
+                                                  DateTime? pickedDate = await showDatePicker(
+                                                    context: context,
+                                                    initialDate: DateTime.now(),
+                                                    firstDate: DateTime(2000),
+                                                    lastDate: DateTime(2101),
+                                                  );
+                                                  if (pickedDate != null) {
+                                                    setState(() {
+                                                      supplierInDateController.text = pickedDate.toString().split(' ')[0];
+                                                      sdate = pickedDate.toString().split(' ')[0];
+                                                      print("sdate");
+                                                      print(sdate);
+                                                    });
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          )),
+                                          SizedBox(width: 20,),
+                                          Expanded(child:TextFormField(
+                                            showCursor: true,
+                                            readOnly: false,
+                                            onChanged: (String newValue){
+                                              supInvNumber= newValue.toString();
+                                            },
+                                            controller: TextEditingController()..text= supInvNumber.toString(),
+                                            decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Supplier Inv No',
+                                                fillColor: Colors.white, filled: true),
+                                          ), )
+
+                                        ],)
                                     ),
                                   ],
                                 ),
@@ -1635,92 +1878,31 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                               ),
                             ),
                           ),
-                          Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
-                          Autocomplete<String>(
-                            optionsBuilder: (TextEditingValue textEditingValue) {
-                              if (textEditingValue.text.isEmpty) {
-                                return const Iterable<String>.empty();
-                              } else {
-                                return ItemList.where((String item) {
-                                  return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                                });
-                              }
-                            },
-                            fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                              _itemController=controller;
-                              return TextField(
-                                controller: controller,
-                                focusNode: focusNode,
-                                onTapOutside: (value) {
-                                  // String value=controller.text.toString();
-                                  // if(CustomerList.indexOf(value)==-1){
-                                  //   controller..text="";
-                                  // }else{
-                                  //   setState(() {
-                                  //     customer = value!;
-                                  //     int idx = CustomerList.indexOf(customer);
-                                  //     stateCode=StateCodeList[idx];
-                                  //     shipTo = customer;
-                                  //   });
-                                  // }
-                                },
-                                onChanged: (value){
-                                  setState(() {
-                                    item = value!;
-                                  });
-                                },
-                                onSubmitted: (value) {
-                                  // if(ItemList.indexOf(value)==-1){
-                                  //   controller..text="";
-                                  // }else{
-                                  setState(() {
-                                    item = value!;
-                                  });
-                                  // }
-                                },
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  labelText: "Narration",
-                                  hintText: 'Search for a item',
-                                  border: OutlineInputBorder(),
+                          const Padding(padding:EdgeInsets.all(5)),
+                          BootstrapContainer(
+                              fluid: true,
+                              children:[
+                                BootstrapRow(
+                                  children: <BootstrapCol>[
+                                    BootstrapCol(
+                                      sizes: 'col-md-12',
+                                      child: TextFormField(
+                                        readOnly: false,
+                                        controller: narrationController,
+                                        onChanged: (String newvalue){
+                                          setState(() {
+                                            if(newvalue != "") {
+                                              narration = newvalue.toString();
+                                            }
+                                          });
+                                        },
+                                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Narration',
+                                            fillColor: Colors.white, filled: true),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                            optionsViewBuilder: (context, onSelected, options) {
-                              return Material(
-                                elevation: 4.0,
-                                child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  itemCount: options.length,
-                                  itemBuilder: (context, index) {
-                                    late final option = options.elementAt(index);
-                                    return ListTile(
-                                      title: Text(option),
-                                      onTap: () {
-                                        onSelected(option);
-                                        setState(() {
-                                          print("Selection : "+option);
-                                          item = option!;
-                                          print(ItemList.indexOf(item));
-                                          if(ItemList.indexOf(item) != -1){
-                                            setState(() {
-                                              itemRate= RateList[ItemList.indexOf(item)];
-                                              print("Rate : "+ itemRate.toString());
-                                              rateTextController.text=itemRate.toString();
-                                            });
-
-                                          }
-                                          // int idx = CustomerList.indexOf(customer);
-                                          // stateCode=StateCodeList[idx];
-                                          // shipTo = customer;
-                                        });
-                                      },
-                                    );
-                                  },
-                                ),
-                              );
-                            },
+                              ]
                           ),
                           const Padding(padding:EdgeInsets.all(10)),
                           Center(child:
@@ -1731,7 +1913,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                               SizedBox(width: 20,),
                               ElevatedButton(
                                 onPressed: () {
-                                  if(billEntryList.length>0){
+                                  if(billEntryList.length>0 && shipTo !=0){
                                     List<dynamic> detList=[];
                                     double totalAmount=0.0;
                                     double totalQty=0.0;
@@ -1782,6 +1964,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     List<dynamic> masList=[];
                                     masList.add({
                                       "InvoiceNo" : invoiceNum,
+                                      "Narration" : narration,
                                       "SupplierId" : customerId,
                                       "Person" : customer,
                                       "NetAmount" : totalAmount,
@@ -1797,7 +1980,10 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       "Sgst" : sGst,
                                       "Igst" : iGst,
                                       "Gst" : Gst,
-                                      "ShipTo" : customerId
+                                      "ShipTo" : shipTo,
+                                      "dat" : edate,
+                                      "sdate" : sdate,
+                                      "supInvNo" :supInvNumber
                                     });
                                     print("jsonObject");
                                     print(masList.length);
@@ -1812,7 +1998,8 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         return
                                           AlertDialog(
                                             title: Text('ALERT'),
-                                            content: Text("Please Save The Item, Before Generating The Bill"), // Content of the dialog
+                                            content: shipTo==0?Text("Please select/Reselect the shipTo"):Text("Please Save The Item, Before Generating The Purchase Bill"), // Content of the dialog
+                                            // Content of the dialog
                                             actions: <Widget>[
                                               TextButton(
                                                 child: Text('OK'),
