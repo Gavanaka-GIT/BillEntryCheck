@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'package:billentry/CustomWidgets/appBar.dart';
+import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
 import 'package:billentry/billEntryMasScreen.dart';
 import 'package:billentry/main.dart';
+import 'package:billentry/stockReport.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bootstrap/flutter_bootstrap.dart';
@@ -84,8 +87,8 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
   var sdate;
   _billEntryFirstState(){
     now = DateTime.now();
-    edate =  DateFormat('yyyy-MM-dd').format(now);
-    sdate = DateFormat('yyyy-MM-dd').format(now);
+    edate =  DateFormat('dd/MM/yyyy').format(now);
+    sdate = DateFormat('dd/MM/yyyy').format(now);
   }
 
   var selected = false;
@@ -293,8 +296,8 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
 
           date.clear();
           supplierInDateController.clear();
-          edate =  DateFormat('yyyy-MM-dd').format(now);
-          sdate =  DateFormat('yyyy-MM-dd').format(now);
+          edate =  DateFormat('dd/MM/yyyy').format(now);
+          sdate =  DateFormat('dd/MM/yyyy').format(now);
           narrationController.clear();
 
           _itemController.clear();
@@ -551,6 +554,8 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown, DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     BillTypeList.add("Non-GST Bill");
     BillTypeList.add("GST Bill");
     PayTypeList.add("Credit");
@@ -810,237 +815,472 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
   @override
   Widget build(BuildContext context) {
     //double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
 
-    return WillPopScope(
-        onWillPop: () async {
-          return false; // Prevent default back navigation
-        },
-        child:Scaffold(
-            appBar: AppBar(
-              backgroundColor: Color(0xFF004D40),
-              leading:Builder(builder: (BuildContext context){
-                return IconButton(onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                }, icon: Icon(Icons.menu_rounded, color: Colors.white,));},),
-              title: const Text(" PURCHASE ENTRY ", style: TextStyle(color: Colors.white),),
-              centerTitle: true,
-            ),
-            drawer: Drawer(child:
-            ListView( children: [
-              ListTile( leading : Icon(Icons.shopping_cart),title: Text("Sales"),
-                onTap: (){
-                  Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context) => billEntryFirstScreen())
-                  );
-                },),
-              ListTile(leading: Icon(Icons.shopping_bag),title: Text("Puchase"),
-                onTap: (){
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context)=> purchaseEntryFirstScreen())
-                  );
-                },),
-              ListTile( leading : Icon(Icons.logout_rounded),title: Text("Logout"), onTap: (){
-                // Navigator.of(context).push(
-                //   MaterialPageRoute(builder: (context)=> Home())
-                // );
-                Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=>Home())
-                    ,
-                    ModalRoute.withName('/'));
-                // Navigator.pop(context);
-              },)
-            ],),), body:  Container(
-          color: Colors.pink[50],
-          child: Row(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child:
-                    Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(25, 25, 25, 0),
-                            child:
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children:[
-                                  DropdownButtonFormField2<String>(
-                                    isExpanded: true,
-                                    value: billType,
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      labelText: "Bill Type",
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      // Add more decoration..
-                                    ),
-                                    hint: const Text(
-                                      'Select your bill type',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                    items: BillTypeList
-                                        .map((item) => DropdownMenuItem<String>(
-                                      value: item,
-                                      child: Text(
-                                        item,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ))
-                                        .toList(),
-                                    validator: (value) {
-                                      if (value == null) {
-                                        return 'Please bill type.';
-                                      }
-                                      return null;
-                                    },
-                                    onChanged: (value) {
-                                      if(billType.toString() == value.toString()){
-                                        return;
-                                      }
-                                      billType = value!;
-                                      print("Check Point Working 2");
-                                      if(value.toString()=="Non-GST Bill"){
-                                        getInvoiceNumber("NGST",false);
-                                        setState(() {
-                                           billEntryList=[];
-                                          _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
-                                        });
-                                      }else{
-                                        print("Check Point Working");
-                                        getInvoiceNumber("GST",false);
-                                        setState(() {
-                                           billEntryList=[];
-                                          _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
-                                        });
-                                      }
-                                      //Do something when selected item is changed.
-                                    },
-                                    onSaved: (value) {
-                                      // selectedValue = value.toString();
-
-                                    },
-                                    buttonStyleData: const ButtonStyleData(
-                                      // padding: EdgeInsets.only(right: 8),
-                                    ),
-                                    iconStyleData: const IconStyleData(
-                                      icon: Icon(
-                                        Icons.arrow_drop_down,
-                                        color: Colors.black45,
-                                      ),
-                                      iconSize: 24,
-                                    ),
-                                    dropdownStyleData: DropdownStyleData(
-                                      decoration: BoxDecoration(
-                                        // borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                    menuItemStyleData: const MenuItemStyleData(
-                                      //  padding: EdgeInsets.symmetric(horizontal: 16),
+    return WillPopScope(child: Scaffold(
+        appBar: CustomAppBar(userName: globalUserName,
+            emailId: globalEmailId, onMenuPressed: (){
+              Scaffold.of(context).openDrawer();
+            },
+            barTitle: "PURCHASE ENTRY"),
+        drawer: customDrawer(stkTransferCheck: false, brhTransferCheck: false), body:  Container(
+      color: Colors.pink[50],
+      child: Row(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child:
+                Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(25, 25, 25, 0),
+                        child:
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children:[
+                              DropdownButtonFormField2<String>(
+                                isExpanded: true,
+                                value: billType,
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  labelText: "Bill Type",
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  // Add more decoration..
+                                ),
+                                hint: const Text(
+                                  'Select your bill type',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                items: BillTypeList
+                                    .map((item) => DropdownMenuItem<String>(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                    style: const TextStyle(
+                                      fontSize: 14,
                                     ),
                                   ),
-                                ]
-                            ),
-                          ),
+                                ))
+                                    .toList(),
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Please bill type.';
+                                  }
+                                  return null;
+                                },
+                                onChanged: (value) {
+                                  if(billType.toString() == value.toString()){
+                                    return;
+                                  }
+                                  billType = value!;
+                                  print("Check Point Working 2");
+                                  if(value.toString()=="Non-GST Bill"){
+                                    getInvoiceNumber("NGST",false);
+                                    setState(() {
+                                      billEntryList=[];
+                                      _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
+                                    });
+                                  }else{
+                                    print("Check Point Working");
+                                    getInvoiceNumber("GST",false);
+                                    setState(() {
+                                      billEntryList=[];
+                                      _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
+                                    });
+                                  }
+                                  //Do something when selected item is changed.
+                                },
+                                onSaved: (value) {
+                                  // selectedValue = value.toString();
 
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child:
-                                      TextFormField(
-                                        showCursor: false,
-                                        readOnly: true,
-                                        controller: TextEditingController()..text= invoiceNum.toString(),
-                                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Invoice No',
-                                            fillColor: Colors.white, filled: true),
-                                      ),
-                                    ),
-                                  ],
+                                },
+                                buttonStyleData: const ButtonStyleData(
+                                  // padding: EdgeInsets.only(right: 8),
                                 ),
-                              ]
-                          ),
-
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child:
-                                      TextField(
-                                        controller: date,
-                                        // readOnly: true,
-                                        decoration: InputDecoration(
-                                          labelText: 'To Date',
-                                          border: OutlineInputBorder(
-                                            borderSide: BorderSide(color: Colors.red), // Change the border color here
-                                          ),
-                                          filled: true,
-                                          fillColor: Colors.white,
-                                          suffixIcon: IconButton(
-                                            icon: Icon(Icons.calendar_today),
-                                            onPressed: () async {
-                                              DateTime? pickedDate = await showDatePicker(
-                                                context: context,
-                                                initialDate: DateTime.now(),
-                                                firstDate: DateTime(2000),
-                                                lastDate: DateTime(2101),
-                                              );
-                                              if (pickedDate != null) {
-                                                setState(() {
-                                                  date.text = pickedDate.toString().split(' ')[0];
-                                                  edate = pickedDate.toString().split(' ')[0];
-                                                  print("edate");
-                                                  print(edate);
-                                                });
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                iconStyleData: const IconStyleData(
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black45,
+                                  ),
+                                  iconSize: 24,
                                 ),
-                              ]
-                          ),
-
-                          const Padding(padding:EdgeInsets.all(5)),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              GestureDetector(onLongPress: () {
-                                setState(() {
-                                  // if(salesTypeidx == 0){
-                                  //   salesTypeidx=1;
-                                  // }else{
-                                  //   salesTypeidx=0;
-                                  // }
-                                });
-                              },
-                                child: Text(SalesType[salesTypeidx] ),
+                                dropdownStyleData: DropdownStyleData(
+                                  decoration: BoxDecoration(
+                                    // borderRadius: BorderRadius.circular(15),
+                                  ),
+                                ),
+                                menuItemStyleData: const MenuItemStyleData(
+                                  //  padding: EdgeInsets.symmetric(horizontal: 16),
+                                ),
                               ),
-                            ],
+                            ]
+                        ),
+                      ),
+
+                      const Padding(padding:EdgeInsets.all(5)),
+                      BootstrapContainer(
+                          fluid: true,
+                          children:[
+                            BootstrapRow(
+                              children: <BootstrapCol>[
+                                BootstrapCol(
+                                  sizes: 'col-md-12',
+                                  child:
+                                  TextFormField(
+                                    showCursor: false,
+                                    readOnly: true,
+                                    controller: TextEditingController()..text= invoiceNum.toString(),
+                                    decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Invoice No',
+                                        fillColor: Colors.white, filled: true),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ]
+                      ),
+
+                      const Padding(padding:EdgeInsets.all(5)),
+                      BootstrapContainer(
+                          fluid: true,
+                          children:[
+                            BootstrapRow(
+                              children: <BootstrapCol>[
+                                BootstrapCol(
+                                  sizes: 'col-md-12',
+                                  child:
+                                  TextField(
+                                    controller: date,
+                                    // readOnly: true,
+                                    decoration: InputDecoration(
+                                      labelText: 'To Date',
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.red), // Change the border color here
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      suffixIcon: IconButton(
+                                        icon: Icon(Icons.calendar_today),
+                                        onPressed: () async {
+                                          DateTime? pickedDate = await showDatePicker(
+                                            context: context,
+                                            initialDate: DateTime.now(),
+                                            firstDate: DateTime(2000),
+                                            lastDate: DateTime(2101),
+                                          );
+                                          if (pickedDate != null) {
+                                            setState(() {
+                                              date.text = pickedDate.toString().split(' ')[0];
+                                              edate = pickedDate.toString().split(' ')[0];
+                                              print("edate");
+                                              print(edate);
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ]
+                      ),
+
+                      const Padding(padding:EdgeInsets.all(5)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(onLongPress: () {
+                            setState(() {
+                              // if(salesTypeidx == 0){
+                              //   salesTypeidx=1;
+                              // }else{
+                              //   salesTypeidx=0;
+                              // }
+                            });
+                          },
+                            child: Text(SalesType[salesTypeidx] ),
                           ),
-                          //const Padding(padding:EdgeInsets.all(5)),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(25, 0, 25, 5),
-                            child:
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children:[
+                        ],
+                      ),
+                      //const Padding(padding:EdgeInsets.all(5)),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(25, 0, 25, 5),
+                        child:
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children:[
+                              Autocomplete<String>(
+                                optionsBuilder: (TextEditingValue textEditingValue) {
+                                  if (textEditingValue.text.isEmpty) {
+                                    return const Iterable<String>.empty();
+                                  } else {
+                                    return CustomerList.where((String item) {
+                                      return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                                    });
+                                  }
+                                },
+                                fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                  return TextField(
+                                    controller: controller,
+                                    focusNode: focusNode,
+                                    onTapOutside: (value) {
+                                      // String value=controller.text.toString();
+                                      // if(CustomerList.indexOf(value)==-1){
+                                      //   controller..text="";
+                                      // }else{
+                                      //   setState(() {
+                                      //     customer = value!;
+                                      //     int idx = CustomerList.indexOf(customer);
+                                      //     stateCode=StateCodeList[idx];
+                                      //     shipTo = customer;
+                                      //   });
+                                      // }
+                                    },
+                                    onSubmitted: (value) {
+                                      if(CustomerList.indexOf(value)==-1){
+                                        controller..text="";
+                                      }else{
+                                        setState(() {
+                                          customer = value!;
+                                          int idx = CustomerList.indexOf(customer);
+                                          stateCode=StateCodeList[idx];
+                                          stateCodeId = StateCodeIdList[idx];
+                                          customerId = CustomerIdList[idx];
+                                          // shipTo = customer;
+                                        });
+                                      }
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
+                                      filled: true,
+                                      labelText: "customer",
+                                      hintText: 'Search for a customer',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  );
+                                },
+                                optionsViewBuilder: (context, onSelected, options) {
+                                  return Material(
+                                    elevation: 4.0,
+                                    child: ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      itemCount: options.length,
+                                      itemBuilder: (context, index) {
+                                        late final option = options.elementAt(index);
+                                        return ListTile(
+                                          title: Text(option),
+                                          onTap: () {
+                                            onSelected(option);
+                                            setState(() {
+                                              customer = option!;
+                                              int idx = CustomerList.indexOf(customer);
+                                              stateCode=StateCodeList[idx];
+                                              stateCodeId = StateCodeIdList[idx];
+                                              customerId = CustomerIdList[idx];
+                                              // shipTo = customer;
+                                            });
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            ]
+                        ),
+                      ),
+                      // const Padding(padding:EdgeInsets.all(5)),
+                      // BootstrapContainer(
+                      //     fluid: true,
+                      //     children:[
+                      //       BootstrapRow(
+                      //         children: <BootstrapCol>[
+                      //           BootstrapCol(
+                      //             sizes: 'col-md-12',
+                      //             child: TextFormField(
+                      //               // showCursor: false,
+                      //               // readOnly: true,
+                      //               //controller: TextEditingController()..text= OcnnoVal,
+                      //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'TRANSPORT',
+                      //                   fillColor: Colors.pink[50], filled: true ,
+                      //               labelStyle: TextStyle(color: Colors.black)),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ]
+                      // ),
+                      // const Padding(padding:EdgeInsets.all(5)),
+                      // BootstrapContainer(
+                      //     fluid: true,
+                      //     children:[
+                      //       BootstrapRow(
+                      //         children: <BootstrapCol>[
+                      //           BootstrapCol(
+                      //             sizes: 'col-md-6',
+                      //             child: TextFormField(
+                      //               // showCursor: false,
+                      //               // readOnly: true,
+                      //               //controller:  TextEditingController()..text= ACTDIA.toString(),
+                      //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Bundles ',
+                      //                   fillColor: Colors.pink[50],filled: true),
+                      //             ),
+                      //           ),
+                      //           BootstrapCol(
+                      //             sizes: 'col-md-6',
+                      //             child: TextFormField(
+                      //               // showCursor: false,
+                      //               // readOnly: true,
+                      //              // controller:  TextEditingController()..text= ACTGSM.toString(),
+                      //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Vehicle No',
+                      //                   fillColor: Colors.pink[50], filled: true),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ]
+                      // ),
+                      // const Padding(padding:EdgeInsets.all(5)),
+                      // BootstrapContainer(
+                      //     fluid: true,
+                      //     children:[
+                      //       BootstrapRow(
+                      //         children: <BootstrapCol>[
+                      //           BootstrapCol(
+                      //             sizes: 'col-md-6',
+                      //             child: TextFormField(
+                      //               // showCursor: false,
+                      //               // readOnly: true,
+                      //               //controller:  TextEditingController()..text= ACTDIA.toString(),
+                      //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'PO Number ',
+                      //                   fillColor: Colors.pink[50],filled: true),
+                      //             ),
+                      //           ),
+                      //           BootstrapCol(
+                      //             sizes: 'col-md-6',
+                      //             child: TextFormField(
+                      //               // showCursor: false,
+                      //               // readOnly: true,
+                      //               // controller:  TextEditingController()..text= ACTGSM.toString(),
+                      //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: '',
+                      //                   fillColor: Colors.pink[50], filled: true),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ]
+                      // ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(25, 25, 25, 0),
+                        child:
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children:[
+                              DropdownButtonFormField2<String>(
+                                isExpanded: true,
+                                value: payType,
+                                decoration: InputDecoration(
+                                  //alignLabelWithHint: true,
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  labelText: "Pay Type",
+                                  border: OutlineInputBorder(
+                                  ),
+                                  // Add more decoration..
+                                ),
+                                hint: const Text(
+                                  'Select your pay type',
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                items: PayTypeList
+                                    .map((item) => DropdownMenuItem<String>(
+                                  value: item,
+                                  child: Text(
+                                    item,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ))
+                                    .toList(),
+                                validator: (value) {
+                                  //print("Check Point Working 2");
+                                  if (value == null) {
+                                    return 'Please pay type.';
+                                  }
+                                  return null;
+                                },
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    payType = value!;
+                                  });
+                                },
+                                onSaved: (String? value) {
+                                  payType = value!;
+
+                                },
+                                buttonStyleData: const ButtonStyleData(
+                                  padding: EdgeInsets.only(right: 0),
+                                ),
+                                iconStyleData: const IconStyleData(
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black45,
+                                  ),
+                                  iconSize: 24,
+                                ),
+                                dropdownStyleData: DropdownStyleData(
+                                  decoration: BoxDecoration(
+                                    // borderRadius: BorderRadius.circular(15),
+                                  ),
+                                ),
+                                menuItemStyleData: const MenuItemStyleData(
+                                  //padding: EdgeInsets.symmetric(horizontal: 16),
+                                ),
+                              ),
+
+                            ]
+                        ),
+                      ),
+
+                      // const Padding(padding:EdgeInsets.all(5)),
+                      // BootstrapContainer(
+                      //     fluid: true,
+                      //     children:[
+                      //       BootstrapRow(
+                      //         children: <BootstrapCol>[
+                      //           BootstrapCol(
+                      //             sizes: 'col-md-12',
+                      //             child: TextFormField(
+                      //               showCursor: false,
+                      //               readOnly: true,
+                      //               controller: TextEditingController()..text= stateCode,
+                      //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'State Code',
+                      //                   fillColor: Colors.pink[50], filled: true),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ]
+                      // ),
+
+
+
+                      const Padding(padding:EdgeInsets.all(5)),
+                      BootstrapContainer(
+                          fluid: true,
+                          children:[
+                            BootstrapRow(
+                              children: <BootstrapCol>[
+                                BootstrapCol(
+                                  sizes: 'col-md-12',
+                                  child:
                                   Autocomplete<String>(
                                     optionsBuilder: (TextEditingValue textEditingValue) {
                                       if (textEditingValue.text.isEmpty) {
@@ -1073,20 +1313,16 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                             controller..text="";
                                           }else{
                                             setState(() {
-                                              customer = value!;
-                                              int idx = CustomerList.indexOf(customer);
-                                              stateCode=StateCodeList[idx];
-                                              stateCodeId = StateCodeIdList[idx];
-                                              customerId = CustomerIdList[idx];
-                                             // shipTo = customer;
+                                              int idx = CustomerList.indexOf(value.toString());
+                                              shipTo = CustomerIdList[idx];
                                             });
                                           }
                                         },
                                         decoration: InputDecoration(
                                           fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
                                           filled: true,
-                                          labelText: "customer",
-                                          hintText: 'Search for a customer',
+                                          labelText: "Ship To",
+                                          hintText: 'Please search for a ship to [destination]',
                                           border: OutlineInputBorder(),
                                         ),
                                       );
@@ -1104,12 +1340,8 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                               onTap: () {
                                                 onSelected(option);
                                                 setState(() {
-                                                  customer = option!;
-                                                  int idx = CustomerList.indexOf(customer);
-                                                  stateCode=StateCodeList[idx];
-                                                  stateCodeId = StateCodeIdList[idx];
-                                                  customerId = CustomerIdList[idx];
-                                                 // shipTo = customer;
+                                                  int idx = CustomerList.indexOf(option.toString());
+                                                  shipTo = CustomerIdList[idx];
                                                 });
                                               },
                                             );
@@ -1118,922 +1350,671 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       );
                                     },
                                   ),
-                                ]
+                                ),
+                              ],
                             ),
-                          ),
-                          // const Padding(padding:EdgeInsets.all(5)),
-                          // BootstrapContainer(
-                          //     fluid: true,
-                          //     children:[
-                          //       BootstrapRow(
-                          //         children: <BootstrapCol>[
-                          //           BootstrapCol(
-                          //             sizes: 'col-md-12',
-                          //             child: TextFormField(
-                          //               // showCursor: false,
-                          //               // readOnly: true,
-                          //               //controller: TextEditingController()..text= OcnnoVal,
-                          //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'TRANSPORT',
-                          //                   fillColor: Colors.pink[50], filled: true ,
-                          //               labelStyle: TextStyle(color: Colors.black)),
-                          //             ),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //     ]
-                          // ),
-                          // const Padding(padding:EdgeInsets.all(5)),
-                          // BootstrapContainer(
-                          //     fluid: true,
-                          //     children:[
-                          //       BootstrapRow(
-                          //         children: <BootstrapCol>[
-                          //           BootstrapCol(
-                          //             sizes: 'col-md-6',
-                          //             child: TextFormField(
-                          //               // showCursor: false,
-                          //               // readOnly: true,
-                          //               //controller:  TextEditingController()..text= ACTDIA.toString(),
-                          //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Bundles ',
-                          //                   fillColor: Colors.pink[50],filled: true),
-                          //             ),
-                          //           ),
-                          //           BootstrapCol(
-                          //             sizes: 'col-md-6',
-                          //             child: TextFormField(
-                          //               // showCursor: false,
-                          //               // readOnly: true,
-                          //              // controller:  TextEditingController()..text= ACTGSM.toString(),
-                          //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Vehicle No',
-                          //                   fillColor: Colors.pink[50], filled: true),
-                          //             ),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //     ]
-                          // ),
-                          // const Padding(padding:EdgeInsets.all(5)),
-                          // BootstrapContainer(
-                          //     fluid: true,
-                          //     children:[
-                          //       BootstrapRow(
-                          //         children: <BootstrapCol>[
-                          //           BootstrapCol(
-                          //             sizes: 'col-md-6',
-                          //             child: TextFormField(
-                          //               // showCursor: false,
-                          //               // readOnly: true,
-                          //               //controller:  TextEditingController()..text= ACTDIA.toString(),
-                          //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'PO Number ',
-                          //                   fillColor: Colors.pink[50],filled: true),
-                          //             ),
-                          //           ),
-                          //           BootstrapCol(
-                          //             sizes: 'col-md-6',
-                          //             child: TextFormField(
-                          //               // showCursor: false,
-                          //               // readOnly: true,
-                          //               // controller:  TextEditingController()..text= ACTGSM.toString(),
-                          //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: '',
-                          //                   fillColor: Colors.pink[50], filled: true),
-                          //             ),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //     ]
-                          // ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(25, 25, 25, 0),
-                            child:
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children:[
-                                  DropdownButtonFormField2<String>(
-                                    isExpanded: true,
-                                    value: payType,
-                                    decoration: InputDecoration(
-                                      //alignLabelWithHint: true,
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      labelText: "Pay Type",
-                                      border: OutlineInputBorder(
-                                      ),
-                                      // Add more decoration..
-                                    ),
-                                    hint: const Text(
-                                      'Select your pay type',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                    items: PayTypeList
-                                        .map((item) => DropdownMenuItem<String>(
-                                      value: item,
-                                      child: Text(
-                                        item,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ))
-                                        .toList(),
-                                    validator: (value) {
-                                      //print("Check Point Working 2");
-                                      if (value == null) {
-                                        return 'Please pay type.';
-                                      }
-                                      return null;
-                                    },
-                                    onChanged: (String? value) {
-                                      setState(() {
-                                        payType = value!;
-                                      });
-                                    },
-                                    onSaved: (String? value) {
-                                      payType = value!;
-
-                                    },
-                                    buttonStyleData: const ButtonStyleData(
-                                      padding: EdgeInsets.only(right: 0),
-                                    ),
-                                    iconStyleData: const IconStyleData(
-                                      icon: Icon(
-                                        Icons.arrow_drop_down,
-                                        color: Colors.black45,
-                                      ),
-                                      iconSize: 24,
-                                    ),
-                                    dropdownStyleData: DropdownStyleData(
-                                      decoration: BoxDecoration(
-                                        // borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                    menuItemStyleData: const MenuItemStyleData(
-                                      //padding: EdgeInsets.symmetric(horizontal: 16),
-                                    ),
-                                  ),
-
-                                ]
-                            ),
-                          ),
-
-                          // const Padding(padding:EdgeInsets.all(5)),
-                          // BootstrapContainer(
-                          //     fluid: true,
-                          //     children:[
-                          //       BootstrapRow(
-                          //         children: <BootstrapCol>[
-                          //           BootstrapCol(
-                          //             sizes: 'col-md-12',
-                          //             child: TextFormField(
-                          //               showCursor: false,
-                          //               readOnly: true,
-                          //               controller: TextEditingController()..text= stateCode,
-                          //               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'State Code',
-                          //                   fillColor: Colors.pink[50], filled: true),
-                          //             ),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //     ]
-                          // ),
-
-
-
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child:
-                                      Autocomplete<String>(
-                                        optionsBuilder: (TextEditingValue textEditingValue) {
-                                          if (textEditingValue.text.isEmpty) {
-                                            return const Iterable<String>.empty();
-                                          } else {
-                                            return CustomerList.where((String item) {
-                                              return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                                            });
-                                          }
-                                        },
-                                        fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                                          return TextField(
-                                            controller: controller,
-                                            focusNode: focusNode,
-                                            onTapOutside: (value) {
-                                              // String value=controller.text.toString();
-                                              // if(CustomerList.indexOf(value)==-1){
-                                              //   controller..text="";
-                                              // }else{
-                                              //   setState(() {
-                                              //     customer = value!;
-                                              //     int idx = CustomerList.indexOf(customer);
-                                              //     stateCode=StateCodeList[idx];
-                                              //     shipTo = customer;
-                                              //   });
-                                              // }
-                                            },
-                                            onSubmitted: (value) {
-                                              if(CustomerList.indexOf(value)==-1){
-                                                controller..text="";
-                                              }else{
+                          ]
+                      ),
+                      const Padding(padding:EdgeInsets.all(5)),
+                      BootstrapContainer(
+                          fluid: true,
+                          children:[
+                            BootstrapRow(
+                              children: <BootstrapCol>[
+                                BootstrapCol(
+                                    sizes: 'col-md-12',
+                                    child:
+                                    Row(children: [
+                                      Expanded(child:
+                                      TextField(
+                                        controller: supplierInDateController,
+                                        // readOnly: true,
+                                        decoration: InputDecoration(
+                                          labelText: 'Supplier Date',
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(color: Colors.red), // Change the border color here
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          suffixIcon: IconButton(
+                                            icon: Icon(Icons.calendar_today),
+                                            onPressed: () async {
+                                              DateTime? pickedDate = await showDatePicker(
+                                                context: context,
+                                                initialDate: DateTime.now(),
+                                                firstDate: DateTime(2000),
+                                                lastDate: DateTime(2101),
+                                              );
+                                              if (pickedDate != null) {
                                                 setState(() {
-                                                  int idx = CustomerList.indexOf(value.toString());
-                                                  shipTo = CustomerIdList[idx];
+                                                  supplierInDateController.text = pickedDate.toString().split(' ')[0];
+                                                  sdate = pickedDate.toString().split(' ')[0];
+                                                  print("sdate");
+                                                  print(sdate);
                                                 });
                                               }
                                             },
-                                            decoration: InputDecoration(
-                                              fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
-                                              filled: true,
-                                              labelText: "Ship To",
-                                              hintText: 'Please search for a ship to [destination]',
-                                              border: OutlineInputBorder(),
-                                            ),
-                                          );
+                                          ),
+                                        ),
+                                      )),
+                                      SizedBox(width: 20,),
+                                      Expanded(child:TextFormField(
+                                        showCursor: true,
+                                        readOnly: false,
+                                        onChanged: (String newValue){
+                                          supInvNumber= newValue.toString();
                                         },
-                                        optionsViewBuilder: (context, onSelected, options) {
-                                          return Material(
-                                            elevation: 4.0,
-                                            child: ListView.builder(
-                                              padding: EdgeInsets.zero,
-                                              itemCount: options.length,
-                                              itemBuilder: (context, index) {
-                                                late final option = options.elementAt(index);
-                                                return ListTile(
-                                                  title: Text(option),
-                                                  onTap: () {
-                                                    onSelected(option);
-                                                    setState(() {
-                                                      int idx = CustomerList.indexOf(option.toString());
-                                                      shipTo = CustomerIdList[idx];
-                                                    });
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ]
-                          ),
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child:
-                                        Row(children: [
-                                          Expanded(child:
-                                          TextField(
-                                            controller: supplierInDateController,
-                                            // readOnly: true,
-                                            decoration: InputDecoration(
-                                              labelText: 'Supplier Date',
-                                              border: OutlineInputBorder(
-                                                borderSide: BorderSide(color: Colors.red), // Change the border color here
-                                              ),
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              suffixIcon: IconButton(
-                                                icon: Icon(Icons.calendar_today),
-                                                onPressed: () async {
-                                                  DateTime? pickedDate = await showDatePicker(
-                                                    context: context,
-                                                    initialDate: DateTime.now(),
-                                                    firstDate: DateTime(2000),
-                                                    lastDate: DateTime(2101),
-                                                  );
-                                                  if (pickedDate != null) {
-                                                    setState(() {
-                                                      supplierInDateController.text = pickedDate.toString().split(' ')[0];
-                                                      sdate = pickedDate.toString().split(' ')[0];
-                                                      print("sdate");
-                                                      print(sdate);
-                                                    });
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                          )),
-                                          SizedBox(width: 20,),
-                                          Expanded(child:TextFormField(
-                                            showCursor: true,
-                                            readOnly: false,
-                                            onChanged: (String newValue){
-                                              supInvNumber= newValue.toString();
-                                            },
-                                            controller: TextEditingController()..text= supInvNumber.toString(),
-                                            decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Supplier Inv No',
-                                                fillColor: Colors.white, filled: true),
-                                          ), )
+                                        controller: TextEditingController()..text= supInvNumber.toString(),
+                                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Supplier Inv No',
+                                            fillColor: Colors.white, filled: true),
+                                      ), )
 
-                                        ],)
-                                    ),
-                                  ],
+                                    ],)
                                 ),
-                              ]
-                          ),
+                              ],
+                            ),
+                          ]
+                      ),
 
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(25, 75, 25, 5),
-                            child:
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children:[
-                                  const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Text("ADD ITEM"),
-                                    ],
-                                  ),
-                                  Autocomplete<String>(
-                                    optionsBuilder: (TextEditingValue textEditingValue) {
-                                      if (textEditingValue.text.isEmpty) {
-                                        return const Iterable<String>.empty();
-                                      } else {
-                                        return ItemList.where((String item) {
-                                          return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                                        });
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(25, 75, 25, 5),
+                        child:
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children:[
+                              const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text("ADD ITEM"),
+                                ],
+                              ),
+                              Autocomplete<String>(
+                                optionsBuilder: (TextEditingValue textEditingValue) {
+                                  if (textEditingValue.text.isEmpty) {
+                                    return const Iterable<String>.empty();
+                                  } else {
+                                    return ItemList.where((String item) {
+                                      return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                                    });
+                                  }
+                                },
+                                fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                  _itemController=controller;
+                                  return TextField(
+                                    controller: controller,
+                                    focusNode: focusNode,
+                                    onTapOutside: (value) {
+                                      // String value=controller.text.toString();
+                                      // if(CustomerList.indexOf(value)==-1){
+                                      //   controller..text="";
+                                      // }else{
+                                      //   setState(() {
+                                      //     customer = value!;
+                                      //     int idx = CustomerList.indexOf(customer);
+                                      //     stateCode=StateCodeList[idx];
+                                      //     shipTo = customer;
+                                      //   });
+                                      // }
+                                    },
+                                    onChanged: (value){
+                                      setState(() {
+                                        item = value!;
+                                      });
+                                    },
+                                    onSubmitted: (value) {
+                                      // if(ItemList.indexOf(value)==-1){
+                                      //   controller..text="";
+                                      // }else{
+                                      setState(() {
+                                        item = value!;
+                                      });
+                                      // }
+                                    },
+                                    decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      labelText: "Item",
+                                      hintText: 'Search for a item',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  );
+                                },
+                                optionsViewBuilder: (context, onSelected, options) {
+                                  return Material(
+                                    elevation: 4.0,
+                                    child: ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      itemCount: options.length,
+                                      itemBuilder: (context, index) {
+                                        late final option = options.elementAt(index);
+                                        return ListTile(
+                                          title: Text(option),
+                                          onTap: () {
+                                            onSelected(option);
+                                            setState(() {
+                                              print("Selection : "+option);
+                                              item = option!;
+                                              print(ItemList.indexOf(item));
+                                              if(ItemList.indexOf(item) != -1){
+                                                setState(() {
+                                                  itemRate= RateList[ItemList.indexOf(item)];
+                                                  print("Rate : "+ itemRate.toString());
+                                                  rateTextController.text=itemRate.toString();
+                                                });
+
+                                              }
+                                              // int idx = CustomerList.indexOf(customer);
+                                              // stateCode=StateCodeList[idx];
+                                              // shipTo = customer;
+                                            });
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            ]
+                        ),
+                      ),
+                      const Padding(padding:EdgeInsets.all(5)),
+                      BootstrapContainer(
+                          fluid: true,
+                          children:[
+                            BootstrapRow(
+                              children: <BootstrapCol>[
+                                BootstrapCol(
+                                  sizes: 'col-md-12',
+                                  child: TextFormField(
+                                    // showCursor: false,
+                                    // readOnly: true,
+                                    keyboardType: TextInputType.number,
+                                    onChanged:(String newValue){
+                                      if(newValue.toString() ==""){
+                                        qty=0.0;
+                                      }else {
+                                        qty = double.parse(newValue);
                                       }
                                     },
-                                    fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                                      _itemController=controller;
-                                      return TextField(
-                                        controller: controller,
-                                        focusNode: focusNode,
-                                        onTapOutside: (value) {
-                                          // String value=controller.text.toString();
-                                          // if(CustomerList.indexOf(value)==-1){
-                                          //   controller..text="";
-                                          // }else{
-                                          //   setState(() {
-                                          //     customer = value!;
-                                          //     int idx = CustomerList.indexOf(customer);
-                                          //     stateCode=StateCodeList[idx];
-                                          //     shipTo = customer;
-                                          //   });
-                                          // }
-                                        },
-                                        onChanged: (value){
-                                          setState(() {
-                                            item = value!;
-                                          });
-                                        },
-                                        onSubmitted: (value) {
-                                          // if(ItemList.indexOf(value)==-1){
-                                          //   controller..text="";
-                                          // }else{
-                                          setState(() {
-                                            item = value!;
-                                          });
-                                          // }
-                                        },
-                                        decoration: InputDecoration(
-                                          fillColor: Colors.white,
-                                          filled: true,
-                                          labelText: "Item",
-                                          hintText: 'Search for a item',
-                                          border: OutlineInputBorder(),
-                                        ),
-                                      );
+                                    controller: qtyTextController,
+                                    decoration: InputDecoration(border: OutlineInputBorder(),
+                                        labelText: 'Quantity',
+                                        fillColor: Colors.white, filled: true),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ]
+                      ),
+                      const Padding(padding:EdgeInsets.all(5)),
+                      BootstrapContainer(
+                          fluid: true,
+                          children:[
+                            BootstrapRow(
+                              children: <BootstrapCol>[
+                                BootstrapCol(
+                                  sizes: 'col-md-12',
+                                  child: TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    // showCursor: false,
+                                    // readOnly: true,
+                                    onChanged: (String newValue){
+                                      discount = double.parse(newValue);
                                     },
-                                    optionsViewBuilder: (context, onSelected, options) {
-                                      return Material(
-                                        elevation: 4.0,
-                                        child: ListView.builder(
-                                          padding: EdgeInsets.zero,
-                                          itemCount: options.length,
-                                          itemBuilder: (context, index) {
-                                            late final option = options.elementAt(index);
-                                            return ListTile(
-                                              title: Text(option),
-                                              onTap: () {
-                                                onSelected(option);
-                                                setState(() {
-                                                  print("Selection : "+option);
-                                                  item = option!;
-                                                  print(ItemList.indexOf(item));
-                                                  if(ItemList.indexOf(item) != -1){
-                                                    setState(() {
-                                                      itemRate= RateList[ItemList.indexOf(item)];
-                                                      print("Rate : "+ itemRate.toString());
-                                                      rateTextController.text=itemRate.toString();
-                                                    });
+                                    controller: discTextController,
+                                    decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Disc',
+                                        fillColor: Colors.white, filled: true),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ]
+                      ),
+                      const Padding(padding:EdgeInsets.all(5)),
+                      BootstrapContainer(
+                          fluid: true,
+                          children:[
+                            BootstrapRow(
+                              children: <BootstrapCol>[
+                                BootstrapCol(
+                                  sizes: 'col-md-12',
+                                  child: TextFormField(
+                                    keyboardType: TextInputType.number,
+                                    // showCursor: false,
+                                    // readOnly: true,
+                                    onChanged: (String newValue){
+                                      itemRate = double.parse(newValue);
+                                    },
+                                    controller: rateTextController,
+                                    decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Rate',
+                                        fillColor: Colors.white, filled: true),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ]
+                      ),
 
-                                                  }
-                                                  // int idx = CustomerList.indexOf(customer);
-                                                  // stateCode=StateCodeList[idx];
-                                                  // shipTo = customer;
-                                                });
+                      const Padding(padding:EdgeInsets.all(10)),
+
+                      Center(
+                          child:
+                          Row( mainAxisAlignment: MainAxisAlignment.center,children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                // Navigator.pushAndRemoveUntil(
+                                //   context,
+                                //   MaterialPageRoute(builder: (context) => EmployeeDataGrid()),
+                                //       (Route<dynamic> route) => true, // This disables back navigation
+                                // );
+                                print("qty");
+                                print(qty);
+                                if(qty != 0.0 && qty != null) {
+                                  getGridData(false);
+                                  _itemController.clear();
+                                  qtyTextController.clear();
+                                  discTextController.clear();
+                                  rateTextController.clear();
+                                  item = "";
+                                  qty = 0.0;
+                                  discount = 0.0;
+                                  itemRate = 0.0;
+                                }else{
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return
+                                        AlertDialog(
+                                          title: Text('REASON'),
+                                          content: Text("Please Enter The Qty"), // Content of the dialog
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: Text('OK'),
+                                              onPressed: () {
+                                                Navigator.of(context).pop(); // Close the dialog
                                               },
-                                            );
-                                          },
-                                        ),
-                                      );
+                                            ),
+                                          ],
+                                        );
                                     },
-                                  ),
-                                ]
-                            ),
-                          ),
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child: TextFormField(
-                                        // showCursor: false,
-                                        // readOnly: true,
-                                        keyboardType: TextInputType.number,
-                                        onChanged:(String newValue){
-                                          if(newValue.toString() ==""){
-                                            qty=0.0;
-                                          }else {
-                                            qty = double.parse(newValue);
-                                          }
-                                        },
-                                        controller: qtyTextController,
-                                        decoration: InputDecoration(border: OutlineInputBorder(),
-                                            labelText: 'Quantity',
-                                            fillColor: Colors.white, filled: true),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ]
-                          ),
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child: TextFormField(
-                                        keyboardType: TextInputType.number,
-                                        // showCursor: false,
-                                        // readOnly: true,
-                                        onChanged: (String newValue){
-                                          discount = double.parse(newValue);
-                                        },
-                                        controller: discTextController,
-                                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Disc',
-                                            fillColor: Colors.white, filled: true),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ]
-                          ),
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child: TextFormField(
-                                        keyboardType: TextInputType.number,
-                                        // showCursor: false,
-                                        // readOnly: true,
-                                        onChanged: (String newValue){
-                                          itemRate = double.parse(newValue);
-                                        },
-                                        controller: rateTextController,
-                                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Rate',
-                                            fillColor: Colors.white, filled: true),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ]
-                          ),
-
-                          const Padding(padding:EdgeInsets.all(10)),
-
-                          Center(
-                              child:
-                              Row( mainAxisAlignment: MainAxisAlignment.center,children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Navigator.pushAndRemoveUntil(
-                                    //   context,
-                                    //   MaterialPageRoute(builder: (context) => EmployeeDataGrid()),
-                                    //       (Route<dynamic> route) => true, // This disables back navigation
-                                    // );
-                                    print("qty");
-                                    print(qty);
-                                    if(qty != 0.0 && qty != null) {
-                                      getGridData(false);
-                                      _itemController.clear();
-                                      qtyTextController.clear();
-                                      discTextController.clear();
-                                      rateTextController.clear();
-                                      item = "";
-                                      qty = 0.0;
-                                      discount = 0.0;
-                                      itemRate = 0.0;
-                                    }else{
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return
-                                            AlertDialog(
-                                              title: Text('REASON'),
-                                              content: Text("Please Enter The Qty"), // Content of the dialog
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  child: Text('OK'),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop(); // Close the dialog
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                        },
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.black,
-                                      backgroundColor: Color(0xFF004D40),
-                                      textStyle: TextStyle(color: Colors.black,
-                                          fontWeight: FontWeight.bold)
-                                  ),
-                                  child: Text('Save', style: TextStyle(
-                                      color: Colors.white
-                                  ),),
-                                ),
-                                SizedBox(width: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    getGridData(true);
-                                    _itemController.clear();
-                                    qtyTextController.clear();
-                                    discTextController.clear();
-                                    rateTextController.clear();
-                                    item="";
-                                    qty=0.0;
-                                    discount=0.0;
-                                    itemRate=0.0;
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.black,
-                                      backgroundColor: Color(0xFF004D40),
-                                      textStyle: TextStyle(color: Colors.black,
-                                          fontWeight: FontWeight.bold)
-                                  ),
-                                  child: Text('Delete', style: TextStyle(
-                                      color: Colors.white
-                                  ),),
-                                ),
-                              ],)
-                          ),
-                          Padding(padding: EdgeInsets.fromLTRB(0, 100, 0, 0)),
-                          SfDataGridTheme(
-                            data: SfDataGridThemeData(
-                              currentCellStyle: DataGridCurrentCellStyle(
-                                borderWidth: 2,
-                                borderColor: Colors.pinkAccent,
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                  backgroundColor: Color(0xFF004D40),
+                                  textStyle: TextStyle(color: Colors.black,
+                                      fontWeight: FontWeight.bold)
                               ),
-                              selectionColor: Colors.lightGreen[50],
-                              headerColor: Color(0xFF004D40),
+                              child: Text('Save', style: TextStyle(
+                                  color: Colors.white
+                              ),),
                             ),
-                            child: Container(
-                              margin: EdgeInsets.fromLTRB(//width > 1400 ? 75
-                                  0, 0, 0, 0),
-                              child:
-                              SfDataGrid(
+                            SizedBox(width: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                getGridData(true);
+                                _itemController.clear();
+                                qtyTextController.clear();
+                                discTextController.clear();
+                                rateTextController.clear();
+                                item="";
+                                qty=0.0;
+                                discount=0.0;
+                                itemRate=0.0;
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                  backgroundColor: Color(0xFF004D40),
+                                  textStyle: TextStyle(color: Colors.black,
+                                      fontWeight: FontWeight.bold)
+                              ),
+                              child: Text('Delete', style: TextStyle(
+                                  color: Colors.white
+                              ),),
+                            ),
+                          ],)
+                      ),
+                      Padding(padding: EdgeInsets.fromLTRB(0, 100, 0, 0)),
+                      Container(
+                        height: height*0.5,
+                        child: SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          currentCellStyle: DataGridCurrentCellStyle(
+                            borderWidth: 2,
+                            borderColor: Colors.pinkAccent,
+                          ),
+                          selectionColor: Colors.lightGreen[50],
+                          headerColor: Color(0xFF004D40),
+                        ),
+                        child: Container(
+                          margin: EdgeInsets.fromLTRB(//width > 1400 ? 75
+                              0, 0, 0, 0),
+                          child:
+                          SfDataGrid(
+                            allowEditing: true,
+                            selectionMode: SelectionMode.single,
+                            headerGridLinesVisibility: GridLinesVisibility.both,
+                            // navigationMode: GridNavigationMode.cell,
+                            source: _employeeDataSource,
+                            editingGestureType: EditingGestureType.tap,
+                            columnWidthCalculationRange: ColumnWidthCalculationRange.visibleRows,
+                            gridLinesVisibility: GridLinesVisibility.both,
+                            columns: [
+                              GridColumn(
+                                columnName: 'id',
+                                width: 65,
+                                allowEditing: false,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.centerLeft,
+                                  child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'name',
+                                width: 75,
+                                visible: false,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('Code', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'designation',
+                                width: 250,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('Particular', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'uom',
+                                width: 75,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('Uom', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'hsnCode',
+                                width: 100,
+                                visible: false,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('HsnCode', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'stock',
+                                width: 100,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('Stock', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'quantity',
+                                width: 100,
                                 allowEditing: true,
-                                selectionMode: SelectionMode.single,
-                                headerGridLinesVisibility: GridLinesVisibility.both,
-                                // navigationMode: GridNavigationMode.cell,
-                                source: _employeeDataSource,
-                                editingGestureType: EditingGestureType.tap,
-                                columnWidthCalculationRange: ColumnWidthCalculationRange.visibleRows,
-                                gridLinesVisibility: GridLinesVisibility.both,
-                                columns: [
-                                  GridColumn(
-                                    columnName: 'id',
-                                    width: 65,
-                                    allowEditing: false,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.centerLeft,
-                                      child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'name',
-                                    width: 75,
-                                    visible: false,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Code', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'designation',
-                                    width: 250,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Particular', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'uom',
-                                    width: 75,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Uom', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'hsnCode',
-                                    width: 100,
-                                    visible: false,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('HsnCode', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'stock',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Stock', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'quantity',
-                                    width: 100,
-                                    allowEditing: true,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Quantity', overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'rate',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Rate', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'amount',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Amount', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'disc',
-                                    visible: false,
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Disc', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'discAmt',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('DiscAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'GSTAmt',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('GSTAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'TotAmt',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('TotAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
-                                    ),
-                                  ),
-                                ],
-                                controller : _dataGridController,
-                                onSelectionChanged:
-                                    (List<DataGridRow> addedRows, List<DataGridRow> removedRows) {
-                                  // apply your logic
-                                  selected=true;
-                                  index=_dataGridController.selectedIndex;
-                                  DataGridRow? data= _dataGridController.selectedRow;
-                                  print(_dataGridController.selectedIndex);
-
-                                  print(data);
-                                  print(data);
-
-                                  print(data?.getCells()[2].value);
-                                  print(data?.getCells()[6].value);
-                                  print(data?.getCells()[9].value);
-                                  setState(() {
-                                    qty=data?.getCells()[6].value;
-                                    qtyTextController.text=data!.getCells()[6].value.toString();
-                                    _itemController..text=data?.getCells()[2].value;
-                                    discTextController.text=data!.getCells()[9].value.toString();
-                                    rateTextController.text=data!.getCells()[7].value.toString();
-                                    discount=data?.getCells()[9].value;
-                                    itemRate = data?.getCells()[7].value;
-                                  });
-                                },
-                                columnWidthMode: ColumnWidthMode.fill,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('Quantity', overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white)),
+                                ),
                               ),
-                            ),
-                          ),
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child: TextFormField(
-                                        readOnly: false,
-                                        controller: narrationController,
-                                        onChanged: (String newvalue){
-                                          setState(() {
-                                            if(newvalue != "") {
-                                              narration = newvalue.toString();
-                                            }
-                                          });
-                                        },
-                                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Narration',
-                                            fillColor: Colors.white, filled: true),
-                                      ),
-                                    ),
-                                  ],
+                              GridColumn(
+                                columnName: 'rate',
+                                width: 100,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('Rate', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
-                              ]
+                              ),
+                              GridColumn(
+                                columnName: 'amount',
+                                width: 100,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('Amount', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'disc',
+                                visible: false,
+                                width: 100,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('Disc', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'discAmt',
+                                width: 100,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('DiscAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'GSTAmt',
+                                width: 100,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('GSTAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'TotAmt',
+                                width: 100,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('TotAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                            ],
+                            controller : _dataGridController,
+                            onSelectionChanged:
+                                (List<DataGridRow> addedRows, List<DataGridRow> removedRows) {
+                              // apply your logic
+                              selected=true;
+                              index=_dataGridController.selectedIndex;
+                              DataGridRow? data= _dataGridController.selectedRow;
+                              print(_dataGridController.selectedIndex);
+
+                              print(data);
+                              print(data);
+
+                              print(data?.getCells()[2].value);
+                              print(data?.getCells()[6].value);
+                              print(data?.getCells()[9].value);
+                              setState(() {
+                                qty=data?.getCells()[6].value;
+                                qtyTextController.text=data!.getCells()[6].value.toString();
+                                _itemController..text=data?.getCells()[2].value;
+                                discTextController.text=data!.getCells()[9].value.toString();
+                                rateTextController.text=data!.getCells()[7].value.toString();
+                                discount=data?.getCells()[9].value;
+                                itemRate = data?.getCells()[7].value;
+                              });
+                            },
+                            columnWidthMode: ColumnWidthMode.fill,
                           ),
-                          const Padding(padding:EdgeInsets.all(10)),
-                          Center(child:
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(width: 20,),Text("Total Amount : - ${grandTotalAmount}"),
-                              SizedBox(width: 20,),
-                              ElevatedButton(
-                                onPressed: () {
-                                  if(billEntryList.length>0 && shipTo !=0){
-                                    List<dynamic> detList=[];
-                                    double totalAmount=0.0;
-                                    double totalQty=0.0;
-                                    double totalAmountWOGst=0.0;
-                                    double vatAmt=0.0;
-                                    double discAmt=0.0;
-                                    double cGst=0.0;
-                                    double sGst=0.0;
-                                    double iGst=0.0;
-                                    double Gst=0.0;
-                                    for(int i=0;i<billEntryList.length;i++){
-                                      detList.add({
-                                        "id": billEntryList[i].id,
-                                        "itemId": billEntryList[i].name,
-                                        "item": billEntryList[i].designation,
-                                        "uom": billEntryList[i].uom,
-                                        "hsnCode": billEntryList[i].hsnCode,
-                                        "stock": billEntryList[i].stock,
-                                        "quantity" : billEntryList[i].quantity,
-                                        "rate" : billEntryList[i].rate,
-                                        "amount" : billEntryList[i].amount,
-                                        "disc" : billEntryList[i].disc,
-                                        "discAmt" : billEntryList[i].discAmt,
-                                        "GSTAmt" : billEntryList[i].GSTAmt,
-                                        "TotAmt" : billEntryList[i].TotAmt,
-                                        "AmtWOGst" : billEntryList[i].AmtWOGst,
-                                        "AmtWDisc" : billEntryList[i].AmtWDisc,
-                                        "CgstP" : billEntryList[i].CgstP,
-                                        "CgstA" : billEntryList[i].CgstA,
-                                        "SgstP" : billEntryList[i].SgstP,
-                                        "SgstA" : billEntryList[i].SgstA,
-                                        "IgstP" : billEntryList[i].IgstP,
-                                        "IgstA" : billEntryList[i].IgstA,
-                                        "discP" : billEntryList[i].discP,
+                        ),
+                      ),),
+                      const Padding(padding:EdgeInsets.all(5)),
+                      BootstrapContainer(
+                          fluid: true,
+                          children:[
+                            BootstrapRow(
+                              children: <BootstrapCol>[
+                                BootstrapCol(
+                                  sizes: 'col-md-12',
+                                  child: TextFormField(
+                                    readOnly: false,
+                                    controller: narrationController,
+                                    onChanged: (String newvalue){
+                                      setState(() {
+                                        if(newvalue != "") {
+                                          narration = newvalue.toString();
+                                        }
                                       });
-                                      totalAmount = totalAmount + billEntryList[i].TotAmt;
-                                      totalQty = totalQty + billEntryList[i].quantity;
-                                      totalAmountWOGst=totalAmountWOGst + billEntryList[i].AmtWOGst;
-                                      vatAmt = vatAmt + billEntryList[i].GSTAmt;
-                                      discAmt = discAmt + billEntryList[i].discAmt;
-                                      cGst= cGst+billEntryList[i].CgstA;
-                                      sGst = sGst + billEntryList[i].SgstA;
-                                      iGst = iGst +billEntryList[i].IgstA;
-                                    }
-                                    double roundAmt = vatAmt.toInt()-vatAmt;
-                                    roundAmt = double.parse(roundAmt.toStringAsFixed(2));
-                                    Gst=cGst+sGst+iGst;
-                                    List<dynamic> masList=[];
-                                    masList.add({
-                                      "InvoiceNo" : invoiceNum,
-                                      "Narration" : narration,
-                                      "SupplierId" : customerId,
-                                      "Person" : customer,
-                                      "NetAmount" : totalAmount,
-                                      "TotQty" : totalQty,
-                                      "TotAmountWOGst": totalAmountWOGst,
-                                      "PayType" : payType=="Cash"? "C":"D",
-                                      "CompId" : globalCompId,
-                                      "VatAmt" : vatAmt,
-                                      "RoundAmt" : roundAmt<0.50 && roundAmt!=0.0? -(roundAmt):roundAmt,
-                                      "discAmt" : discAmt,
-                                      "isVat" : vatAmt ==0.0? "N":"Y",
-                                      "Cgst" : cGst,
-                                      "Sgst" : sGst,
-                                      "Igst" : iGst,
-                                      "Gst" : Gst,
-                                      "ShipTo" : shipTo,
-                                      "dat" : edate,
-                                      "sdate" : sdate,
-                                      "supInvNo" :supInvNumber
-                                    });
-                                    print("jsonObject");
-                                    print(masList.length);
-                                    print(masList);
-
-                                    saveBillEntryData(masList,detList);
-                                  }
-                                  else{
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return
-                                          AlertDialog(
-                                            title: Text('ALERT'),
-                                            content: shipTo==0?Text("Please select/Reselect the shipTo"):Text("Please Save The Item, Before Generating The Purchase Bill"), // Content of the dialog
-                                            // Content of the dialog
-                                            actions: <Widget>[
-                                              TextButton(
-                                                child: Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop(); // Close the dialog
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                      },
-                                    );
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.black,
-                                    backgroundColor: Color(0xFF004D40),
-                                    textStyle: TextStyle(color: Colors.black,
-                                        fontWeight: FontWeight.bold)
+                                    },
+                                    decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Narration',
+                                        fillColor: Colors.white, filled: true),
+                                  ),
                                 ),
-                                child: Text('Save', style: TextStyle(
-                                    color: Colors.white
-                                ),),
-                              ),],)
-                          )
-                        ]
-                    ),
-                  ),
+                              ],
+                            ),
+                          ]
+                      ),
+                      const Padding(padding:EdgeInsets.all(10)),
+                      Center(child:
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(width: 20,),Text("Total Amount : - ${grandTotalAmount}"),
+                          SizedBox(width: 20,),
+                          ElevatedButton(
+                            onPressed: () {
+                              if(billEntryList.length>0 && shipTo !=0){
+                                List<dynamic> detList=[];
+                                double totalAmount=0.0;
+                                double totalQty=0.0;
+                                double totalAmountWOGst=0.0;
+                                double vatAmt=0.0;
+                                double discAmt=0.0;
+                                double cGst=0.0;
+                                double sGst=0.0;
+                                double iGst=0.0;
+                                double Gst=0.0;
+                                for(int i=0;i<billEntryList.length;i++){
+                                  detList.add({
+                                    "id": billEntryList[i].id,
+                                    "itemId": billEntryList[i].name,
+                                    "item": billEntryList[i].designation,
+                                    "uom": billEntryList[i].uom,
+                                    "hsnCode": billEntryList[i].hsnCode,
+                                    "stock": billEntryList[i].stock,
+                                    "quantity" : billEntryList[i].quantity,
+                                    "rate" : billEntryList[i].rate,
+                                    "amount" : billEntryList[i].amount,
+                                    "disc" : billEntryList[i].disc,
+                                    "discAmt" : billEntryList[i].discAmt,
+                                    "GSTAmt" : billEntryList[i].GSTAmt,
+                                    "TotAmt" : billEntryList[i].TotAmt,
+                                    "AmtWOGst" : billEntryList[i].AmtWOGst,
+                                    "AmtWDisc" : billEntryList[i].AmtWDisc,
+                                    "CgstP" : billEntryList[i].CgstP,
+                                    "CgstA" : billEntryList[i].CgstA,
+                                    "SgstP" : billEntryList[i].SgstP,
+                                    "SgstA" : billEntryList[i].SgstA,
+                                    "IgstP" : billEntryList[i].IgstP,
+                                    "IgstA" : billEntryList[i].IgstA,
+                                    "discP" : billEntryList[i].discP,
+                                  });
+                                  totalAmount = totalAmount + billEntryList[i].TotAmt;
+                                  totalQty = totalQty + billEntryList[i].quantity;
+                                  totalAmountWOGst=totalAmountWOGst + billEntryList[i].AmtWOGst;
+                                  vatAmt = vatAmt + billEntryList[i].GSTAmt;
+                                  discAmt = discAmt + billEntryList[i].discAmt;
+                                  cGst= cGst+billEntryList[i].CgstA;
+                                  sGst = sGst + billEntryList[i].SgstA;
+                                  iGst = iGst +billEntryList[i].IgstA;
+                                }
+                                double roundAmt = vatAmt.toInt()-vatAmt;
+                                roundAmt = double.parse(roundAmt.toStringAsFixed(2));
+                                Gst=cGst+sGst+iGst;
+                                List<dynamic> masList=[];
+                                masList.add({
+                                  "InvoiceNo" : invoiceNum,
+                                  "Narration" : narration,
+                                  "SupplierId" : customerId,
+                                  "Person" : customer,
+                                  "NetAmount" : totalAmount,
+                                  "TotQty" : totalQty,
+                                  "TotAmountWOGst": totalAmountWOGst,
+                                  "PayType" : payType=="Cash"? "C":"D",
+                                  "CompId" : globalCompId,
+                                  "VatAmt" : vatAmt,
+                                  "RoundAmt" : roundAmt<0.50 && roundAmt!=0.0? -(roundAmt):roundAmt,
+                                  "discAmt" : discAmt,
+                                  "isVat" : vatAmt ==0.0? "N":"Y",
+                                  "Cgst" : cGst,
+                                  "Sgst" : sGst,
+                                  "Igst" : iGst,
+                                  "Gst" : Gst,
+                                  "ShipTo" : shipTo,
+                                  "dat" : edate,
+                                  "sdate" : sdate,
+                                  "supInvNo" :supInvNumber
+                                });
+                                print("jsonObject");
+                                print(masList.length);
+                                print(masList);
 
-                )
-              ]
-          ),
-        ))
-    );
-    dispose();
+                                saveBillEntryData(masList,detList);
+                              }
+                              else{
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return
+                                      AlertDialog(
+                                        title: Text('ALERT'),
+                                        content: shipTo==0?Text("Please select/Reselect the shipTo"):Text("Please Save The Item, Before Generating The Purchase Bill"), // Content of the dialog
+                                        // Content of the dialog
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: Text('OK'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(); // Close the dialog
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                  },
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.black,
+                                backgroundColor: Color(0xFF004D40),
+                                textStyle: TextStyle(color: Colors.black,
+                                    fontWeight: FontWeight.bold)
+                            ),
+                            child: Text('Save', style: TextStyle(
+                                color: Colors.white
+                            ),),
+                          ),],)
+                      )
+                    ]
+                ),
+              ),
+
+            )
+          ]
+      ),
+    )), onWillPop: () async{
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/Home',
+            (Route<dynamic> route) => false, // This will remove all previous routes
+      );
+      return true;
+    });
   }
 }
 

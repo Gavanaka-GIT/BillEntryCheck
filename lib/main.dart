@@ -2,18 +2,37 @@ import 'dart:convert';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:billentry/GlobalVariables.dart';
+import 'package:billentry/branchApproval.dart';
+import 'package:billentry/branchTransfer.dart';
+import 'package:billentry/homepage.dart';
+import 'package:billentry/purchaseEntryMasScreen.dart';
+import 'package:billentry/purchaseReport.dart';
+import 'package:billentry/salesReport.dart';
+import 'package:billentry/stockReport.dart';
 import 'package:flutter/material.dart';
 import "package:http/http.dart" as http;
 import 'billEntryMasScreen.dart';
+
 
 void main() => runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Home(),
+      routes: {
+        '/Home':(context)=> homeScreen(),
+        '/Home/billEntry': (context) => billEntryFirstScreen(data: jsonEncode({"valid":false})),
+        '/Home/stock': (context) => stockReportPage(),
+        '/Home/purchaseEntry': (context)=> purchaseEntryFirstScreen(),
+        '/Home/branchTransfer' : (context)=> branchTranseferPage(approveData: jsonEncode({"approve":false, "selectedData":""})),
+        '/Home/branchApproval' : (context)=> approvalReportPage(),
+        '/Home/sales' : (context)=> salesReportPage(),
+        '/Home/purchase' : (context)=> purchaseReportPage()
+      },
     )
 );
 
 var globalUserName="";
+var globalEmailId="";
 var globalCompId=-1;
 var globalPrefix="";
 class Home extends StatefulWidget {
@@ -77,14 +96,12 @@ class _HomeState extends State<Home>  {
       if(logChk) {
         globalUserName=username;
         globalCompId = data['result'];
+        globalEmailId= data['EMAIL'];
         globalPrefix = data['result2'];
         print("Prefix Check Point");
         print(globalPrefix);
         Navigator.pop(context);
-        Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (context) => billEntryFirstScreen())
-        );
+        Navigator.pushNamed(context, '/Home');
       }else{
         Navigator.pop(context);
         showDialog(
@@ -184,7 +201,6 @@ class _HomeState extends State<Home>  {
               ),
               Expanded(
                   child:
-
                   Container(
                       decoration: BoxDecoration(
                           color: Colors.white,
