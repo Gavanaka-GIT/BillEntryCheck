@@ -93,6 +93,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
   var selected = false;
   var index  =-1;
+  bool approvalValue=false;
 
   TextEditingController date = new TextEditingController();
   TextEditingController _itemController = new TextEditingController();
@@ -218,6 +219,25 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         print(data);
         List<dynamic> result = data['result'];
         invoiceNum= result[0]['Cons_No'];
+        print(result[0]['BillType'].toString());
+        int idx= result[0]['BillType'].toString() == 'A'?0:1;
+        print(idx);
+        billType = BillTypeList[idx];
+        idx=result[0]['PayType'].toString() == "C"? 1:0;
+        payType= PayTypeList[idx];
+        Navigator.pop(context);
+        String tempDate;
+        try {
+          print(result[0]['Cons_Date']);
+          DateTime consDateTime = DateTime.parse(result[0]['Cons_Date']);
+          tempDate =DateFormat('dd/MM/yyyy').format(consDateTime);
+          print("tempDate");
+          print(tempDate);
+          date.text=currentDate.toString().split(' ')[0];
+        }catch(e){
+          print(e);
+        }
+
         _incrementCounter();
       }else{
         Navigator.pop(context);
@@ -406,6 +426,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           billType = BillTypeList[0];
           getInvoiceNumber("NGST",true);
           payType = PayTypeList[0];
+          print("currentDate");
+          print(currentDate);
           date.text = currentDate.toString().split(' ')[0];
           fetchSupplierData();
           fetchItemData();
@@ -628,15 +650,14 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       DeviceOrientation.portraitDown,
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight]);
-    bool value=false;
     try {
       print(widget.data['valid']);
-      value=widget.data['valid'];
+      approvalValue=widget.data['valid'];
     }catch(e){
-      value=false;
+      approvalValue=false;
     }
     print("valid");
-    if(!value) {
+    if(!approvalValue) {
       BillTypeList.add("Non-GST Bill");
       BillTypeList.add("GST Bill");
       PayTypeList.add("Credit");
@@ -971,7 +992,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       }
                                       return null;
                                     },
-                                    onChanged: (value) {
+                                    onChanged: !approvalValue? (value) {
                                       if(billType.toString() == value.toString()){
                                         return;
                                       }
@@ -992,7 +1013,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         });
                                       }
                                       //Do something when selected item is changed.
-                                    },
+                                    }:null,
                                     onSaved: (value) {
                                       // selectedValue = value.toString();
 
@@ -1058,7 +1079,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       child: TextField(
                                         controller: date,
                                         // textAlign: TextAlign.center,
-                                        // readOnly: true,
+                                        readOnly: true,
                                         decoration: InputDecoration(
                                           labelText: 'To Date',
                                           border: OutlineInputBorder(
@@ -1069,7 +1090,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           fillColor: Colors.white,
                                           suffixIcon: IconButton(
                                             icon: Icon(Icons.calendar_today),
-                                            onPressed: () async {
+                                            onPressed: !approvalValue ?
+                                              () async {
                                               DateTime? pickedDate = await showDatePicker(
                                                 context: context,
                                                 initialDate: DateTime.now(),
@@ -1082,7 +1104,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                   edate = pickedDate.toString().split(' ')[0];
                                                 });
                                               }
-                                            },
+                                            }:null,
                                           ),
                                         ),
                                       ),
@@ -1111,24 +1133,23 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                             ],
                           ),
                           //const Padding(padding:EdgeInsets.all(5)),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(25, 0, 25, 5),
-                            child:
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children:[
-                                  Autocomplete<String>(
-                                    optionsBuilder: (TextEditingValue textEditingValue) {
-                                      if (textEditingValue.text.isEmpty) {
-                                        return const Iterable<String>.empty();
-                                      } else {
-                                        return CustomerList.where((String item) {
-                                          return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                                        });
-                                      }
-                                    },
-                                    fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                                      return TextField(
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children:[
+                                !approvalValue?
+                                Autocomplete<String>(
+                                  optionsBuilder: (TextEditingValue textEditingValue) {
+                                    if (textEditingValue.text.isEmpty) {
+                                      return const Iterable<String>.empty();
+                                    } else {
+                                      return CustomerList.where((String item) {
+                                        return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                                      });
+                                    }
+                                  },
+                                  fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                    return
+                                      TextField(
                                         controller: controller,
                                         focusNode: focusNode,
                                         // textAlign: TextAlign.center,
@@ -1160,46 +1181,67 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           }
                                         },
                                         decoration: InputDecoration(
-                                          fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
-                                          filled: true,
-                                          labelText: "customer",
-                                          hintText: 'Search for a customer',
-                                          border: OutlineInputBorder(),
-                                          // contentPadding: EdgeInsets.symmetric(
-                                          //     vertical: height*0.015),
-                                          isDense: true
+                                            fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
+                                            filled: true,
+                                            labelText: "customer",
+                                            hintText: 'Search for a customer',
+                                            border: OutlineInputBorder(),
+                                            // contentPadding: EdgeInsets.symmetric(
+                                            //     vertical: height*0.015),
+                                            isDense: true
                                         ),
                                       );
-                                    },
-                                    optionsViewBuilder: (context, onSelected, options) {
-                                      return Material(
-                                        elevation: 4.0,
-                                        child: ListView.builder(
-                                          padding: EdgeInsets.zero,
-                                          itemCount: options.length,
-                                          itemBuilder: (context, index) {
-                                            late final option = options.elementAt(index);
-                                            return ListTile(
-                                              title: Text(option),
-                                              onTap: () {
-                                                onSelected(option);
-                                                setState(() {
-                                                  customer = option!;
-                                                  int idx = CustomerList.indexOf(customer);
-                                                  stateCode=StateCodeList[idx];
-                                                  stateCodeId = StateCodeIdList[idx];
-                                                  customerId = CustomerIdList[idx];
-                                                  // shipTo = customer;
-                                                });
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ]
-                            ),
+                                  },
+                                  optionsViewBuilder: (context, onSelected, options) {
+                                    return Material(
+                                      elevation: 4.0,
+                                      child: ListView.builder(
+                                        padding: EdgeInsets.zero,
+                                        itemCount: options.length,
+                                        itemBuilder: (context, index) {
+                                          late final option = options.elementAt(index);
+                                          return ListTile(
+                                            title: Text(option),
+                                            onTap: () {
+                                              onSelected(option);
+                                              setState(() {
+                                                customer = option!;
+                                                int idx = CustomerList.indexOf(customer);
+                                                stateCode=StateCodeList[idx];
+                                                stateCodeId = StateCodeIdList[idx];
+                                                customerId = CustomerIdList[idx];
+                                                // shipTo = customer;
+                                              });
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ):
+                                BootstrapContainer(
+                                    fluid: true,
+                                    children:[
+                                      BootstrapRow(
+                                        children: <BootstrapCol>[
+                                          BootstrapCol(
+                                            sizes: 'col-md-12',
+                                            child: TextFormField(
+                                              showCursor: false,
+                                              readOnly: true,
+                                              // textAlign: TextAlign.center,
+                                              controller: TextEditingController()..text= invoiceNum.toString(),
+                                              decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Customer',
+                                                fillColor: Colors.white, filled: true,
+                                                // contentPadding: EdgeInsets.symmetric(vertical: height*0.01),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ]
+                                ),
+                              ]
                           ),
                           // const Padding(padding:EdgeInsets.all(5)),
                           // BootstrapContainer(
@@ -1323,11 +1365,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       }
                                       return null;
                                     },
-                                    onChanged: (String? value) {
+                                    onChanged: !approvalValue ? (String? value) {
                                       setState(() {
                                         payType = value!;
                                       });
-                                    },
+                                    }:null,
                                     onSaved: (String? value) {
                                       payType = value!;
 
@@ -1385,6 +1427,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                               children:[
                                 BootstrapRow(
                                   children: <BootstrapCol>[
+                                    !approvalValue ?
                                     BootstrapCol(
                                       sizes: 'col-md-12',
                                       child:
@@ -1464,6 +1507,18 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       //   decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Ship To',
                                       //       fillColor: Colors.white, filled: true),
                                       // ),
+                                    ) :  BootstrapCol(
+                                      sizes: 'col-md-12',
+                                      child: TextFormField(
+                                        showCursor: false,
+                                        readOnly: true,
+                                        // textAlign: TextAlign.center,
+                                        controller: TextEditingController()..text= shipTo.toString(),
+                                        decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Ship To',
+                                          fillColor: Colors.white, filled: true,
+                                          // contentPadding: EdgeInsets.symmetric(vertical: height*0.01),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),

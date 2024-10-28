@@ -331,7 +331,7 @@ class _stockReport extends State<salesReportPage>{
     }
     return
       WillPopScope(child:
-      // !detChk?
+      !detChk?
       Scaffold(
           appBar: CustomAppBar(userName: globalUserName,
               emailId: globalEmailId,
@@ -744,7 +744,7 @@ class _stockReport extends State<salesReportPage>{
                       transData={"transno": value,"valid":true};
                       setState(() {
                         // billEntryFirstScreen(data:transData);
-                        // detChk=true;
+                        detChk=true;
                         // _stockReportDetSource = StockReportDetSource(stockReportDet: tempStockReportDet);
                       });
                       // tempStockReportDet=[];
@@ -793,8 +793,8 @@ class _stockReport extends State<salesReportPage>{
 
 
       )
-              //:null
-     // billEntryFirstScreen(data: transData)
+              :
+     billEntryFirstScreen(data: transData)
           , onWillPop: () async{
         Navigator.pushNamedAndRemoveUntil(
           context,
