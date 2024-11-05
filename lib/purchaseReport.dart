@@ -179,7 +179,7 @@ class _stockReport extends State<purchaseReportPage>{
   }
 
   Future<void> FetchDetData()async {
-    String cutTableApi =ipAddress+"api/getSalesData";
+    String cutTableApi =ipAddress+"api/getPurchaseData";
     try {
       // showLoaderDialog(context);
       final response = await http.post(Uri.parse(cutTableApi),
@@ -199,6 +199,7 @@ class _stockReport extends State<purchaseReportPage>{
           List<dynamic> salesList= data['result'];
           int cnt=1;
           try {
+            print(salesList.length);
             for (int i = 0; i < salesList.length; i++) {
               print("check1");
               StockReportDetList.add(StockReportDet(cnt, salesList[i]['Cons_Date'].toString(),
@@ -210,6 +211,7 @@ class _stockReport extends State<purchaseReportPage>{
               cnt++;
             }
           }catch(e){
+            print("Err check 1");
             print(e);
           }
           // SalesReportMainList = [SalesReportMain(1, "check1", "0000", "00000000"),
@@ -530,11 +532,12 @@ class _stockReport extends State<purchaseReportPage>{
                     ElevatedButton.icon(onPressed: (){
                       print("Check Working");
                       if(_dataGridController.selectedRow?.getCells()[1].value!= null) {
-                        print(_dataGridController.selectedRow?.getCells()[1].value);
+                        print(_dataGridController.selectedRow?.getCells()[4].value);
                         int value=_dataGridController.selectedRow?.getCells()[4].value;
                         tempStockReportDet=[];
                         // int cnt=1;
                         for(int i=0;i<StockReportDetList.length;i++){
+                          print(StockReportDetList[i].monthNo);
                           if(value==StockReportDetList[i].monthNo){
                             tempStockReportDet.add(StockReportDetList[i]);
                             // tempStockReportDet[tempStockReportDet.length-1].sno=cnt;
