@@ -18,7 +18,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 Future main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  await Future.delayed(const Duration(milliseconds: 200));
+  await Future.delayed(const Duration(milliseconds: 10));
   FlutterNativeSplash.remove();
   runApp(
       MaterialApp(
@@ -179,6 +179,11 @@ class _HomeState extends State<Home>  {
     }
   }
 
+  bool _passwordVisible=false;
+  @override
+  void initState() {
+    _passwordVisible = true;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -253,7 +258,8 @@ class _HomeState extends State<Home>  {
                                               decoration: InputDecoration(
                                                   hintText: "USERNAME",
                                                   hintStyle: TextStyle(color: Colors.grey),
-                                                  border: InputBorder.none
+                                                  border: InputBorder.none,
+                                                  prefixIcon: Icon(Icons.person)
                                               ),
                                             ),
                                           ),
@@ -285,12 +291,23 @@ class _HomeState extends State<Home>  {
                                               onChanged: (String newValue){
                                                 password=newValue;
                                               },
-                                              obscureText: true,
+                                              obscureText: _passwordVisible,
                                               controller: pass,
                                               decoration: InputDecoration(
                                                   hintText: "PASSWORD",
                                                   hintStyle: TextStyle(color: Colors.grey),
-                                                  border: InputBorder.none
+                                                  border: InputBorder.none,
+                                                  suffixIcon: IconButton(onPressed: (){
+                                                    setState(() {
+                                                      _passwordVisible=!_passwordVisible;
+                                                    });
+
+                                                  },
+                                                      icon: Icon(
+                                                          !_passwordVisible?Icons.visibility:
+                                                      Icons.visibility_off)),
+                                                prefixIcon: Icon(Icons.lock)
+                                                  
                                               ),
                                             ),
                                           ),

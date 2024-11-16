@@ -67,7 +67,7 @@ dev_dependencies:
 
 flutter_native_splash:
   color: "#ffffff"   # Background color of the splash screen
-  image: assets/icon.png   # Path to your icon image
+  image: assets/icon/icon.png   # Path to your icon image
   android: true       # Enable splash screen for Android
   ios: true           # Enable splash screen for iOS
   web: false          # Disable splash screen for web (optional)
@@ -75,7 +75,7 @@ flutter_native_splash:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: false
-  image_path: "assets/icon.png"
+  image_path: "assets/icon/icon.png"
   adaptive_icon_foreground: "assets/icon/icon.png" # Set the foreground image (same or different from image_path)
   adaptive_icon_background: "#5F8F3C"
   remove_alpha_ios: true
@@ -92,7 +92,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-     - assets/icon.png
+     - assets/icon/icon.png
+     - assets/launcherscreen.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
