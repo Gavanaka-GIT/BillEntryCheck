@@ -1012,6 +1012,21 @@ class _branchStateInstance extends State<branchTranseferPage>{
   @override
   Widget build (BuildContext context) {  // overriding the build widget, BuildContext provides the information of location
     double height = MediaQuery.of(context).size.height;
+    double gridHeight=0.0;
+    double initialHeight=104.47;
+    double initialHeightPercent = initialHeight/height;
+    double rowHeight=49.02;
+    double rowHeightPercent = rowHeight/height;
+    double headerHeight= 55.45;
+    double headerHeightPercent= headerHeight/height;
+    double gridHeightPercent= headerHeightPercent+(transferList.length * rowHeightPercent);
+    if(gridHeightPercent>0.50){
+      gridHeight= height*0.5;
+    }else{
+      double length= transferList.length==0?initialHeightPercent:gridHeightPercent;
+      gridHeight= height*length;
+    }
+
     return WillPopScope(child: Scaffold(
       appBar: CustomAppBar(userName: globalUserName, emailId: globalEmailId,
         onMenuPressed: (){
@@ -1541,7 +1556,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
           ),],):SizedBox(height: 0,),
 
         Padding(padding: EdgeInsets.fromLTRB(0, 25, 0, 0)),
-        Container(height: height*0.5,
+        Container(height: gridHeight,
           child:SfDataGridTheme(
           data: SfDataGridThemeData(
             currentCellStyle: DataGridCurrentCellStyle(

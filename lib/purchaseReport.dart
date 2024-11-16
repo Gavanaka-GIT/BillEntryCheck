@@ -333,7 +333,7 @@ class _stockReport extends State<purchaseReportPage>{
     }
     return
       WillPopScope(child:
-      // !detChk?
+      !detChk?
       Scaffold(
           appBar: CustomAppBar(userName: globalUserName,
               emailId: globalEmailId,
@@ -670,7 +670,7 @@ class _stockReport extends State<purchaseReportPage>{
                             ),
                             GridColumn(
                               columnName: 'voucherNo',
-                              width: width<500?125:width*0.250,
+                              width: width<500?135:width*0.250,
                               allowFiltering: false,
                               label: Container(
                                 padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -747,7 +747,7 @@ class _stockReport extends State<purchaseReportPage>{
                       transData={"transno": value,"valid":true};
                       setState(() {
                         // billEntryFirstScreen(data:transData);
-                        // detChk=true;
+                        detChk=true;
                         // _stockReportDetSource = StockReportDetSource(stockReportDet: tempStockReportDet);
                       });
                       // tempStockReportDet=[];
@@ -796,8 +796,8 @@ class _stockReport extends State<purchaseReportPage>{
 
 
       )
-          //:null
-          // billEntryFirstScreen(data: transData)
+          :
+          purchaseEntryFirstScreen(data: transData)
           , onWillPop: () async{
             Navigator.pushNamedAndRemoveUntil(
               context,

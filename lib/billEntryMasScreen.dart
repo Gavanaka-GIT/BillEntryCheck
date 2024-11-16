@@ -22,6 +22,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 
 
 List<BillEntry> billEntryList=[];
+List<dynamic> prevBillEntryList=[];
 class BillEntryMasScreen extends StatefulWidget {
   const BillEntryMasScreen({super.key} );
 
@@ -81,6 +82,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   double discount=0.0;
   double itemRate=0.0;
   String invoiceNum="";
+  String customerName="";
   double grandTotalAmount=0.0;
   List<String> SalesType=["Sales", "Sales B"];
   int salesTypeidx=0;
@@ -91,16 +93,22 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     edate =  DateFormat('dd/MM/yyyy').format(now);
   }
 
+  String savedShipToName="";
+  double savedTotalAmount=0.0;
+
   var selected = false;
   var index  =-1;
   bool approvalValue=false;
 
   TextEditingController date = new TextEditingController();
   TextEditingController _itemController = new TextEditingController();
+  TextEditingController _shipToController = new TextEditingController();
+  TextEditingController _customerController = new TextEditingController();
   TextEditingController qtyTextController = new TextEditingController();
   TextEditingController itemTextController = new TextEditingController();
   TextEditingController discTextController = new TextEditingController();
   TextEditingController rateTextController = new TextEditingController();
+  TextEditingController gstTextController = new TextEditingController();
   final DataGridController _dataGridController = DataGridController();
   TextEditingController toDateController = new TextEditingController();
   TextEditingController _controller= new TextEditingController();
@@ -220,20 +228,81 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         List<dynamic> result = data['result'];
         invoiceNum= result[0]['Cons_No'];
         print(result[0]['BillType'].toString());
-        int idx= result[0]['BillType'].toString() == 'A'?0:1;
+        int idx= result[0]['IsVat'].toString() == 'N'?0:1;
         print(idx);
         billType = BillTypeList[idx];
         idx=result[0]['PayType'].toString() == "C"? 1:0;
         payType= PayTypeList[idx];
+        savedShipToName= result[0]['Supplier'].toString();
+        customerName=result[0]['Person'].toString();
+        try {
+          billEntryList.clear();
+          prevBillEntryList.clear();
+          savedTotalAmount=0.0;
+          for(int i=0;i<result.length;i++) {
+            billEntryList.add(BillEntry(
+                i+1,
+                result[i]['ItemId'].toString(),
+                result[i]['Item'].toString(),
+                result[i]['Uomid'].toString(),
+                result[i]['Hsn'].toString(),
+                result[i]['StockQty'].toString() != "null" ? double.parse(
+                    result[i]['StockQty'].toString()) : 0.0,
+                result[i]['Quantity'].toString() != "null" ? double.parse(
+                    result[i]['Quantity'].toString()) : 0.0,
+                result[i]['Rate'].toString() != "null" ? double.parse(
+                    result[i]['Rate'].toString()) : 0.0,
+                result[i]['Amount'].toString() != "null" ? double.parse(
+                    result[i]['Amount'].toString()) : 0.0,
+                result[i]['Discp'].toString() != "null" ? double.parse(
+                    result[i]['Discp'].toString()) : 0.0,
+                result[i]['DiscAmt'].toString() != "null" ? double.parse(
+                    result[i]['DiscAmt'].toString()) : 0.0,
+                result[i]['GSTA'].toString() != "null" ? double.parse(
+                    result[i]['GSTA'].toString()) : 0.0,
+                result[i]['TotAmt'].toString() != "null" ? double.parse(
+                    result[i]['TotAmt'].toString()) : 0.0,
+                result[i]['Amount'].toString() != "null" ? double.parse(
+                    result[i]['Amount'].toString()) : 0.0,
+                result[i]['AssAmt'].toString() != "null" ? double.parse(
+                    result[i]['AssAmt'].toString()) : 0.0,
+                result[i]['CGSTP'].toString() != "null" ? double.parse(
+                    result[i]['CGSTP'].toString()) : 0.0,
+                result[i]['CGSTA'].toString() != "null" ? double.parse(
+                    result[i]['CGSTA'].toString()) : 0.0,
+                result[i]['SGSTP'].toString() != "null" ? double.parse(
+                    result[i]['SGSTP'].toString()) : 0.0,
+                result[i]['SGSTA'].toString() != "null" ? double.parse(
+                    result[i]['SGSTA'].toString()) : 0.0,
+                result[i]['IGSTP'].toString() != "null" ? double.parse(
+                    result[i]['IGSTP'].toString()) : 0.0,
+                result[i]['IGSTA'].toString() != "null" ? double.parse(
+                    result[i]['IGSTA'].toString()) : 0.0,
+                result[i]['Discp'].toString() != "null" ? double.parse(
+                    result[i]['Discp'].toString()) : 0.0,
+                result[i]['City'].toString()));
+            prevBillEntryList.add(jsonEncode({
+              "ITEMID": result[i]['ItemId'].toString(),
+              "QUANTITY": result[i]['Quantity'].toString() != "null" ? double.parse(
+                  result[i]['Quantity'].toString()) : 0.0
+            }));
+            savedTotalAmount = savedTotalAmount +double.parse(
+                result[i]['TotAmt'].toString());
+          }
+          _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
+        }catch(e){
+          print("GridErr :- "+e.toString());
+        }
         Navigator.pop(context);
         String tempDate;
         try {
           print(result[0]['Cons_Date']);
           DateTime consDateTime = DateTime.parse(result[0]['Cons_Date']);
-          tempDate =DateFormat('dd/MM/yyyy').format(consDateTime);
+          tempDate =DateFormat('yyyy-MM-dd THH:mm:ss.SSS').format(consDateTime);
           print("tempDate");
           print(tempDate);
-          date.text=currentDate.toString().split(' ')[0];
+          print(currentDate);
+          date.text=tempDate.toString().split(' ')[0];
         }catch(e){
           print(e);
         }
@@ -331,6 +400,116 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     }
   }
 
+  Future<void> updateBillEntryData(List masData,List detData)async {
+    String cutTableApi =ipAddress+"api/updateBillEntryData";
+    showLoaderDialog(context);
+    try {
+      final response = await http.post(Uri.parse(cutTableApi),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          }, body: jsonEncode({
+            "masData" : masData,
+            "detData": detData
+          }));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        print(data);
+        print(data['savChk']);
+        var saveChk = data['savChk'];
+
+        if (saveChk) {
+
+          Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return
+                AlertDialog(
+                  title: const Text('REASON'),
+                  content: const Text("Data updated Successfully"),
+                  // Content of the dialog
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        fetchSavedData(widget.data['transno']);
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                  ],
+                );
+            },
+          );
+
+
+        } else {
+          // Navigator.pop(context);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return
+                AlertDialog(
+                  title: Text('REASON'),
+                  content: const Text("Update Failed, Please Try Again"),
+                  // Content of the dialog
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                    ),
+                  ],
+                );
+            },
+          );
+        }
+
+        _incrementCounter();
+      } else {
+        Navigator.pop(context);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return
+              AlertDialog(
+                title: Text('REASON'),
+                content: Text("Conn Err"), // Content of the dialog
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ],
+              );
+          },
+        );
+      }
+    }catch(e){
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return
+            AlertDialog(
+              title: Text('REASON'),
+              content: Text("Conn Err"), // Content of the dialog
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                ),
+              ],
+            );
+        },
+      );
+    }
+  }
+
   Future<void> saveBillEntryData(List masData, List detData)async {
     String cutTableApi =ipAddress+"api/saveBillEntry";
     showLoaderDialog(context);
@@ -394,6 +573,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           itemTextController.clear();
           discTextController.clear();
           rateTextController.clear();
+          gstTextController.clear();
+          _customerController.clear();
+          _shipToController.clear();
 
 
           currentDate = DateTime.now();
@@ -668,6 +850,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       date.text = currentDate.toString().split(' ')[0];
       fetchSupplierData();
       fetchItemData();
+      billEntryList=[];
       _employeeDataSource = EmployeeDataSource(billEntry: []);
     }else{
       BillTypeList.add("Non-GST Bill");
@@ -687,12 +870,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     // getGridData();
   }
 
-  Future<void> getGridData(bool delChk) async {
+  Future<void> getGridData(bool delChk, bool apprChk) async {
     // billEntryList = [
     //   BillEntry(1, '222', 'ALMOND', 'PCS', '1234', 557.00, 10, 500.00, 5000.00, 5.00, 250.00, 450.00, 5700.00),
     //   BillEntry(2, '888', 'NUTS', 'PCS', '4678', 557.00, 10, 500.00, 5000.00, 5.00, 250.00, 450.00, 5700.00),
     // ];
     // if(item !="") {
+    print("save Operation Working");
     bool dupChk=false;
     if(selected && !delChk){
      item = _itemController.text.toString();
@@ -707,9 +891,10 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       }
     }
     if(!dupChk) {
-      int idx = ItemList.indexOf(item);
+
+      int idx = !approvalValue ? ItemList.indexOf(item):0;
       print("idx :- " + idx.toString());
-      double rate = itemRate;
+      double rate =  itemRate ;
       String uom = "";
       String hsn = "";
       double StkQty = 0;
@@ -723,32 +908,38 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       int stateCodeMasId = 0;
       if (idx != -1) {
         if (itemRate == 0.0) {
-          rate = RateList[idx];
+          rate = !approvalValue ? RateList[idx]: billEntryList[index].rate;
         }
-        uom = UomList[idx];
-        hsn = HsnList[idx];
-        StkQty = StockQtyList[idx];
-        code = ItemIdList[idx];
+
+        uom = !approvalValue ? UomList[idx] : billEntryList[index].uom;
+        hsn = !approvalValue ? HsnList[idx] : billEntryList[index].hsnCode;
+        StkQty = !approvalValue ? StockQtyList[idx] : billEntryList[index].stock;
+        code = !approvalValue ? ItemIdList[idx] : int.parse(billEntryList[index].name.toString());
       }
+
       int val = billEntryList.length + 1;
       double amount = qty * rate;
       double discAmount = ((discount / 100) * rate) * qty;
       double gstAmount;
       double totalamount = amount - discAmount;
+
+      stateCodeId = !approvalValue ? stateCodeId: int.parse(billEntryList[index].scode.toString());
+      print("stateCodeId");
+      print(stateCodeId);
       if (billType == "Non-GST Bill") {
         gstAmount = 0.0;
       } else {
         if(!delChk){
         if (stateCodeId == 68 ) { //checking TN Gst
           print("State Code "+stateCodeId.toString());
-          cgstp = CGstList[idx];
-          sgstp = SGstList[idx];
+          cgstp = !approvalValue ?CGstList[idx]: billEntryList[index].CgstP;
+          sgstp = !approvalValue ?SGstList[idx]: billEntryList[index].SgstP;
           print("State Code "+stateCodeId.toString());
           cgstA = (cgstp / 100) * totalamount;
           sgstA = (sgstp / 100) * totalamount;
           gstAmount = cgstA + sgstA;
         } else {
-          igstp = IGstList[idx];
+          igstp = !approvalValue ?IGstList[idx]: billEntryList[index].IgstP;
           igstA = (igstp / 100) * totalamount;
           gstAmount = igstA;
         }
@@ -786,7 +977,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
             sgstA,
             igstp,
             igstA,
-            discount));
+            discount,
+            "0"
+        ));
       }
       else if (delChk) {
         billEntryList.removeAt(index);
@@ -842,10 +1035,12 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       }
 
       grandTotalAmount = 0.0;
+      savedTotalAmount = 0.0;
       if (billEntryList.length > 0) {
         for (int i = 0; i < billEntryList.length; i++) {
           grandTotalAmount = billEntryList[i].TotAmt + grandTotalAmount;
-          print(billEntryList[i].name + " ," +
+          savedTotalAmount = billEntryList[i].TotAmt + savedTotalAmount;
+              print(billEntryList[i].name + " ," +
               billEntryList[i].designation + " ," +
               billEntryList[i].uom + " ," +
               billEntryList[i].hsnCode + " ," +
@@ -931,8 +1126,24 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    print(height.toString()+"height");
+    double gridHeight=0.0;
+    double initialHeight=104.47;
+    double initialHeightPercent = initialHeight/height;
+    double rowHeight=49.02;
+    double rowHeightPercent = rowHeight/height;
+    double headerHeight= 55.45;
+    double headerHeightPercent= headerHeight/height;
+    double gridHeightPercent= headerHeightPercent+(billEntryList.length * rowHeightPercent);
+    if(gridHeightPercent>0.50){
+      gridHeight= height*0.5;
+    }else{
+      double length= billEntryList.length==0?initialHeightPercent:gridHeightPercent;
+      gridHeight= height*length;
+    }
 
-    return WillPopScope(child: Scaffold(
+    return WillPopScope(child:
+    Scaffold(
         appBar:
         CustomAppBar(userName: globalUserName, emailId: globalEmailId,
             onMenuPressed: (){
@@ -992,7 +1203,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       }
                                       return null;
                                     },
-                                    onChanged: !approvalValue? (value) {
+                                    onChanged: !approvalValue?
+                                        (value) {
                                       if(billType.toString() == value.toString()){
                                         return;
                                       }
@@ -1137,7 +1349,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children:[
                                 !approvalValue?
-                                Autocomplete<String>(
+                                 Padding(padding: EdgeInsets.fromLTRB(25, 0, 25, 0),
+                                child:Autocomplete<String>(
                                   optionsBuilder: (TextEditingValue textEditingValue) {
                                     if (textEditingValue.text.isEmpty) {
                                       return const Iterable<String>.empty();
@@ -1148,6 +1361,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                     }
                                   },
                                   fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                    _customerController=controller;
                                     return
                                       TextField(
                                         controller: controller,
@@ -1177,6 +1391,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                               stateCodeId = StateCodeIdList[idx];
                                               customerId = CustomerIdList[idx];
                                               // shipTo = customer;
+                                              shipTo = CustomerIdList[idx];
+                                              _shipToController.text=customer;
                                             });
                                           }
                                         },
@@ -1211,6 +1427,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                 stateCodeId = StateCodeIdList[idx];
                                                 customerId = CustomerIdList[idx];
                                                 // shipTo = customer;
+                                                shipTo = CustomerIdList[idx];
+                                                _shipToController.text=customer;
                                               });
                                             },
                                           );
@@ -1218,8 +1436,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       ),
                                     );
                                   },
-                                ):
-                                BootstrapContainer(
+                                ) ,)
+                                :
+                                 BootstrapContainer(
                                     fluid: true,
                                     children:[
                                       BootstrapRow(
@@ -1230,7 +1449,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                               showCursor: false,
                                               readOnly: true,
                                               // textAlign: TextAlign.center,
-                                              controller: TextEditingController()..text= invoiceNum.toString(),
+                                              controller: TextEditingController()..text= customerName.toString(),
                                               decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Customer',
                                                 fillColor: Colors.white, filled: true,
                                                 // contentPadding: EdgeInsets.symmetric(vertical: height*0.01),
@@ -1325,78 +1544,79 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                           //     ]
                           // ),
 
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(25, 25, 25, 0),
-                            child:
-                            Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children:[
-                                  DropdownButtonFormField2<String>(
-                                    isExpanded: true,
-                                    value: payType,
-                                    decoration: InputDecoration(
-                                      //alignLabelWithHint: true,
-                                      fillColor: Colors.white,
-                                      filled: true,
-                                      labelText: "Pay Type",
-                                      border: OutlineInputBorder(
-                                      ),
-                                      // Add more decoration..
-                                    ),
-                                    hint: const Text(
-                                      'Select your pay type',
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                    items: PayTypeList
-                                        .map((item) => DropdownMenuItem<String>(
-                                      value: item,
-                                      child: Text(
-                                        item,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ))
-                                        .toList(),
-                                    validator: (value) {
-                                      //print("Check Point Working 2");
-                                      if (value == null) {
-                                        return 'Please pay type.';
-                                      }
-                                      return null;
-                                    },
-                                    onChanged: !approvalValue ? (String? value) {
-                                      setState(() {
-                                        payType = value!;
-                                      });
-                                    }:null,
-                                    onSaved: (String? value) {
-                                      payType = value!;
-
-                                    },
-                                    buttonStyleData: const ButtonStyleData(
-                                      padding: EdgeInsets.only(right: 0),
-                                    ),
-                                    iconStyleData: const IconStyleData(
-                                      icon: Icon(
-                                        Icons.arrow_drop_down,
-                                        color: Colors.black45,
-                                      ),
-                                      iconSize: 24,
-                                    ),
-                                    dropdownStyleData: DropdownStyleData(
-                                      decoration: BoxDecoration(
-                                        // borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                    menuItemStyleData: const MenuItemStyleData(
-                                      //padding: EdgeInsets.symmetric(horizontal: 16),
-                                    ),
-                                  ),
-
-                                ]
-                            ),
-                          ),
+                          // Padding(
+                          //   padding: EdgeInsets.fromLTRB(25, 25, 25, 0),
+                          //   child:
+                          //   Column(
+                          //       crossAxisAlignment: CrossAxisAlignment.stretch,
+                          //       children:[
+                          //         // DropdownButtonFormField2<String>(
+                          //         //   isExpanded: true,
+                          //         //   value: payType,
+                          //         //   decoration: InputDecoration(
+                          //         //     //alignLabelWithHint: true,
+                          //         //     fillColor: Colors.white,
+                          //         //     filled: true,
+                          //         //     labelText: "Pay Type",
+                          //         //     border: OutlineInputBorder(
+                          //         //     ),
+                          //         //     // Add more decoration..
+                          //         //   ),
+                          //         //   hint: const Text(
+                          //         //     'Select your pay type',
+                          //         //     style: TextStyle(fontSize: 14),
+                          //         //   ),
+                          //         //   items: PayTypeList
+                          //         //       .map((item) => DropdownMenuItem<String>(
+                          //         //     value: item,
+                          //         //     child: Text(
+                          //         //       item,
+                          //         //       style: const TextStyle(
+                          //         //         fontSize: 14,
+                          //         //       ),
+                          //         //     ),
+                          //         //   ))
+                          //         //       .toList(),
+                          //         //   validator: (value) {
+                          //         //     //print("Check Point Working 2");
+                          //         //     if (value == null) {
+                          //         //       return 'Please pay type.';
+                          //         //     }
+                          //         //     return null;
+                          //         //   },
+                          //         //   onChanged: !approvalValue ?
+                          //         //       (String? value) {
+                          //         //     setState(() {
+                          //         //       payType = value!;
+                          //         //     });
+                          //         //   }:null,
+                          //         //   onSaved: (String? value) {
+                          //         //     payType = value!;
+                          //         //
+                          //         //   },
+                          //         //   buttonStyleData: const ButtonStyleData(
+                          //         //     padding: EdgeInsets.only(right: 0),
+                          //         //   ),
+                          //         //   iconStyleData: const IconStyleData(
+                          //         //     icon: Icon(
+                          //         //       Icons.arrow_drop_down,
+                          //         //       color: Colors.black45,
+                          //         //     ),
+                          //         //     iconSize: 24,
+                          //         //   ),
+                          //         //   dropdownStyleData: DropdownStyleData(
+                          //         //     decoration: BoxDecoration(
+                          //         //       // borderRadius: BorderRadius.circular(15),
+                          //         //     ),
+                          //         //   ),
+                          //         //   menuItemStyleData: const MenuItemStyleData(
+                          //         //     //padding: EdgeInsets.symmetric(horizontal: 16),
+                          //         //   ),
+                          //         // ),
+                          //
+                          //       ]
+                          //   ),
+                          // ),
 
                           // const Padding(padding:EdgeInsets.all(5)),
                           // BootstrapContainer(
@@ -1431,75 +1651,142 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                     BootstrapCol(
                                       sizes: 'col-md-12',
                                       child:
-                                      Autocomplete<String>(
-                                        optionsBuilder: (TextEditingValue textEditingValue) {
-                                          if (textEditingValue.text.isEmpty) {
-                                            return const Iterable<String>.empty();
-                                          } else {
-                                            return CustomerList.where((String item) {
-                                              return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                                            });
-                                          }
-                                        },
-                                        fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                                          return TextField(
-                                            controller: controller,
-                                            focusNode: focusNode,
-                                            onTapOutside: (value) {
-                                              // String value=controller.text.toString();
-                                              // if(CustomerList.indexOf(value)==-1){
-                                              //   controller..text="";
-                                              // }else{
-                                              //   setState(() {
-                                              //     customer = value!;
-                                              //     int idx = CustomerList.indexOf(customer);
-                                              //     stateCode=StateCodeList[idx];
-                                              //     shipTo = customer;
-                                              //   });
-                                              // }
-                                            },
-                                            onSubmitted: (value) {
-                                              if(CustomerList.indexOf(value)==-1){
-                                                controller..text="";
-                                              }else{
+                                          Row(children: [
+                                            Expanded(child:DropdownButtonFormField2<String>(
+                                              isExpanded: true,
+                                              value: payType,
+                                              decoration: InputDecoration(
+                                                //alignLabelWithHint: true,
+                                                fillColor: Colors.white,
+                                                filled: true,
+                                                labelText: "Pay Type",
+                                                border: OutlineInputBorder(
+                                                ),
+                                                // Add more decoration..
+                                              ),
+                                              hint: const Text(
+                                                'Select your pay type',
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                              items: PayTypeList
+                                                  .map((item) => DropdownMenuItem<String>(
+                                                value: item,
+                                                child: Text(
+                                                  item,
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ))
+                                                  .toList(),
+                                              validator: (value) {
+                                                //print("Check Point Working 2");
+                                                if (value == null) {
+                                                  return 'Please pay type.';
+                                                }
+                                                return null;
+                                              },
+                                              onChanged: !approvalValue ?
+                                                  (String? value) {
                                                 setState(() {
-                                                  int idx = CustomerList.indexOf(value.toString());
-                                                  shipTo = CustomerIdList[idx];
+                                                  payType = value!;
                                                 });
-                                              }
-                                            },
-                                            decoration: InputDecoration(
-                                              fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
-                                              filled: true,
-                                              labelText: "Ship To",
-                                              hintText: 'Please search for a ship to [destination]',
-                                              border: OutlineInputBorder(),
-                                            ),
-                                          );
-                                        },
-                                        optionsViewBuilder: (context, onSelected, options) {
-                                          return Material(
-                                            elevation: 4.0,
-                                            child: ListView.builder(
-                                              padding: EdgeInsets.zero,
-                                              itemCount: options.length,
-                                              itemBuilder: (context, index) {
-                                                late final option = options.elementAt(index);
-                                                return ListTile(
-                                                  title: Text(option),
-                                                  onTap: () {
-                                                    onSelected(option);
-                                                    setState(() {
-                                                      int idx = CustomerList.indexOf(option.toString());
-                                                      shipTo = CustomerIdList[idx];
-                                                    });
+                                              }:null,
+                                              onSaved: (String? value) {
+                                                payType = value!;
+
+                                              },
+                                              buttonStyleData: const ButtonStyleData(
+                                                padding: EdgeInsets.only(right: 0),
+                                              ),
+                                              iconStyleData: const IconStyleData(
+                                                icon: Icon(
+                                                  Icons.arrow_drop_down,
+                                                  color: Colors.black45,
+                                                ),
+                                                iconSize: 24,
+                                              ),
+                                              dropdownStyleData: DropdownStyleData(
+                                                decoration: BoxDecoration(
+                                                  // borderRadius: BorderRadius.circular(15),
+                                                ),
+                                              ),
+                                              menuItemStyleData: const MenuItemStyleData(
+                                                //padding: EdgeInsets.symmetric(horizontal: 16),
+                                              ),
+                                            ) ),
+                                            SizedBox(width: 20,),
+                                            Expanded(child: Autocomplete<String>(
+                                              optionsBuilder: (TextEditingValue textEditingValue) {
+                                                if (textEditingValue.text.isEmpty) {
+                                                  return const Iterable<String>.empty();
+                                                } else {
+                                                  return CustomerList.where((String item) {
+                                                    return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                                                  });
+                                                }
+                                              },
+                                              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                                _shipToController= controller;
+                                                return TextField(
+                                                  controller: controller,
+                                                  focusNode: focusNode,
+                                                  onTapOutside: (value) {
+                                                    // String value=controller.text.toString();
+                                                    // if(CustomerList.indexOf(value)==-1){
+                                                    //   controller..text="";
+                                                    // }else{
+                                                    //   setState(() {
+                                                    //     customer = value!;
+                                                    //     int idx = CustomerList.indexOf(customer);
+                                                    //     stateCode=StateCodeList[idx];
+                                                    //     shipTo = customer;
+                                                    //   });
+                                                    // }
                                                   },
+                                                  onSubmitted: (value) {
+                                                    if(CustomerList.indexOf(value)==-1){
+                                                      controller..text="";
+                                                    }else{
+                                                      setState(() {
+                                                        int idx = CustomerList.indexOf(value.toString());
+                                                        shipTo = CustomerIdList[idx];
+                                                      });
+                                                    }
+                                                  },
+                                                  decoration: InputDecoration(
+                                                    fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
+                                                    filled: true,
+                                                    labelText: "Ship To",
+                                                    hintText: 'Please search for a ship to [destination]',
+                                                    border: OutlineInputBorder(),
+                                                  ),
                                                 );
                                               },
-                                            ),
-                                          );
-                                        },
-                                      ),
+                                              optionsViewBuilder: (context, onSelected, options) {
+                                                return Material(
+                                                  elevation: 4.0,
+                                                  child: ListView.builder(
+                                                    padding: EdgeInsets.zero,
+                                                    itemCount: options.length,
+                                                    itemBuilder: (context, index) {
+                                                      late final option = options.elementAt(index);
+                                                      return ListTile(
+                                                        title: Text(option),
+                                                        onTap: () {
+                                                          onSelected(option);
+                                                          setState(() {
+                                                            int idx = CustomerList.indexOf(option.toString());
+                                                            shipTo = CustomerIdList[idx];
+                                                          });
+                                                        },
+                                                      );
+                                                    },
+                                                  ),
+                                                );
+                                              },
+                                            ))],)
+                                      ,
                                       // TextFormField(
                                       //   showCursor: false,
                                       //   readOnly: true,
@@ -1507,38 +1794,111 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       //   decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Ship To',
                                       //       fillColor: Colors.white, filled: true),
                                       // ),
-                                    ) :  BootstrapCol(
+                                    ) :
+                                    BootstrapCol(
                                       sizes: 'col-md-12',
-                                      child: TextFormField(
-                                        showCursor: false,
-                                        readOnly: true,
-                                        // textAlign: TextAlign.center,
-                                        controller: TextEditingController()..text= shipTo.toString(),
-                                        decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Ship To',
-                                          fillColor: Colors.white, filled: true,
-                                          // contentPadding: EdgeInsets.symmetric(vertical: height*0.01),
-                                        ),
-                                      ),
+                                      child:
+                                          Row(children: [
+                                            Expanded(child:DropdownButtonFormField2<String>(
+                                              isExpanded: true,
+                                              value: payType,
+                                              decoration: InputDecoration(
+                                                //alignLabelWithHint: true,
+                                                fillColor: Colors.white,
+                                                filled: true,
+                                                labelText: "Pay Type",
+                                                border: OutlineInputBorder(
+                                                ),
+                                                // Add more decoration..
+                                              ),
+                                              hint: const Text(
+                                                'Select your pay type',
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                              items: PayTypeList
+                                                  .map((item) => DropdownMenuItem<String>(
+                                                value: item,
+                                                child: Text(
+                                                  item,
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ))
+                                                  .toList(),
+                                              validator: (value) {
+                                                //print("Check Point Working 2");
+                                                if (value == null) {
+                                                  return 'Please pay type.';
+                                                }
+                                                return null;
+                                              },
+                                              onChanged: !approvalValue ?
+                                                  (String? value) {
+                                                setState(() {
+                                                  payType = value!;
+                                                });
+                                              }:null,
+                                              onSaved: (String? value) {
+                                                payType = value!;
+
+                                              },
+                                              buttonStyleData: const ButtonStyleData(
+                                                padding: EdgeInsets.only(right: 0),
+                                              ),
+                                              iconStyleData: const IconStyleData(
+                                                icon: Icon(
+                                                  Icons.arrow_drop_down,
+                                                  color: Colors.black45,
+                                                ),
+                                                iconSize: 24,
+                                              ),
+                                              dropdownStyleData: DropdownStyleData(
+                                                decoration: BoxDecoration(
+                                                  // borderRadius: BorderRadius.circular(15),
+                                                ),
+                                              ),
+                                              menuItemStyleData: const MenuItemStyleData(
+                                                //padding: EdgeInsets.symmetric(horizontal: 16),
+                                              ),
+                                            ) ),
+                                            SizedBox(width: 20,),
+                                            Expanded(child: TextFormField(
+                                              showCursor: false,
+                                              readOnly: true,
+                                              // textAlign: TextAlign.center,
+                                              controller: TextEditingController()..text= savedShipToName.toString(),
+                                              decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Ship To',
+                                                fillColor: Colors.white, filled: true,
+                                                // contentPadding: EdgeInsets.symmetric(vertical: height*0.01),
+                                              ),
+                                            ),)
+                                          ],)
+                                      
                                     ),
                                   ],
                                 ),
                               ]
                           ),
 
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(25, 75, 25, 5),
+
+                          Column(children: [
+                            Padding(
+                            padding:  EdgeInsets.fromLTRB( !approvalValue ?25:0, 30,
+                                !approvalValue ?25:0, 5),
                             child:
                             Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children:[
-                                  const Row(
+                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      Text("ADD ITEM"),
+                                      Text(!approvalValue ? "ADD ITEM": "UPDATE ITEM"),
                                     ],
                                   ),
-                                  Autocomplete<String>(
+                                 !approvalValue?
+                                 Autocomplete<String>(
                                     optionsBuilder: (TextEditingValue textEditingValue) {
                                       if (textEditingValue.text.isEmpty) {
                                         return const Iterable<String>.empty();
@@ -1610,6 +1970,27 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                       itemRate= RateList[ItemList.indexOf(item)];
                                                       print("Rate : "+ itemRate.toString());
                                                       rateTextController.text=itemRate.toString();
+                                                      if(billType=="GST Bill") {
+                                                        int gstIdx = ItemList
+                                                            .indexOf(item);
+                                                        if (stateCodeId == 68) {
+                                                          double Gst = CGstList[gstIdx] +
+                                                              SGstList[gstIdx];
+                                                          gstTextController
+                                                              .text =
+                                                              Gst.toString();
+                                                        } else {
+                                                          gstTextController
+                                                              .text =
+                                                              IGstList[gstIdx]
+                                                                  .toString();
+                                                        }
+                                                      }else{
+                                                        gstTextController
+                                                            .text ="0.0";
+                                                      }
+
+
                                                     });
 
                                                   }
@@ -1623,173 +2004,220 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         ),
                                       );
                                     },
-                                  ),
+                                  ) :
+                                 BootstrapContainer(
+                                     fluid: true,
+                                     children:[
+                                       BootstrapRow(
+                                         children: <BootstrapCol>[
+                                           BootstrapCol(
+                                             sizes: 'col-md-12',
+                                             child: TextFormField(
+                                               // showCursor: false,
+                                               readOnly: true,
+                                               keyboardType: TextInputType.name,
+                                               onChanged:(String newValue){
+                                               },
+                                               controller: _itemController,
+                                               decoration: const InputDecoration(border: OutlineInputBorder(),
+                                                   labelText: 'Item',
+                                                   fillColor: Colors.white, filled: true),
+                                             ),
+                                           ),
+                                         ],
+                                       ),
+                                     ]
+                                 ),
                                 ]
                             ),
                           ),
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child: TextFormField(
-                                        // showCursor: false,
-                                        // readOnly: true,
-                                        keyboardType: TextInputType.number,
-                                        onChanged:(String newValue){
-                                          if(newValue.toString() ==""){
-                                            qty=0.0;
-                                          }else {
-                                            qty = double.parse(newValue);
-                                          }
-                                        },
-                                        controller: qtyTextController,
-                                        decoration: InputDecoration(border: OutlineInputBorder(),
-                                            labelText: 'Quantity',
-                                            fillColor: Colors.white, filled: true),
+                            const Padding(padding:EdgeInsets.all(5)),
+                            BootstrapContainer(
+                                fluid: true,
+                                children:[
+                                  BootstrapRow(
+                                    children: <BootstrapCol>[
+                                      BootstrapCol(
+                                        sizes: 'col-md-12',
+                                        child:
+                                            Row(children: [
+                                              Expanded(child: TextFormField(
+                                                // showCursor: false,
+                                                // readOnly: true,
+                                                keyboardType: TextInputType.number,
+                                                onChanged:(String newValue){
+                                                  if(newValue.toString() ==""){
+                                                    qty=0.0;
+                                                  }else {
+                                                    qty = double.parse(newValue);
+                                                  }
+                                                },
+                                                controller: qtyTextController,
+                                                decoration: InputDecoration(border: OutlineInputBorder(),
+                                                    labelText: 'Quantity',
+                                                    fillColor: Colors.white, filled: true),
+                                              ))
+                                              ,SizedBox(width: 20,),
+                                              Expanded(child: TextFormField(
+                                                keyboardType: TextInputType.text,
+                                                showCursor: false,
+                                                readOnly: true,
+                                                // onChanged: (String newValue){
+                                                //   itemRate = double.parse(newValue);
+                                                // },
+                                                controller: gstTextController,
+                                                decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Gst',
+                                                    fillColor: Colors.white, filled: true),
+                                              )),],)
+                                        ,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ]
-                          ),
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child: TextFormField(
-                                        keyboardType: TextInputType.number,
-                                        // showCursor: false,
-                                        // readOnly: true,
-                                        onChanged: (String newValue){
-                                          discount = double.parse(newValue);
-                                        },
-                                        controller: discTextController,
-                                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Disc',
-                                            fillColor: Colors.white, filled: true),
+                                    ],
+                                  ),
+                                ]
+                            ),
+                            const Padding(padding:EdgeInsets.all(5)),
+                            BootstrapContainer(
+                                fluid: true,
+                                children:[
+                                  BootstrapRow(
+                                    children: <BootstrapCol>[
+                                      BootstrapCol(
+                                        sizes: 'col-md-12',
+                                        child: TextFormField(
+                                          keyboardType: TextInputType.number,
+                                          // showCursor: false,
+                                          // readOnly: true,
+                                          onChanged: (String newValue){
+                                            discount = double.parse(newValue);
+                                          },
+                                          controller: discTextController,
+                                          decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Disc',
+                                              fillColor: Colors.white, filled: true),
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ]
-                          ),
-                          const Padding(padding:EdgeInsets.all(5)),
-                          BootstrapContainer(
-                              fluid: true,
-                              children:[
-                                BootstrapRow(
-                                  children: <BootstrapCol>[
-                                    BootstrapCol(
-                                      sizes: 'col-md-12',
-                                      child: TextFormField(
-                                        keyboardType: TextInputType.number,
-                                        // showCursor: false,
-                                        // readOnly: true,
-                                        onChanged: (String newValue){
-                                          itemRate = double.parse(newValue);
-                                        },
-                                        controller: rateTextController,
-                                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Rate',
-                                            fillColor: Colors.white, filled: true),
+                                    ],
+                                  ),
+                                ]
+                            ),
+                            const Padding(padding:EdgeInsets.all(5)),
+                            BootstrapContainer(
+                                fluid: true,
+                                children:[
+                                  BootstrapRow(
+                                    children: <BootstrapCol>[
+                                      BootstrapCol(
+                                        sizes: 'col-md-12',
+                                        child:
+                                        TextFormField(
+                                          keyboardType: TextInputType.number,
+                                          // showCursor: false,
+                                          // readOnly: true,
+                                          onChanged: (String newValue){
+                                            itemRate = double.parse(newValue);
+                                          },
+                                          controller: rateTextController,
+                                          decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Rate',
+                                              fillColor: Colors.white, filled: true),
+                                        ),
                                       ),
+                                    ],
+                                  ),
+                                ]
+                            ),
+                            const Padding(padding:EdgeInsets.all(10)),
+                            Center(
+                                child:
+                                Row( mainAxisAlignment: MainAxisAlignment.center,children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Navigator.pushAndRemoveUntil(
+                                      //   context,
+                                      //   MaterialPageRoute(builder: (context) => EmployeeDataGrid()),
+                                      //       (Route<dynamic> route) => true, // This disables back navigation
+                                      // );
+                                      print("qty");
+                                      print(qty);
+                                      if (qty != 0.0 && qty != null) {
+                                        !approvalValue? getGridData(false, false):getGridData(false, true) ;
+                                        _itemController.clear();
+                                        qtyTextController.clear();
+                                        discTextController.clear();
+                                        rateTextController.clear();
+                                        gstTextController.clear();
+                                        item = "";
+                                        qty = 0.0;
+                                        discount = 0.0;
+                                        itemRate = 0.0;
+                                      }
+                                      else {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return
+                                              AlertDialog(
+                                                title: Text('REASON'),
+                                                content: Text(
+                                                    "Please Enter The Qty"),
+                                                // Content of the dialog
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    child: Text('OK'),
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop(); // Close the dialog
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                          },
+                                        );
+                                      }
+
+
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                        foregroundColor: Colors.black,
+                                        backgroundColor: Color(0xFF004D40),
+                                        textStyle: TextStyle(color: Colors.black,
+                                            fontWeight: FontWeight.bold)
                                     ),
-                                  ],
-                                ),
-                              ]
-                          ),
-
-                          const Padding(padding:EdgeInsets.all(10)),
-
-
-
-                          Center(
-                              child:
-                              Row( mainAxisAlignment: MainAxisAlignment.center,children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Navigator.pushAndRemoveUntil(
-                                    //   context,
-                                    //   MaterialPageRoute(builder: (context) => EmployeeDataGrid()),
-                                    //       (Route<dynamic> route) => true, // This disables back navigation
-                                    // );
-                                    print("qty");
-                                    print(qty);
-                                    if(qty != 0.0 && qty != null) {
-                                      getGridData(false);
+                                    child: Text('Save', style: TextStyle(
+                                        color: Colors.white
+                                    ),),
+                                  ),
+                                  !approvalValue ?SizedBox(width: 10): SizedBox(height: 0.01,),
+                                  !approvalValue ?ElevatedButton(
+                                    onPressed: () {
+                                      getGridData(true,false);
                                       _itemController.clear();
                                       qtyTextController.clear();
                                       discTextController.clear();
                                       rateTextController.clear();
-                                      item = "";
-                                      qty = 0.0;
-                                      discount = 0.0;
-                                      itemRate = 0.0;
-                                    }else{
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return
-                                            AlertDialog(
-                                              title: Text('REASON'),
-                                              content: Text("Please Enter The Qty"), // Content of the dialog
-                                              actions: <Widget>[
-                                                TextButton(
-                                                  child: Text('OK'),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop(); // Close the dialog
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                        },
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.black,
-                                      backgroundColor: Color(0xFF004D40),
-                                      textStyle: TextStyle(color: Colors.black,
-                                          fontWeight: FontWeight.bold)
-                                  ),
-                                  child: Text('Save', style: TextStyle(
-                                      color: Colors.white
-                                  ),),
-                                ),
-                                SizedBox(width: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    getGridData(true);
-                                    _itemController.clear();
-                                    qtyTextController.clear();
-                                    discTextController.clear();
-                                    rateTextController.clear();
-                                    item="";
-                                    qty=0.0;
-                                    discount=0.0;
-                                    itemRate=0.0;
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.black,
-                                      backgroundColor: Color(0xFF004D40),
-                                      textStyle: TextStyle(color: Colors.black,
-                                          fontWeight: FontWeight.bold)
-                                  ),
-                                  child: Text('Delete', style: TextStyle(
-                                      color: Colors.white
-                                  ),),
-                                ),
-                              ],)
-                          ),
-                          Padding(padding: EdgeInsets.fromLTRB(0, 100, 0, 0)),
+                                      gstTextController.clear();
+                                      item="";
+                                      qty=0.0;
+                                      discount=0.0;
+                                      itemRate=0.0;
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                        foregroundColor: Colors.black,
+                                        backgroundColor: Color(0xFF004D40),
+                                        textStyle: TextStyle(color: Colors.black,
+                                            fontWeight: FontWeight.bold)
+                                    ),
+                                    child: Text('Delete', style: TextStyle(
+                                        color: Colors.white
+                                    ),),
+                                  ): SizedBox(height: 0.01,),
+                                ],)
+                            ),
+                          ],),
+
+
+
+                          Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
                           Container(
-                            height:height*0.5,
+                            height: gridHeight,
                             child:
                           SfDataGridTheme(
                             data: SfDataGridThemeData(
@@ -1958,6 +2386,21 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                     _itemController..text=data?.getCells()[2].value;
                                     discTextController.text=data!.getCells()[9].value.toString();
                                     rateTextController.text=data!.getCells()[7].value.toString();
+                                    if(billType=="GST Bill") {
+                                      int gstIdx= billEntryList.indexWhere((entry){
+                                        return entry.designation==data?.getCells()[2].value.toString();
+                                      });
+                                      if(gstIdx!=-1){
+                                        if(int.parse(billEntryList[gstIdx].scode) == 68 ){
+                                          double gst= billEntryList[gstIdx].CgstP+  billEntryList[gstIdx].SgstP;
+                                          gstTextController.text=gst.toString();
+                                        }else{
+                                          gstTextController.text= billEntryList[gstIdx].IgstP.toString();
+                                        }
+                                      }
+                                    }else{
+                                    gstTextController.text="0.0";
+                                    }
                                     discount=data?.getCells()[9].value;
                                     itemRate = data?.getCells()[7].value;
                                   });
@@ -1972,106 +2415,252 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(width: 20,),Text("Total Amount : - ${grandTotalAmount}"),
+                              SizedBox(width: 20,),Text("Total Amount : - ${!approvalValue?grandTotalAmount:savedTotalAmount}"),
                               SizedBox(width: 20,),
                               ElevatedButton(
                                 onPressed: () {
-                                  if(billEntryList.length>0 && shipTo != 0 ){
-                                    List<dynamic> detList=[];
-                                    double totalAmount=0.0;
-                                    double totalQty=0.0;
-                                    double totalAmountWOGst=0.0;
-                                    double vatAmt=0.0;
-                                    double discAmt=0.0;
-                                    double cGst=0.0;
-                                    double sGst=0.0;
-                                    double iGst=0.0;
-                                    double Gst=0.0;
-                                    for(int i=0;i<billEntryList.length;i++){
-                                      detList.add({
-                                        "id": billEntryList[i].id,
-                                        "itemId": billEntryList[i].name,
-                                        "item": billEntryList[i].designation,
-                                        "uom": billEntryList[i].uom,
-                                        "hsnCode": billEntryList[i].hsnCode,
-                                        "stock": billEntryList[i].stock,
-                                        "quantity" : billEntryList[i].quantity,
-                                        "rate" : billEntryList[i].rate,
-                                        "amount" : billEntryList[i].amount,
-                                        "disc" : billEntryList[i].disc,
-                                        "discAmt" : billEntryList[i].discAmt,
-                                        "GSTAmt" : billEntryList[i].GSTAmt,
-                                        "TotAmt" : billEntryList[i].TotAmt,
-                                        "AmtWOGst" : billEntryList[i].AmtWOGst,
-                                        "AmtWDisc" : billEntryList[i].AmtWDisc,
-                                        "CgstP" : billEntryList[i].CgstP,
-                                        "CgstA" : billEntryList[i].CgstA,
-                                        "SgstP" : billEntryList[i].SgstP,
-                                        "SgstA" : billEntryList[i].SgstA,
-                                        "IgstP" : billEntryList[i].IgstP,
-                                        "IgstA" : billEntryList[i].IgstA,
-                                        "discP" : billEntryList[i].discP,
+                                  if(!approvalValue) {
+                                    if (billEntryList.length > 0 &&
+                                        shipTo != 0) {
+                                      List<dynamic> detList = [];
+                                      double totalAmount = 0.0;
+                                      double totalQty = 0.0;
+                                      double totalAmountWOGst = 0.0;
+                                      double vatAmt = 0.0;
+                                      double discAmt = 0.0;
+                                      double cGst = 0.0;
+                                      double sGst = 0.0;
+                                      double iGst = 0.0;
+                                      double Gst = 0.0;
+                                      for (int i = 0; i <
+                                          billEntryList.length; i++) {
+                                        detList.add({
+                                          "id": billEntryList[i].id,
+                                          "itemId": billEntryList[i].name,
+                                          "item": billEntryList[i].designation,
+                                          "uom": billEntryList[i].uom,
+                                          "hsnCode": billEntryList[i].hsnCode,
+                                          "stock": billEntryList[i].stock,
+                                          "quantity": billEntryList[i].quantity,
+                                          "rate": billEntryList[i].rate,
+                                          "amount": billEntryList[i].amount,
+                                          "disc": billEntryList[i].disc,
+                                          "discAmt": billEntryList[i].discAmt,
+                                          "GSTAmt": billEntryList[i].GSTAmt,
+                                          "TotAmt": billEntryList[i].TotAmt,
+                                          "AmtWOGst": billEntryList[i].AmtWOGst,
+                                          "AmtWDisc": billEntryList[i].AmtWDisc,
+                                          "CgstP": billEntryList[i].CgstP,
+                                          "CgstA": billEntryList[i].CgstA,
+                                          "SgstP": billEntryList[i].SgstP,
+                                          "SgstA": billEntryList[i].SgstA,
+                                          "IgstP": billEntryList[i].IgstP,
+                                          "IgstA": billEntryList[i].IgstA,
+                                          "discP": billEntryList[i].discP,
+                                        });
+                                        totalAmount = totalAmount +
+                                            billEntryList[i].TotAmt;
+                                        totalQty = totalQty +
+                                            billEntryList[i].quantity;
+                                        totalAmountWOGst = totalAmountWOGst +
+                                            billEntryList[i].AmtWOGst;
+                                        vatAmt =
+                                            vatAmt + billEntryList[i].GSTAmt;
+                                        discAmt =
+                                            discAmt + billEntryList[i].discAmt;
+                                        cGst = cGst + billEntryList[i].CgstA;
+                                        sGst = sGst + billEntryList[i].SgstA;
+                                        iGst = iGst + billEntryList[i].IgstA;
+                                      }
+                                      double roundAmt = vatAmt.toInt() - vatAmt;
+                                      roundAmt = double.parse(
+                                          roundAmt.toStringAsFixed(2));
+                                      Gst = cGst + sGst + iGst;
+                                      List<dynamic> masList = [];
+                                      masList.add({
+                                        "InvoiceNo": invoiceNum,
+                                        "SupplierId": customerId,
+                                        "Person": customer,
+                                        "NetAmount": totalAmount,
+                                        "TotQty": totalQty,
+                                        "TotAmountWOGst": totalAmountWOGst,
+                                        "PayType": payType == "Cash"
+                                            ? "C"
+                                            : "D",
+                                        "CompId": globalCompId,
+                                        "VatAmt": vatAmt,
+                                        "RoundAmt": roundAmt < 0.50 &&
+                                            roundAmt != 0.0
+                                            ? -(roundAmt)
+                                            : roundAmt,
+                                        "discAmt": discAmt,
+                                        "isVat": vatAmt == 0.0 ? "N" : "Y",
+                                        "Cgst": cGst,
+                                        "Sgst": sGst,
+                                        "Igst": iGst,
+                                        "Gst": Gst,
+                                        "ShipTo": shipTo,
+                                        "BillType": salesTypeidx == 0
+                                            ? "A"
+                                            : "B",
+                                        "dat": edate
                                       });
-                                      totalAmount = totalAmount + billEntryList[i].TotAmt;
-                                      totalQty = totalQty + billEntryList[i].quantity;
-                                      totalAmountWOGst=totalAmountWOGst + billEntryList[i].AmtWOGst;
-                                      vatAmt = vatAmt + billEntryList[i].GSTAmt;
-                                      discAmt = discAmt + billEntryList[i].discAmt;
-                                      cGst= cGst+billEntryList[i].CgstA;
-                                      sGst = sGst + billEntryList[i].SgstA;
-                                      iGst = iGst +billEntryList[i].IgstA;
-                                    }
-                                    double roundAmt = vatAmt.toInt()-vatAmt;
-                                    roundAmt = double.parse(roundAmt.toStringAsFixed(2));
-                                    Gst=cGst+sGst+iGst;
-                                    List<dynamic> masList=[];
-                                    masList.add({
-                                      "InvoiceNo" : invoiceNum,
-                                      "SupplierId" : customerId,
-                                      "Person" : customer,
-                                      "NetAmount" : totalAmount,
-                                      "TotQty" : totalQty,
-                                      "TotAmountWOGst": totalAmountWOGst,
-                                      "PayType" : payType=="Cash"? "C":"D",
-                                      "CompId" : globalCompId,
-                                      "VatAmt" : vatAmt,
-                                      "RoundAmt" : roundAmt<0.50 && roundAmt!=0.0? -(roundAmt):roundAmt,
-                                      "discAmt" : discAmt,
-                                      "isVat" : vatAmt ==0.0? "N":"Y",
-                                      "Cgst" : cGst,
-                                      "Sgst" : sGst,
-                                      "Igst" : iGst,
-                                      "Gst" : Gst,
-                                      "ShipTo" : shipTo,
-                                      "BillType" : salesTypeidx==0? "A" : "B",
-                                      "dat" : edate
-                                    });
-                                    print("jsonObject");
-                                    print(masList.length);
-                                    print(masList);
+                                      print("jsonObject");
+                                      print(masList.length);
+                                      print(masList);
 
-                                    saveBillEntryData(masList,detList);
-                                  }
-                                  else{
-                                    print(shipTo);
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return
-                                          AlertDialog(
-                                            title: Text('ALERT'),
-                                            content: shipTo==0?Text("Please select/Reselect the shipTo"):Text("Please Save The Item, Before Generating The Bill"), // Content of the dialog
-                                            actions: <Widget>[
-                                              TextButton(
-                                                child: Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop(); // Close the dialog
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                      },
-                                    );
+                                      saveBillEntryData(masList, detList);
+                                    }
+                                    else {
+                                      print(shipTo);
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return
+                                            AlertDialog(
+                                              title: Text('ALERT'),
+                                              content: shipTo == 0
+                                                  ? Text(
+                                                  "Please select/Reselect the shipTo")
+                                                  : Text(
+                                                  "Please Save The Item, Before Generating The Bill"),
+                                              // Content of the dialog
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  child: Text('OK'),
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(); // Close the dialog
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                        },
+                                      );
+                                    }
+                                  }else{
+                                    if (billEntryList.length > 0 ) {
+                                      List<dynamic> detList = [];
+                                      double totalAmount = 0.0;
+                                      double totalQty = 0.0;
+                                      double totalAmountWOGst = 0.0;
+                                      double vatAmt = 0.0;
+                                      double discAmt = 0.0;
+                                      double cGst = 0.0;
+                                      double sGst = 0.0;
+                                      double iGst = 0.0;
+                                      double Gst = 0.0;
+
+                                      // var prevQty= jsonDecode(prevBillEntryList[idx1]);
+                                      // prevQty['QUANTITY'];
+                                      // print(prevQty);
+                                      for (int i = 0; i <
+                                          billEntryList.length; i++) {
+                                        int pqIdx= prevBillEntryList.indexWhere((entry){
+                                          var decodedValue = jsonDecode(entry);
+                                          print(decodedValue["ITEMID"].toString()==billEntryList[i].name);
+                                          return decodedValue["ITEMID"].toString()==billEntryList[i].name;
+                                        });
+                                        var prevQty= jsonDecode(prevBillEntryList[pqIdx]);
+                                        detList.add({
+                                          "id": billEntryList[i].id,
+                                          "itemId": billEntryList[i].name,
+                                          "item": billEntryList[i].designation,
+                                          "uom": billEntryList[i].uom,
+                                          "hsnCode": billEntryList[i].hsnCode,
+                                          "stock": billEntryList[i].stock,
+                                          "quantity": billEntryList[i].quantity,
+                                          "rate": billEntryList[i].rate,
+                                          "amount": billEntryList[i].amount,
+                                          "disc": billEntryList[i].disc,
+                                          "discAmt": billEntryList[i].discAmt,
+                                          "GSTAmt": billEntryList[i].GSTAmt,
+                                          "TotAmt": billEntryList[i].TotAmt,
+                                          "AmtWOGst": billEntryList[i].AmtWOGst,
+                                          "AmtWDisc": billEntryList[i].AmtWDisc,
+                                          "CgstP": billEntryList[i].CgstP,
+                                          "CgstA": billEntryList[i].CgstA,
+                                          "SgstP": billEntryList[i].SgstP,
+                                          "SgstA": billEntryList[i].SgstA,
+                                          "IgstP": billEntryList[i].IgstP,
+                                          "IgstA": billEntryList[i].IgstA,
+                                          "discP": billEntryList[i].discP,
+                                          "InvoiceNum": invoiceNum,
+                                          "ChangedQty": double.parse(prevQty['QUANTITY'].toString())-double.parse(billEntryList[i].quantity.toString()),
+                                          "ChangeChk": double.parse(prevQty['QUANTITY'].toString())-double.parse(billEntryList[i].quantity.toString()) == 0.0 ?
+                                                       false:true
+                                        });
+                                        totalAmount = totalAmount +
+                                            billEntryList[i].TotAmt;
+                                        totalQty = totalQty +
+                                            billEntryList[i].quantity;
+                                        totalAmountWOGst = totalAmountWOGst +
+                                            billEntryList[i].AmtWOGst;
+                                        vatAmt =
+                                            vatAmt + billEntryList[i].GSTAmt;
+                                        discAmt =
+                                            discAmt + billEntryList[i].discAmt;
+                                        cGst = cGst + billEntryList[i].CgstA;
+                                        sGst = sGst + billEntryList[i].SgstA;
+                                        iGst = iGst + billEntryList[i].IgstA;
+                                      }
+                                      double roundAmt = vatAmt.toInt() - vatAmt;
+                                      roundAmt = double.parse(
+                                          roundAmt.toStringAsFixed(2));
+                                      Gst = cGst + sGst + iGst;
+                                      print("jsonObject");
+                                      print(detList.length);
+                                      print(detList);
+
+                                      List<dynamic> masList = [];
+                                      masList.add({
+                                        "InvoiceNo": invoiceNum,
+                                        "NetAmount": totalAmount,
+                                        "TotQty": totalQty,
+                                        "TotAmountWOGst": totalAmountWOGst,
+                                        "CompId": globalCompId,
+                                        "RoundAmt": roundAmt < 0.50 &&
+                                            roundAmt != 0.0
+                                            ? -(roundAmt)
+                                            : roundAmt,
+                                        "VatAmt": vatAmt,
+                                        "discAmt": discAmt,
+                                        "Cgst": cGst,
+                                        "Sgst": sGst,
+                                        "Igst": iGst,
+                                        "Gst": Gst,
+                                      });
+                                      print("jsonObject");
+                                      print(masList.length);
+                                      print(masList);
+
+
+                                      updateBillEntryData(masList,detList);
+                                    }
+                                    else {
+                                      print(shipTo);
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return
+                                            AlertDialog(
+                                              title: Text('ALERT'),
+                                              content: Text(
+                                                  "No valid to Item to Update"),
+                                              // Content of the dialog
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  child: Text('OK'),
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(); // Close the dialog
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                        },
+                                      );
+                                    }
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -2080,7 +2669,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                     textStyle: TextStyle(color: Colors.black,
                                         fontWeight: FontWeight.bold)
                                 ),
-                                child: Text('Save', style: TextStyle(
+                                child: Text( !approvalValue?'Save': 'Update', style: TextStyle(
                                     color: Colors.white
                                 ),),
                               ),],)
@@ -2094,6 +2683,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           ),
         )
     ), onWillPop: () async{
+      billEntryList.clear();
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/Home',
@@ -2128,7 +2718,8 @@ class BillEntry {
       this.SgstA,
       this.IgstP,
       this.IgstA,
-      this.discP
+      this.discP,
+      this.scode
       );
 
    int id;
@@ -2153,6 +2744,7 @@ class BillEntry {
    double IgstP;
    double IgstA;
    double discP;
+   String scode;
 }
 
 class EmployeeDataSource extends DataGridSource {

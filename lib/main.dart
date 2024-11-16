@@ -12,24 +12,34 @@ import 'package:billentry/stockReport.dart';
 import 'package:flutter/material.dart';
 import "package:http/http.dart" as http;
 import 'billEntryMasScreen.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 
-void main() => runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Home(),
-      routes: {
-        '/Home':(context)=> homeScreen(),
-        '/Home/billEntry': (context) => billEntryFirstScreen(data: jsonEncode({"valid":false})),
-        '/Home/stock': (context) => stockReportPage(),
-        '/Home/purchaseEntry': (context)=> purchaseEntryFirstScreen(),
-        '/Home/branchTransfer' : (context)=> branchTranseferPage(approveData: jsonEncode({"approve":false, "selectedData":""})),
-        '/Home/branchApproval' : (context)=> approvalReportPage(),
-        '/Home/sales' : (context)=> salesReportPage(),
-        '/Home/purchase' : (context)=> purchaseReportPage()
-      },
-    )
-);
+Future main() async {
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  await Future.delayed(const Duration(milliseconds: 200));
+  FlutterNativeSplash.remove();
+  runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Home(),
+        routes: {
+          '/Home': (context) => homeScreen(),
+          '/Home/billEntry': (context) =>
+              billEntryFirstScreen(data: jsonEncode({"valid": false})),
+          '/Home/stock': (context) => stockReportPage(),
+          '/Home/purchaseEntry': (context) => purchaseEntryFirstScreen(data: jsonEncode({"valid": false})),
+          '/Home/branchTransfer': (context) =>
+              branchTranseferPage(approveData: jsonEncode(
+                  {"approve": false, "selectedData": ""})),
+          '/Home/branchApproval': (context) => approvalReportPage(),
+          '/Home/sales': (context) => salesReportPage(),
+          '/Home/purchase': (context) => purchaseReportPage()
+        },
+      )
+  );
+}
 
 var globalUserName="";
 var globalEmailId="";
