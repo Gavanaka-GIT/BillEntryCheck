@@ -77,13 +77,22 @@ class _homeScreen extends State<homeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Image Logo
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Image.asset(
+                    'assets/icon/icon.png',  // Path to your image
+                    height: 100,  // Adjust the size of the logo
+                    width: 100,
+                  ),
+                ),
+
                 // Title with animation
                 AnimatedContainer(
                   duration: Duration(seconds: 1),
                   curve: Curves.easeInOut,
                   padding: EdgeInsets.all(20),
-                  child:
-            Text(
+                  child: Text(
                     "VISION TECH - SOFTWARES",
                     style: TextStyle(
                       fontSize: 24,
