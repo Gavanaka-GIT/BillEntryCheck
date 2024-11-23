@@ -437,7 +437,7 @@ class _stockReport extends State<salesReportPage>{
                     Row( mainAxisAlignment:MainAxisAlignment.center,children: [
                       Container(
                         width: width>500? width:width,
-                        height: height * 0.65,
+                        height: height * 0.5,
                         // alignment:  Alignment.center,
                         //
                         child:

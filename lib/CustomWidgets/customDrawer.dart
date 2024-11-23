@@ -25,7 +25,7 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget{
           DrawerHeader(
             decoration: BoxDecoration(
               color: Color(0xFF004D40), // Premium color for header
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(0)),
               boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)], // Light shadow
             ),
             child: Padding(
