@@ -372,6 +372,7 @@ class _stockReport extends State<purchaseReportPage>{
                       child: TextField(
                         decoration: InputDecoration(border:
                         OutlineInputBorder(borderRadius: BorderRadius.circular(25.0)),
+                            contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                             prefixIcon: Icon(Icons.search),
                             hintText: mainChk? "Search Month Here":"Search Party Here",
                             labelText: mainChk? "Search Month":"Search Party"

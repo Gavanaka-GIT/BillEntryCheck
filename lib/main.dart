@@ -5,6 +5,7 @@ import 'package:billentry/GlobalVariables.dart';
 import 'package:billentry/branchApproval.dart';
 import 'package:billentry/branchTransfer.dart';
 import 'package:billentry/homepage.dart';
+import 'package:billentry/ledger.dart';
 import 'package:billentry/purchaseEntryMasScreen.dart';
 import 'package:billentry/purchaseReport.dart';
 import 'package:billentry/salesReport.dart';
@@ -35,7 +36,8 @@ Future main() async {
                   {"approve": false, "selectedData": ""})),
           '/Home/branchApproval': (context) => approvalReportPage(),
           '/Home/sales': (context) => salesReportPage(),
-          '/Home/purchase': (context) => purchaseReportPage()
+          '/Home/purchase': (context) => purchaseReportPage(),
+          '/Home/ledger': (context) => Ledger(approvedData: jsonEncode({"approve":false, "selectedData": ""}))
         },
       )
   );

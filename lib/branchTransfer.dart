@@ -1027,7 +1027,9 @@ class _branchStateInstance extends State<branchTranseferPage>{
       gridHeight= height*length;
     }
 
-    return WillPopScope(child: Scaffold(
+    return WillPopScope(child:
+    Scaffold(
+
       appBar: CustomAppBar(userName: globalUserName, emailId: globalEmailId,
         onMenuPressed: (){
           Scaffold.of(context).openDrawer();
@@ -1047,6 +1049,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                       readOnly: true,
                       controller: TextEditingController()..text= invoiceNum.toString(),
                       decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Invoice No',
+                          contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                           fillColor: Colors.white, filled: true),
                     ),
                   ),
@@ -1068,6 +1071,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                       // readOnly: true,
                       decoration: InputDecoration(
                         labelText: 'Invoice Date',
+                        contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                         border: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.red), // Change the border color here
                         ),
@@ -1109,7 +1113,8 @@ class _branchStateInstance extends State<branchTranseferPage>{
                       showCursor: false,
                       readOnly: true,
                       controller: TextEditingController()..text= fromBranch.toString(),
-                      decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'From Branch',
+                      decoration: InputDecoration(border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),labelText: 'From Branch',
                           fillColor: Colors.white, filled: true),
                     ),
                   ),
@@ -1246,6 +1251,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                 fillColor:  Colors.white,
                 filled: true,
                 labelText: "To Branch",
+                contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                 hintText: 'Search for a to branch',
                 border: OutlineInputBorder(),
               ),
@@ -1292,6 +1298,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                         readOnly: true,
                         controller: TextEditingController()..text= toBranch.toString(),
                         decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'To Branch',
+                            contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                             fillColor: Colors.white, filled: true),
                       ),
                     ),
@@ -1303,7 +1310,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
 
         !approve?Column(children: [
           Padding(
-          padding: EdgeInsets.fromLTRB(25, 75, 25, 5),
+          padding: EdgeInsets.fromLTRB(25, 30, 25, 5),
           child:
           Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1380,6 +1387,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                         filled: true,
                         labelText: "Item",
                         hintText: 'Search for a item',
+                        contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                         border: OutlineInputBorder(),
                       ),
                     );
@@ -1444,6 +1452,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                         },
                         controller: qtyTextController,
                         decoration: InputDecoration(border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                             labelText: 'Quantity',
                             fillColor: Colors.white, filled: true),
                       ),
@@ -1469,6 +1478,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                         },
                         controller: rateTextController,
                         decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Rate',
+                            contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                             fillColor: Colors.white, filled: true),
                       ),
                     ),

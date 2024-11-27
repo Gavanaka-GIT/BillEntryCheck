@@ -1193,6 +1193,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                 isExpanded: true,
                                 value: billType,
                                 decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                   filled: true,
                                   fillColor: Colors.white,
                                   labelText: "Bill Type",
@@ -1285,7 +1286,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     showCursor: false,
                                     readOnly: true,
                                     controller: TextEditingController()..text= invoiceNum.toString(),
-                                    decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Invoice No',
+                                    decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                        border: OutlineInputBorder(),labelText: 'Invoice No',
                                         fillColor: Colors.white, filled: true),
                                   ),
                                 ),
@@ -1307,6 +1310,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     controller: date,
                                     readOnly: true,
                                     decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                       labelText: 'To Date',
                                       border: OutlineInputBorder(
                                         borderSide: BorderSide(color: Colors.red), // Change the border color here
@@ -1470,7 +1474,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     readOnly: true,
                                     // textAlign: TextAlign.center,
                                     controller: TextEditingController()..text= customerName.toString(),
-                                    decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Customer',
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                      border: OutlineInputBorder(),labelText: 'Customer',
                                       fillColor: Colors.white, filled: true,
                                       // contentPadding: EdgeInsets.symmetric(vertical: height*0.01),
                                     ),
@@ -1674,6 +1680,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       isExpanded: true,
                                       value: payType,
                                       decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                         //alignLabelWithHint: true,
                                         fillColor: Colors.white,
                                         filled: true,
@@ -1773,6 +1780,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                             }
                                           },
                                           decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                             fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
                                             filled: true,
                                             labelText: "Ship To",
@@ -1813,6 +1821,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       isExpanded: true,
                                       value: payType,
                                       decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                         //alignLabelWithHint: true,
                                         fillColor: Colors.white,
                                         filled: true,
@@ -1878,7 +1887,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       readOnly: true,
                                       // textAlign: TextAlign.center,
                                       controller: TextEditingController()..text= savedShipToName.toString(),
-                                      decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Ship To',
+                                      decoration: const InputDecoration(
+                                        contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                        border: OutlineInputBorder(),labelText: 'Ship To',
                                         fillColor: Colors.white, filled: true,
                                         // contentPadding: EdgeInsets.symmetric(vertical: height*0.01),
                                       ),
@@ -1895,6 +1906,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                   value: payType,
                                   decoration: InputDecoration(
                                     //alignLabelWithHint: true,
+                                    contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                     fillColor: Colors.white,
                                     filled: true,
                                     labelText: "Pay Type",
@@ -1959,7 +1971,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                   readOnly: true,
                                   // textAlign: TextAlign.center,
                                   controller: TextEditingController()..text= savedShipToName.toString(),
-                                  decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Ship To',
+                                  decoration: const InputDecoration(
+                                    contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                    border: OutlineInputBorder(),labelText: 'Ship To',
                                     fillColor: Colors.white, filled: true,
                                     // contentPadding: EdgeInsets.symmetric(vertical: height*0.01),
                                   ),
@@ -1984,6 +1998,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         showCursor: !approvalValue?true:false,
                                         readOnly: !approvalValue?false: true,
                                         decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                           labelText: 'Supplier Date',
                                           border: OutlineInputBorder(
                                             borderSide: BorderSide(color: Colors.red), // Change the border color here
@@ -2021,7 +2036,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                           supInvNumber= newValue.toString();
                                         },
                                         controller: TextEditingController()..text= supInvNumber.toString(),
-                                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Supplier Inv No',
+                                        decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                            border: OutlineInputBorder(),labelText: 'Supplier Inv No',
                                             fillColor: Colors.white, filled: true),
                                       ), )
 
@@ -2090,6 +2107,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       // }
                                     },
                                     decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                       fillColor: Colors.white,
                                       filled: true,
                                       labelText: "Item",
@@ -2166,7 +2184,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                             onChanged:(String newValue){
                                             },
                                             controller: _itemController,
-                                            decoration: const InputDecoration(border: OutlineInputBorder(),
+                                            decoration: const InputDecoration(
+                                                contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                                border: OutlineInputBorder(),
                                                 labelText: 'Item',
                                                 fillColor: Colors.white, filled: true),
                                           ),
@@ -2201,6 +2221,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       },
                                       controller: qtyTextController,
                                       decoration: InputDecoration(border: OutlineInputBorder(),
+                                          contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                           labelText: 'Quantity',
                                           fillColor: Colors.white, filled: true),
                                     ))
@@ -2213,7 +2234,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       //   itemRate = double.parse(newValue);
                                       // },
                                       controller: gstTextController,
-                                      decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Gst',
+                                      decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                          border: OutlineInputBorder(),labelText: 'Gst',
                                           fillColor: Colors.white, filled: true),
                                     )),],),
                                 ),
@@ -2237,7 +2260,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       discount = double.parse(newValue);
                                     },
                                     controller: discTextController,
-                                    decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Disc',
+                                    decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                        border: OutlineInputBorder(),labelText: 'Disc',
                                         fillColor: Colors.white, filled: true),
                                   ),
                                 ),
@@ -2261,7 +2286,8 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       itemRate = double.parse(newValue);
                                     },
                                     controller: rateTextController,
-                                    decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Rate',
+                                    decoration: InputDecoration(border: OutlineInputBorder(),
+                                        contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),labelText: 'Rate',
                                         fillColor: Colors.white, filled: true),
                                   ),
                                 ),
@@ -2564,7 +2590,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         }
                                       });
                                     },
-                                    decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Narration',
+                                    decoration: InputDecoration(border: OutlineInputBorder(),
+                                        contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                        labelText: 'Narration',
                                         fillColor: Colors.white, filled: true),
                                   ),
                                 ),

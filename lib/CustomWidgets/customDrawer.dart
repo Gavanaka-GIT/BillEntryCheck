@@ -31,13 +31,14 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget{
             child: Padding(
               padding: EdgeInsets.only(top: 10.0), // Adjust padding for better alignment
               child: Center(
-                child: Image.asset('assets/icon/icon.png', height: 50), // Logo size adjustment
+                child: Image.asset('assets/icon/logo.png', height: 100), // Logo size adjustment
               ),
             ),
           ),
 
           // ListTiles with some small improvements
           _buildListTile(context, Icons.home, 'Home', '/Home'),
+          _buildListTile(context, Icons.person_add_alt_1, 'Ledger', '/Home/ledger'),
           _buildListTile(context, Icons.shopping_cart, 'Sales', '/Home/billEntry'),
           _buildListTile(context, Icons.shopping_bag, 'Purchase', '/Home/purchaseEntry'),
           _buildListTile(context, Icons.table_chart, 'Stock Report', '/Home/stock', condition: !stkTransferCheck),

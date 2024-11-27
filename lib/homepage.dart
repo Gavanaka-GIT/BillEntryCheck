@@ -81,9 +81,9 @@ class _homeScreen extends State<homeScreen> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Image.asset(
-                    'assets/icon/icon.png',  // Path to your image
-                    height: 100,  // Adjust the size of the logo
-                    width: 100,
+                    'assets/icon/logo.png',  // Path to your image
+                    height: 250,  // Adjust the size of the logo
+                    width: 250,
                   ),
                 ),
 

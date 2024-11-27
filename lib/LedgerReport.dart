@@ -5,6 +5,7 @@ import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
 import 'package:billentry/billEntryMasScreen.dart';
 import 'package:billentry/branchTransfer.dart';
+import 'package:billentry/ledger.dart';
 import 'package:billentry/main.dart';
 import 'package:billentry/purchaseEntryMasScreen.dart';
 import 'package:flutter/material.dart';
@@ -20,19 +21,20 @@ import 'package:http/http.dart' as http;
 
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-class approvalReportPage extends StatefulWidget{
-  const approvalReportPage({super.key});
+class ledgerReportPage extends StatefulWidget{
+  const ledgerReportPage({super.key});
 
-  _approvalReport createState()=> _approvalReport();
+  _ledgerReport createState()=> _ledgerReport();
 }
 
 List<BranchTransferReceiptPending> BranchTransferReceiptList=[];
-class _approvalReport extends State<approvalReportPage>{
+class _ledgerReport extends State<ledgerReportPage>{
 
   late BranchTransefrReceiptSource _BranchTransefrReceiptSource;
   String secondGridName="";
   bool mainChk=true;
-  dynamic transnoData;
+  dynamic ledgerData;
+  List<dynamic> transferList=[];
   final DataGridController _dataGridController = DataGridController();
   void _incrementCounter() {
     setState(() {
@@ -56,7 +58,7 @@ class _approvalReport extends State<approvalReportPage>{
   }
 
   Future<void> FetchMasData()async {
-    String cutTableApi =ipAddress+"api/getBranchTransferReciptDatas";
+    String cutTableApi =ipAddress+"api/getLedgerReportDatas";
     try {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -80,18 +82,19 @@ class _approvalReport extends State<approvalReportPage>{
         var chk = data['valid'];
 
         if (chk) {
-          List<dynamic> transferList= data['result'];
+          transferList= data['result'];
           approvalCnt =transferList.length;
           int cnt=1;
           try {
             for (int i = 0; i < transferList.length; i++) {
               BranchTransferReceiptList.add(BranchTransferReceiptPending(
-                  cnt, transferList[i]['TransNo'],
-                  transferList[i]['TransDate'].toString(),
-                  transferList[i]['FromBranch'].toString(),
-                  transferList[i]['Qty'].toString(),
-                  transferList[i]['Amount'].toString(),
-                  transferList[i]['Prod_MasId'].toString()
+                  cnt, transferList[i]['ledgerName'],
+                  transferList[i]['ledgerGroup'].toString(),
+                  transferList[i]['gstNumber'].toString(),
+                  transferList[i]['contact'].toString(),
+                  transferList[i]['phone'].toString(),
+                  transferList[i]['active'].toString(),
+                  transferList[i]['ledgerId'].toString()
               ));
               cnt++;
             }
@@ -216,19 +219,12 @@ class _approvalReport extends State<approvalReportPage>{
               emailId: globalEmailId,
               onMenuPressed: (){
                 Scaffold.of(context).openDrawer();
-              }, barTitle: "TRANSFER APPROVAL"),
+              }, barTitle: "LEDGER REPORT"),
           drawer: customDrawer(stkTransferCheck: true,
               brhTransferCheck: false),
           body:
           SingleChildScrollView(
               child:Column(children: [
-                SizedBox(height: 10,),
-                Center(child:
-                Text("BRANCH TRANSFER RECEIPT PENDING", style:
-                TextStyle(fontWeight:FontWeight.bold,
-                    fontSize: 20),
-                ),),
-                SizedBox(height: 10,),
                 Row(mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // !mainChk ? Padding(padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -251,9 +247,8 @@ class _approvalReport extends State<approvalReportPage>{
                         OutlineInputBorder(borderRadius: BorderRadius.circular(25.0)),
                             contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                             prefixIcon: Icon(Icons.search),
-                            hintText: "Search Trans Number Here",
-                            labelText: "Search Transno"
-
+                            hintText: "Search Ledger Name here",
+                            labelText: "Search Ledger Name"
                         ),
                         onChanged: (String newValue){
                           if(newValue == "") {
@@ -267,7 +262,7 @@ class _approvalReport extends State<approvalReportPage>{
                               if(mainChk) {
                                 List<BranchTransferReceiptPending> tempSalesList = [];
                                 for (int i = 0; i < BranchTransferReceiptList.length; i++) {
-                                  if (BranchTransferReceiptList[i].transno.toLowerCase().contains(
+                                  if (BranchTransferReceiptList[i].ledgerName.toLowerCase().contains(
                                       newValue.toString().toLowerCase())) {
                                     print("Check Point Working");
                                     tempSalesList.add(BranchTransferReceiptList[i]);
@@ -357,63 +352,74 @@ class _approvalReport extends State<approvalReportPage>{
                                 ),
                               ),
                               GridColumn(
-                                columnName: 'transno',
-                                width: width<500?165:width*0.4,
+                                columnName: 'ledgerName',
+                                width: width<500?166:width*0.4,
                                 label: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('TRANSNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: Text('LEDGERNAME', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
-                                columnName: 'transdate',
-                                width: width<500?115:width*0.25,
+                                columnName: 'ledgerGroup',
+                                width: width<500?163:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('TRANSDATE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: Text('LEDGERGRP', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
-                                columnName: 'frombranch',
+                                columnName: 'gstNumber',
                                 width: width<500?130:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('FROMBRANCH', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: Text('GSTNUMBER', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
-                                columnName: 'qty',
+                                columnName: 'contact',
                                 width: width<500?115:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('QUANTITY', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: Text('CONTACT', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
-                                columnName: 'amount',
+                                columnName: 'phone',
                                 width: width<500?115:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('AMOUNT', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: Text('PHONE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
-                                columnName: 'transmasid',
+                                columnName: 'active',
+                                width: width<500?124:width*0.25,
+                                allowFiltering: true,
+                                visible: true,
+                                label: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  alignment: Alignment.center,
+                                  child: Text('ACTIVE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                              GridColumn(
+                                columnName: 'ledgerId',
                                 width: width<500?115:width*0.25,
                                 allowFiltering: false,
                                 visible: false,
                                 label: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('TRANSMASID', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: Text('LEDGERID', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                             ],
@@ -439,28 +445,36 @@ class _approvalReport extends State<approvalReportPage>{
                       if(_dataGridController.selectedRow?.getCells()[1].value!= null) {
                         print(_dataGridController.selectedRow?.getCells()[1].value);
                         String value=_dataGridController.selectedRow?.getCells()[1].value;
-                        String masId =_dataGridController.selectedRow?.getCells()[6].value;
-                        print(value);
-                        transnoData= jsonEncode({"transo":value,"transId":masId});
+                        String masId =_dataGridController.selectedRow?.getCells()[7].value;
+                        print(masId);
+                        dynamic selectedVal;
+                        for(int i=0;i<transferList.length;i++) {
+                          if(masId == transferList[i]['ledgerId'].toString()){
+                            selectedVal= transferList[i];
+                            break;
+                          }
+                        }
+                        print(selectedVal);
+                        ledgerData= jsonEncode({"ledgerName":value,"values":selectedVal});
                         setState(() {
                           mainChk=false;
                           // _stockReportDetSource = StockReportDetSource(stockReportDet: tempStockReportDet);
                         });
                         // tempStockReportDet=[];
-                      //   int cnt=1;
-                      //   // for(int i=0;i<StockReportDetList.length;i++){
-                      //   //   if(value==StockReportDetList[i].group){
-                      //   //     tempStockReportDet.add(StockReportDetList[i]);
-                      //   //     tempStockReportDet[tempStockReportDet.length-1].sno=cnt;
-                      //   //     cnt++;
-                      //   //   }
-                      //   // }
-                      //   secondGridName=value;
-                      //   setState(() {
-                      //     mainChk=false;
-                      //     // _stockReportDetSource = StockReportDetSource(stockReportDet: tempStockReportDet);
-                      //   });
-                      //
+                        //   int cnt=1;
+                        //   // for(int i=0;i<StockReportDetList.length;i++){
+                        //   //   if(value==StockReportDetList[i].group){
+                        //   //     tempStockReportDet.add(StockReportDetList[i]);
+                        //   //     tempStockReportDet[tempStockReportDet.length-1].sno=cnt;
+                        //   //     cnt++;
+                        //   //   }
+                        //   // }
+                        //   secondGridName=value;
+                        //   setState(() {
+                        //     mainChk=false;
+                        //     // _stockReportDetSource = StockReportDetSource(stockReportDet: tempStockReportDet);
+                        //   });
+                        //
                       }
                       else{
                         showDialog(context: context, builder:(BuildContext context) {
@@ -480,7 +494,7 @@ class _approvalReport extends State<approvalReportPage>{
                         } );
                       }
                     },
-                      label: Text("Fetch Selected TransNo",style: TextStyle(color: Colors.white), ),
+                      label: Text("Fetch Selected Ledger",style: TextStyle(color: Colors.white), ),
                       icon: Icon(Icons.arrow_forward, color: Colors.pink,),
                       style: ElevatedButton.styleFrom(foregroundColor: Colors.black,
                         backgroundColor: Color(0xFF004D40),),
@@ -495,10 +509,13 @@ class _approvalReport extends State<approvalReportPage>{
           )
 
 
-      ): branchTranseferPage( approveData: jsonEncode({"approve":true, "selectedData":transnoData}),), onWillPop: () async{
+      ):
+      Ledger( approvedData: jsonEncode({"approve":true, "selectedData":ledgerData}),)
+      //     Ledger()
+          , onWillPop: () async{
         Navigator.pushNamedAndRemoveUntil(
           context,
-          '/Home',
+          '/Home/ledger',
               (Route<dynamic> route) => false, // This will remove all previous routes
         );
         return true;
@@ -512,20 +529,22 @@ class _approvalReport extends State<approvalReportPage>{
 class BranchTransferReceiptPending {
   BranchTransferReceiptPending(
       this.sno,
-      this.transno,
-      this.transdate,
-      this.frombranch,
-      this.qty,
-      this.amount,
-      this.transmasid);
+      this.ledgerName,
+      this.ledgerGroup,
+      this.gstNumber,
+      this.contact,
+      this.phone,
+      this.active,
+      this.ledgerId);
 
   int sno;
-  String transno;
-  String transdate;
-  String frombranch;
-  String qty;
-  String amount;
-  var transmasid;
+  String ledgerName;
+  String ledgerGroup;
+  String gstNumber;
+  String contact;
+  String phone;
+  var active;
+  String ledgerId;
 }
 
 
@@ -534,12 +553,13 @@ class BranchTransefrReceiptSource extends DataGridSource {
     _billEntry = salesReportMain.map<DataGridRow>((dataGridRow) => DataGridRow(
       cells: [
         DataGridCell<int>(columnName: 'sno', value: dataGridRow.sno),
-        DataGridCell<String>(columnName: 'transno', value: dataGridRow.transno),
-        DataGridCell<String>(columnName: 'transdate', value: dataGridRow.transdate),
-        DataGridCell<String>(columnName: 'frombranch', value: dataGridRow.frombranch),
-        DataGridCell<String>(columnName: 'qty', value: dataGridRow.qty),
-        DataGridCell<String>(columnName: 'amount', value: dataGridRow.amount),
-        DataGridCell<String>(columnName: 'transmasid', value: dataGridRow.transmasid),
+        DataGridCell<String>(columnName: 'ledgerName', value: dataGridRow.ledgerName),
+        DataGridCell<String>(columnName: 'ledgerGroup', value: dataGridRow.ledgerGroup),
+        DataGridCell<String>(columnName: 'gstNumber', value: dataGridRow.gstNumber),
+        DataGridCell<String>(columnName: 'contact', value: dataGridRow.contact),
+        DataGridCell<String>(columnName: 'phone', value: dataGridRow.phone),
+        DataGridCell<String>(columnName: 'active', value: dataGridRow.active),
+        DataGridCell(columnName: 'ledgerId', value: dataGridRow.ledgerId)
       ],
     )).toList();
   }
@@ -587,7 +607,7 @@ class BranchTransefrReceiptSource extends DataGridSource {
       // billEntryList[dataRowIndex].quantity=double.parse(newCellValue.toString());
       dynamic value= double.parse(newCellValue.toString())*   double.parse(_billEntry[dataRowIndex].getCells()[rowColumnIndex.columnIndex+1].value.toString());
       print("Total Amount");
-      _billEntry[dataRowIndex].getCells()[rowColumnIndex.columnIndex+2]=DataGridCell<int>(columnName: 'amount', value: value);
+      _billEntry[dataRowIndex].getCells()[rowColumnIndex.columnIndex+2]=DataGridCell<int>(columnName: 'phone', value: value);
 
       // print(value);
       print(dataRowIndex);
