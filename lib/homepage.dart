@@ -57,7 +57,12 @@ class _homeScreen extends State<homeScreen> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
+    // Getting screen height and width using MediaQuery
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return WillPopScope(
       child: Scaffold(
         appBar: CustomAppBar(
@@ -72,37 +77,37 @@ class _homeScreen extends State<homeScreen> {
           stkTransferCheck: false,
           brhTransferCheck: false,
         ),
-        body: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Image Logo
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Image.asset(
-                    'assets/icon/logo.png',  // Path to your image
-                    height: 250,  // Adjust the size of the logo
-                    width: 250,
-                  ),
+        body:
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Image Logo
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Image.asset(
+                  'assets/icon/logo.png', // Path to your image
+                  width: screenWidth * 0.5,  // Set image width dynamically based on screen width
+                  height: screenHeight * 0.3,  // Set image height dynamically based on screen height
+                  fit: BoxFit.contain,  // Ensure the image scales well
                 ),
+              ),
 
-                // Title with animation
-                AnimatedContainer(
-                  duration: Duration(seconds: 1),
-                  curve: Curves.easeInOut,
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    "VISION TECH - SOFTWARES",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF004D40),
-                    ),
+              // Title with animation
+              AnimatedContainer(
+                duration: Duration(seconds: 1),
+                curve: Curves.easeInOut,
+                padding: EdgeInsets.all(20),
+                child: Text(
+                  "VISION TECH - SOFTWARES",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF004D40),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -147,4 +152,5 @@ class _homeScreen extends State<homeScreen> {
       },
     );
   }
+
 }

@@ -53,10 +53,13 @@ class _LedgerState extends State<Ledger> {
   String groupName="";
   String groupId="";
   String cityName="";
+  String updPrintName="";
   String cityId ="";
   String openingBalanceSuffixVar="";
+  String updSupplierId="";
 
   bool checkBox=false;
+  bool updChk=false;
 
   Future<void> fetchSavedData() async {
     try {
@@ -95,17 +98,21 @@ class _LedgerState extends State<Ledger> {
             cityIdList.add(getCityName[i]['CityId'].toString());
           }
 
-          setState(() {
-            cityName=cityList[0];
-            cityId = cityIdList[0];
-            groupName=groupList[0];
-            groupId= groupIdList[0];
-          });
+          if(!updChk) {
+            setState(() {
+              cityName = cityList[0];
+              cityId = cityIdList[0];
+              groupName = groupList[0];
+              groupId = groupIdList[0];
+            });
+          }
 
 
 
           if(ledgerNameController.text != "" && ledgerNameController.text != null){
-            if(supplierList.isNotEmpty) {
+            if(updPrintName == ledgerNameController.text.toString()) {
+              printNameController.text = ledgerNameController.text.toString();
+            }else if(supplierList.isNotEmpty) {
               if (supplierList.indexOf(ledgerNameController.text.toString().toLowerCase()) != -1) {
                 int cnt =0;
                 for(int i=0;i<supplierList.length;i++){
@@ -147,6 +154,7 @@ class _LedgerState extends State<Ledger> {
         );
       }
     } catch (e) {
+      print("Error");
       print(e);
       showDialog(
         context: context,
@@ -245,6 +253,7 @@ class _LedgerState extends State<Ledger> {
             cityId ="";
             openingBalanceSuffixVar="";
             checkBox=false;
+
           });
 
 
@@ -255,7 +264,7 @@ class _LedgerState extends State<Ledger> {
               return
                 AlertDialog(
                   title: Text('REASON'),
-                  content: Text("Ledger Inserted Successfully"),
+                  content: updChk?Text("Ledger updated Successfully"):Text("Ledger Inserted Successfully"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
@@ -270,6 +279,9 @@ class _LedgerState extends State<Ledger> {
           );
 
           openingBalanceSuffixVar= openingBalanceSuffix[0];
+          setState(() {
+            updChk=false;
+          });
           fetchSavedData();
 
 
@@ -281,7 +293,7 @@ class _LedgerState extends State<Ledger> {
               return
                 AlertDialog(
                   title: Text('REASON'),
-                  content: Text("Ledger Insertion Failed"),
+                  content: updChk?Text("Ledger Updation Failed"): Text("Ledger Insertion Failed"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
@@ -347,12 +359,13 @@ class _LedgerState extends State<Ledger> {
 
   @override
   void initState() {
-    fetchSavedData();
-    openingBalanceSuffixVar= openingBalanceSuffix[0];
+
     print("check"+ widget.approvedData);
     var updVal= jsonDecode(widget.approvedData);
     print(updVal["approve"]);
+    updChk= updVal["approve"];
     if(updVal["approve"]){
+      // updChk= true;
       print("Update function working");
       var selectedData= jsonDecode(updVal['selectedData']);
       setState(() {
@@ -374,6 +387,9 @@ class _LedgerState extends State<Ledger> {
       print(selectedData);
       setState(() {
         ledgerNameController.text=selectedData['ledgerName'].toString()=="null"?"":selectedData['ledgerName'].toString();
+        updSupplierId=selectedData['values']['SupplierId'].toString()=="null"?"":selectedData['values']['SupplierId'].toString();
+        print("SupplierId" + updSupplierId);
+        updPrintName=selectedData['ledgerName'].toString()=="null"?"":selectedData['ledgerName'].toString();
         printNameController.text= selectedData['values']['PrintName'].toString()=="null"?"":selectedData['values']['PrintName'].toString();
         codeController.text=selectedData['values']['SupCode'].toString()=="null"?"":selectedData['values']['SupCode'].toString();
         groupName=selectedData['values']['ledgerGroup'].toString()=="null"?"":selectedData['values']['ledgerGroup'].toString();
@@ -381,27 +397,27 @@ class _LedgerState extends State<Ledger> {
         address1Controller.text = selectedData['values']['Add1'].toString()=="null"?"":selectedData['values']['Add1'].toString();
         address2Controller.text = selectedData['values']['Add2'].toString()=="null"?"":selectedData['values']['Add2'].toString();
         address3Controller.text = selectedData['values']['Add3'].toString()=="null"?"":selectedData['values']['Add3'].toString();
-        cityName= selectedData['values']['ledgerGroup'].toString()=="null"?"":selectedData['values']['ledgerGroup'].toString();
+        cityName= selectedData['values']['City'].toString()=="null"?"":selectedData['values']['City'][0].toString();
+        cityId=selectedData['values']['City'].toString()=="null"?"":selectedData['values']['City'][1].toString();
+        gstNumberController.text=selectedData['values']['gstNumber'].toString()=="null"?"":selectedData['values']['gstNumber'].toString();
+        creditDaysController.text=selectedData['values']['CreditDays'].toString()=="null"?"":selectedData['values']['CreditDays'].toString();
+        // creditAmountController.text = selectedData['values']['CreditDays'].toString()=="null"?"":selectedData['values']['CreditDays'].toString();
+        contactController.text= selectedData['values']['Contact_person'].toString()=="null"?"":selectedData['values']['Contact_person'].toString();
+        mobileController.text= selectedData['values']['Mobile_No'].toString()=="null"?"":selectedData['values']['Mobile_No'].toString();
+        phoneController.text = selectedData['values']['phone'].toString()=="null"?"":selectedData['values']['phone'].toString();
+        emailController.text = selectedData['values']['Mailid'].toString()=="null"?"":selectedData['values']['Mailid'].toString();
+        openingBalanceController.text = selectedData['values']['OpBalAmt'].toString()=="null"?"":selectedData['values']['OpBalAmt'].toString();
+        openingBalanceSuffixVar= selectedData['values']['OpType'].toString()=="Dr"?openingBalanceSuffix[0]: openingBalanceSuffix[1];
+        print("openingBalanceSuffixVar"+openingBalanceSuffixVar);
+        checkBox=selectedData['values']['active'].toString()=="Y"?true:false;
       });
 
-      gstNumberController.clear();
-      stateNameController.clear();
-      pinCodeController.clear();
-      panCardController.clear();
-      msmeController.clear();
-      creditDaysController.clear();
-      creditAmountController.clear();
-      contactController.clear();
-      mobileController.clear();
-      phoneController.clear();
-      emailController.clear();
-      ccMailController.clear();
-      openingBalanceController.clear();
 
-
-
-
-      openingBalanceSuffixVar= openingBalanceSuffix[0];
+      fetchSavedData();
+    }
+    else {
+      fetchSavedData();
+      openingBalanceSuffixVar = openingBalanceSuffix[0];
     }
   }
 
@@ -475,6 +491,7 @@ class _LedgerState extends State<Ledger> {
                                   cityId ="";
                                   openingBalanceSuffixVar="";
                                   checkBox=false;
+                                  updChk=false;
                                   });
 
 
@@ -548,7 +565,9 @@ class _LedgerState extends State<Ledger> {
                                   onChanged: (String newValue){
                                     print("newValue onChanged");
                                     print(newValue);
-                                    if(supplierList.length>0) {
+                                    if(updPrintName == newValue.toString()) {
+                                      printNameController.text = ledgerNameController.text.toString();
+                                    }else if(supplierList.length>0) {
                                       print(supplierList);
                                       print(supplierList.indexOf(newValue.toLowerCase()));
                                       if (supplierList.indexOf(newValue.toLowerCase().trim()) != -1) {
@@ -605,8 +624,26 @@ class _LedgerState extends State<Ledger> {
                                 child:
                                 TextFormField(
                                   controller: printNameController,
-                                  readOnly: true,
-                                  showCursor: false,
+                                  readOnly: false,
+                                  showCursor: true,
+                                  onChanged: (String newValue){
+                                    if(updPrintName==ledgerNameController.text.toString()){
+                                      printNameController.text = ledgerNameController.text.toString();
+                                    }else
+                                    if (supplierList.indexOf(newValue.toLowerCase().trim()) != -1) {
+                                      int cnt =0;
+                                      for(int i=0;i<supplierList.length;i++){
+                                        if(supplierList[i]==(newValue.toLowerCase().trim())){
+                                          print(supplierList[i]+ " supplierList[i]");
+                                          cnt++;
+                                        }
+                                      }
+                                      setState(() {
+                                        print(cnt.toString()+"cnt");
+                                        printNameController.text = newValue.toString()+ cnt.toString();
+                                      });
+                                    }
+                                  },
                                   decoration: InputDecoration(
                                     labelText: 'Print Name',
                                     labelStyle: TextStyle(fontSize: 14),
@@ -633,34 +670,34 @@ class _LedgerState extends State<Ledger> {
                       // Code and Group in the same row with icons
                       Row(
                         children: [
+                          // Flexible(
+                          //   flex: 4, // Code field will take 20% of the space
+                          //   child: Padding(
+                          //       padding: const EdgeInsets.only(right: 16.0),
+                          //       child: Card(elevation: 5,
+                          //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          //         child: TextFormField(
+                          //           controller: codeController,
+                          //           decoration: InputDecoration(
+                          //             labelText: 'Code',
+                          //             labelStyle: TextStyle(fontSize: 14),
+                          //             prefixIcon: Icon(Icons.code),
+                          //             border: OutlineInputBorder(
+                          //               borderRadius: BorderRadius.circular(10),
+                          //             ),
+                          //             contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                          //           ),
+                          //           validator: (value) {
+                          //             // if (value == null || value.isEmpty) {
+                          //             //   return 'Please enter a code';
+                          //             // }
+                          //             return null;
+                          //           },
+                          //         ),)
+                          //   ),
+                          // ),
                           Flexible(
-                            flex: 4, // Code field will take 20% of the space
-                            child: Padding(
-                                padding: const EdgeInsets.only(right: 16.0),
-                                child: Card(elevation: 5,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  child: TextFormField(
-                                    controller: codeController,
-                                    decoration: InputDecoration(
-                                      labelText: 'Code',
-                                      labelStyle: TextStyle(fontSize: 14),
-                                      prefixIcon: Icon(Icons.code),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                                    ),
-                                    validator: (value) {
-                                      // if (value == null || value.isEmpty) {
-                                      //   return 'Please enter a code';
-                                      // }
-                                      return null;
-                                    },
-                                  ),)
-                            ),
-                          ),
-                          Flexible(
-                              flex: 6, // Group field will take 80% of the space
+                              flex: 10, // Group field will take 80% of the space
                               child:
                               Padding(
                                 padding: const EdgeInsets.only(left: 1.0),
@@ -838,6 +875,7 @@ class _LedgerState extends State<Ledger> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             child: TextFormField(
                               controller: pinCodeController,
+                              enabled: updChk?false:true,
                               decoration: InputDecoration(
                                 labelText: 'Pin Code',
                                 labelStyle: TextStyle(fontSize: 14),
@@ -884,116 +922,119 @@ class _LedgerState extends State<Ledger> {
                       ),
                       SizedBox(height: 5),
 
-                      Padding(
-                        padding: const EdgeInsets.only(top: 0.0),
-                        child: Card(elevation: 5,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          child: TextFormField(
-                            controller: panCardController,
-                            // maxLines: 1, // Allows the address to have multiple lines
-                            decoration: InputDecoration(
-                              labelText: 'Pan Card Number',
-                              labelStyle: TextStyle(fontSize: 14),
-                              prefixIcon: Icon(Icons.abc_outlined),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                            ),
-                            validator: (value) {
-                              // if (value == null || value.isEmpty) {
-                              //   return 'Please enter an Msme Number';
-                              // }
-                              return null;
-                            },
-                          ),),
-                      ),
-                      SizedBox(height: 5),
+                      // Padding(
+                      //   padding: const EdgeInsets.only(top: 0.0),
+                      //   child: Card(elevation: 5,
+                      //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      //     child: TextFormField(
+                      //       controller: panCardController,
+                      //       enabled: false,
+                      //       // maxLines: 1, // Allows the address to have multiple lines
+                      //       decoration: InputDecoration(
+                      //         labelText: 'Pan Card Number',
+                      //         labelStyle: TextStyle(fontSize: 14),
+                      //         prefixIcon: Icon(Icons.abc_outlined),
+                      //         border: OutlineInputBorder(
+                      //           borderRadius: BorderRadius.circular(10),
+                      //         ),
+                      //         contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                      //       ),
+                      //       validator: (value) {
+                      //         // if (value == null || value.isEmpty) {
+                      //         //   return 'Please enter an Msme Number';
+                      //         // }
+                      //         return null;
+                      //       },
+                      //     ),),
+                      // ),
+                      // SizedBox(height: 5),
+                      //
+                      // Padding(
+                      //   padding: const EdgeInsets.only(top: 0.0),
+                      //   child:Card(elevation: 5,
+                      //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      //     child:
+                      //     TextFormField(
+                      //       controller: msmeController,
+                      //       enabled: false,
+                      //       // maxLines: 1, // Allows the address to have multiple lines
+                      //       decoration: InputDecoration(
+                      //         labelText: 'Msme Number',
+                      //         labelStyle: TextStyle(fontSize: 14),
+                      //         prefixIcon: Icon(Icons.abc_outlined),
+                      //         border: OutlineInputBorder(
+                      //           borderRadius: BorderRadius.circular(10),
+                      //         ),
+                      //         contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                      //       ),
+                      //       validator: (value) {
+                      //         // if (value == null || value.isEmpty) {
+                      //         //   return 'Please enter an Gst Number';
+                      //         // }
+                      //         return null;
+                      //       },
+                      //     ),
+                      //   ),),
+                      // SizedBox(height: 5),
 
-                      Padding(
-                        padding: const EdgeInsets.only(top: 0.0),
-                        child:Card(elevation: 5,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          child:
-                          TextFormField(
-                            controller: msmeController,
-                            // maxLines: 1, // Allows the address to have multiple lines
-                            decoration: InputDecoration(
-                              labelText: 'Msme Number',
-                              labelStyle: TextStyle(fontSize: 14),
-                              prefixIcon: Icon(Icons.abc_outlined),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                            ),
-                            validator: (value) {
-                              // if (value == null || value.isEmpty) {
-                              //   return 'Please enter an Gst Number';
-                              // }
-                              return null;
-                            },
-                          ),
-                        ),),
-                      SizedBox(height: 5),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 16.0),
-                              child:Card(elevation: 5,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                child:  TextFormField(
-                                  controller: creditDaysController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    labelText: 'Credit Days',
-                                    labelStyle: TextStyle(fontSize: 14),
-                                    prefixIcon: Icon(Icons.today_sharp),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter a credit days';
-                                    }
-                                    return null;
-                                  },
-                                ),),
-                            ),
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 1.0),
-                              child:Card(elevation: 5,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                child:  TextFormField(
-                                  controller: creditAmountController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    labelText: 'Credit Amount',
-                                    labelStyle: TextStyle(fontSize: 14),
-                                    prefixIcon: Icon(Icons.credit_card),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter a credit amount';
-                                    }
-                                    return null;
-                                  },
-                                ),),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5),
+                      // Row(
+                      //   children: [
+                      //     Expanded(
+                      //       child: Padding(
+                      //         padding: const EdgeInsets.only(right: 16.0),
+                      //         child:Card(elevation: 5,
+                      //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      //           child:  TextFormField(
+                      //             controller: creditDaysController,
+                      //             keyboardType: TextInputType.number,
+                      //             decoration: InputDecoration(
+                      //               labelText: 'Credit Days',
+                      //               labelStyle: TextStyle(fontSize: 14),
+                      //               prefixIcon: Icon(Icons.today_sharp),
+                      //               border: OutlineInputBorder(
+                      //                 borderRadius: BorderRadius.circular(10),
+                      //               ),
+                      //               contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                      //             ),
+                      //             validator: (value) {
+                      //               if (value == null || value.isEmpty) {
+                      //                 return 'Please enter a credit days';
+                      //               }
+                      //               return null;
+                      //             },
+                      //           ),),
+                      //       ),
+                      //     ),
+                      //     Expanded(
+                      //       child: Padding(
+                      //         padding: const EdgeInsets.only(left: 1.0),
+                      //         child:Card(elevation: 5,
+                      //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      //           child:  TextFormField(
+                      //             controller: creditAmountController,
+                      //             enabled: false,
+                      //             keyboardType: TextInputType.number,
+                      //             decoration: InputDecoration(
+                      //               labelText: 'Credit Amount',
+                      //               labelStyle: TextStyle(fontSize: 14),
+                      //               prefixIcon: Icon(Icons.credit_card),
+                      //               border: OutlineInputBorder(
+                      //                 borderRadius: BorderRadius.circular(10),
+                      //               ),
+                      //               contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                      //             ),
+                      //             // validator: (value) {
+                      //             //   if (value == null || value.isEmpty) {
+                      //             //     return 'Please enter a credit amount';
+                      //             //   }
+                      //             //   return null;
+                      //             // },
+                      //           ),),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                      // SizedBox(height: 5),
 
                       Padding(
                         padding: const EdgeInsets.only(top: 0.0),
@@ -1213,6 +1254,7 @@ class _LedgerState extends State<Ledger> {
                                   if (_formKey.currentState!.validate()) {
                                     print('Form is valid, performing save action');
                                     var supplierCustomer= int.parse(groupId)==1 ? "C" : "S";
+                                    var pinAddressMerger= updChk?"":","+pinCodeController.text.toString();
                                     dynamic value= {
                                       "Supplier" : ledgerNameController.text,
                                       "Add1" : address1Controller.text,
@@ -1226,14 +1268,16 @@ class _LedgerState extends State<Ledger> {
                                       "Mobile_No" : mobileController.text,
                                       "Supplier_Customer" : supplierCustomer, //check,
                                       "IsActive" : checkBox? "Y":"N",
-                                      "Add3" : address3Controller.text,
+                                      "Add3" : address3Controller.text.toString()+pinAddressMerger.toString(),
                                       "CompId" : globalCompId,
                                       "LedgerGroupId" : groupId,
                                       "PrintName" : printNameController.text,
                                       "SupCode" : codeController.text,
                                       "CreditDays" : creditDaysController.text,
                                       "OpBalAmt" : openingBalanceController.text,
-                                      "OpType" : openingBalanceSuffixVar
+                                      "OpType" : openingBalanceSuffixVar,
+                                      "Update" : updChk,
+                                      "UpdId" : updSupplierId
                                     };
                                     saveLedgerData(value);
                                   }
@@ -1260,14 +1304,14 @@ class _LedgerState extends State<Ledger> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
-                                  foregroundColor: Colors.black,
+                                  foregroundColor: Colors.white,
                                   backgroundColor: Color(0xFF004D40),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
                                 child: Text(
-                                  'Save',
+                                  updChk?'Update':'Save',
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                               ))),
@@ -1280,10 +1324,11 @@ class _LedgerState extends State<Ledger> {
                                   // Reset the form
                                   _formKey.currentState!.reset();
                                   print('Cancel button pressed');
+                                  updChk=false;
 
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.black,
+                                  foregroundColor: Colors.white,
                                   backgroundColor: Color(0xFF004D40),
                                   padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
                                   shape: RoundedRectangleBorder(
