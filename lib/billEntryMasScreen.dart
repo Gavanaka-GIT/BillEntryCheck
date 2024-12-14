@@ -309,639 +309,649 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
   }
 
-  Future<pw.Document> fetchPdfDocument() async{
+  Future<pw.Document?> fetchPdfDocument() async{
 
-    // try{
-    //   String url=ipAddress+"api/getBillEntryData";
-    //   final response = await http.post(Uri.parse(url),
-    //       headers: <String, String>{
-    //         'Content-Type': 'application/json; charset=UTF-8',
-    //       }, body: jsonEncode({
-    //         "TRANSNO":Transno
-    //       }));
-    // }catch(e){
-    //   print(e);
-    // }
-    final ByteData data = await rootBundle.load('assets/icon/logo.png');
-    final Uint8List imageBytes = data.buffer.asUint8List();
-    final image = pw.MemoryImage(imageBytes);
+    try{
+      String url=ipAddress+"api/getPdfData";
+      print(url);
+      final response = await http.post(Uri.parse(url),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          }, body: jsonEncode({
+            "compId":globalCompId,
+            "InvNo":invoiceNum
+          }));
+      if(response.statusCode == 200){
+        final Map<String,dynamic> companyData = jsonDecode(response.body);
+        print(companyData['compDetails'][0]['CompanyName']);
+        final ByteData data = await rootBundle.load('assets/icon/logo.png');
+        final Uint8List imageBytes = data.buffer.asUint8List();
+        final image = pw.MemoryImage(imageBytes);
 
-    final pdf = pw.Document();
-    double pdfWidth =PdfPageFormat.a4.width-40;
-    print(pdfWidth);
-    print("width");
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: pw.EdgeInsets.zero,
-        build: (pw.Context context) {
-          return pw.Stack(
-            children: [
-              // Outer border ensuring full visibility
+        final pdf = pw.Document();
+        double pdfWidth =PdfPageFormat.a4.width-40;
+        print(pdfWidth);
+        print("width");
+        pdf.addPage(
+          pw.Page(
+            pageFormat: PdfPageFormat.a4,
+            margin: pw.EdgeInsets.zero,
+            build: (pw.Context context) {
+              return pw.Stack(
+                children: [
+                  // Outer border ensuring full visibility
 
-              pw.Positioned(
-                top: 0,
-                left: 0,
-                child: pw.Container(
-                  width: PdfPageFormat.a4.width,
-                  height: PdfPageFormat.a4.height,
-                  decoration: const pw.BoxDecoration(
-                    border: pw.Border(
-                      top: pw.BorderSide(width: 2),
-                      left: pw.BorderSide(width: 2),
-                      right: pw.BorderSide(width: 2),
-                      bottom: pw.BorderSide(width: 2),
+                  pw.Positioned(
+                    top: 0,
+                    left: 0,
+                    child: pw.Container(
+                      width: PdfPageFormat.a4.width,
+                      height: PdfPageFormat.a4.height,
+                      decoration: const pw.BoxDecoration(
+                        border: pw.Border(
+                          top: pw.BorderSide(width: 2),
+                          left: pw.BorderSide(width: 2),
+                          right: pw.BorderSide(width: 2),
+                          bottom: pw.BorderSide(width: 2),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              // Header rectangle with text
-              pw.Positioned(
-                top: 20,
-                left: 20,
-                child: pw.Container(
-                  width: PdfPageFormat.a4.width - 40, // Adjusted for margins
-                  height: PdfPageFormat.a4.height-40,
-                  decoration: pw.BoxDecoration(
-                    border: pw.Border.all(width: 1),
-                  ),
-                  child: pw.Column(
-                      children: [
-                        pw.Container(
-                          width: PdfPageFormat.a4.width - 40,
-                          height: 80,
-                          decoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(
-                            color:PdfColors.black,
-                            width: 1,
-                          ))),
-                          child:pw.Row(children: [
+                  // Header rectangle with text
+                  pw.Positioned(
+                    top: 20,
+                    left: 20,
+                    child: pw.Container(
+                      width: PdfPageFormat.a4.width - 40, // Adjusted for margins
+                      height: PdfPageFormat.a4.height-40,
+                      decoration: pw.BoxDecoration(
+                        border: pw.Border.all(width: 1),
+                      ),
+                      child: pw.Column(
+                          children: [
                             pw.Container(
-                              decoration: const pw.BoxDecoration(
-                                  border: pw.Border(right: pw.BorderSide(
-                                    color:PdfColors.black,
-                                    width: 1,
-                                  ))),
-                              child:pw.Image(image,height: 80),
-                            ),
-                            pw.SizedBox(width: 50),
-                            pw.Column(
-                                mainAxisAlignment: pw.MainAxisAlignment.center,
-                                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                                children: [
-                                  pw.Text("RAKSHITH TRADERS", textAlign: pw.TextAlign.center,
-                                      style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-                                  pw.Text("3/952,C.M. NAGAR, AMMAPALAYAM, PALLADAM,TIRUPUR,TAMILNADU - 641664",
-                                      style: const pw.TextStyle(fontSize: 10) ,
-                                      textAlign: pw.TextAlign.center),
-                                  pw.Text("Phone : 8072392809, Cell : 9688376768, Email : cuteraj006.01@gmail.com\n"
-                                      , style: const pw.TextStyle(fontSize: 10)
-                                      ,textAlign:pw.TextAlign.center),
-                                  pw.Text("GSTIN No : 33BIWPR5797Q1ZQ", textAlign: pw.TextAlign.center,
-                                      style: const pw.TextStyle(fontSize: 10))
-                                ]
-                            )]),
-                        ),
-                        pw.Container(
-                            width: PdfPageFormat.a4.width-40,
-                            height: 20,
-                            decoration: const pw.BoxDecoration(
-                                border: pw.Border(bottom: pw.BorderSide(
-                                    width: 1, color: PdfColors.black))
-                            ),
-                            child: pw.Row(mainAxisAlignment: pw.MainAxisAlignment.center,
-                                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                                children: [pw.Text("TAX INVOICE",
-                                    style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold))]
-                            )
-                        ),
-                        pw.Container(
-                            width: PdfPageFormat.a4.width-40,
-                            height: 40,
-                            decoration: const pw.BoxDecoration(
-                                border: pw.Border(bottom: pw.BorderSide(width: 1, color: PdfColors.black))
-                            ),
-                            child: pw.Row(
-                                children: [
-                                  pw.Container(
-                                      width: pdfWidth*0.15,
-                                      height: 40,
-                                      decoration: const pw.BoxDecoration(
-                                          border: pw.Border(
-                                              right: pw.BorderSide(width: 1, color: PdfColors.black))
-                                      ),
-                                      child: pw.Column(
-                                          children: [
-                                            pw.SizedBox(height: 5),
-                                            pw.Text("Invoice No",
-                                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
-                                            pw.SizedBox(height: 7),
-                                            pw.Text("Invoice Date",
-                                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold))
-                                          ]
-                                      )
-                                  ),
-                                  pw.Container(
-                                      width: pdfWidth*0.35,
-                                      height: 40,
-                                      decoration: const pw.BoxDecoration(border:
-                                      pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                      child: pw.Column(children: [
-                                        pw.SizedBox(height: 5),
-                                        pw.Text("RST/INV00032",
-                                            style: pw.TextStyle(fontSize: 10)),
-                                        pw.SizedBox(height: 7),
-                                        pw.Text("07/11/2024",
-                                            style: pw.TextStyle(fontSize: 10)),
-                                      ])
-                                  ),
-                                  pw.Container(
-                                      width: pdfWidth*0.2,
-                                      height: 40,
-                                      decoration: const pw.BoxDecoration(
-                                          border: pw.Border(
-                                              right: pw.BorderSide(width: 1, color: PdfColors.black))
-                                      ),
-                                      child: pw.Column(
-                                          children: [
-                                            pw.SizedBox(height: 5),
-                                            pw.Text("Transport",
-                                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
-                                            pw.SizedBox(height: 7),
-                                            pw.Text("Place of Supply",
-                                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold))
-                                          ]
-                                      )
-                                  ),
-                                  pw.Container(
-                                      width: pdfWidth*0.3,
-                                      height: 40,
-                                      decoration: const pw.BoxDecoration(border:
-                                      pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                      child: pw.Column(children: [
-                                        pw.SizedBox(height: 5),
-                                        pw.Text("SRI SAKTHI MURUGAN",
-                                            style: pw.TextStyle(fontSize: 10)),
-                                        pw.SizedBox(height: 7),
-                                        pw.Text("33 - TAMIL NADU",
-                                            style: pw.TextStyle(fontSize: 10)),
-                                      ])
-                                  )
-                                ]
-                            )
-                        ),
-                        pw.Container(width: PdfPageFormat.a4.width-40,
-                            height: 20,
-                            decoration: const pw.BoxDecoration(
-                                border: pw.Border(
-                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
-                            child: pw.Row(
-                                children: [
-                                  pw.Container(
-                                      width: pdfWidth*0.5,
-                                      height: 20,
-                                      decoration: const pw.BoxDecoration(
-                                          border: pw.Border(
-                                              right: pw.BorderSide(width: 1, color: PdfColors.black)
-                                          )
-                                      ),
-                                      child: pw.Column(
-                                          children: [
-                                            pw.SizedBox(height: 3.5),
-                                            pw.Text("Bill To",
-                                                style: pw.TextStyle(fontSize: 12))
-                                          ]
-                                      )
-                                  ),
-                                  pw.Container(
-                                      width: pdfWidth*0.5,
-                                      height: 20,
-                                      decoration: const pw.BoxDecoration(
-                                          border: pw.Border(
-                                              right: pw.BorderSide(width: 1, color: PdfColors.black)
-                                          )
-                                      ),
-                                      child: pw.Column(
-                                          children: [
-                                            pw.SizedBox(height: 3.5),
-                                            pw.Text("Ship To",
-                                                style: pw.TextStyle(fontSize: 12))
-                                          ]
-                                      )
-                                  )
-                                ]
-                            )),
-                        pw.Container(width: PdfPageFormat.a4.width-40,
-                            height: 100,
-                            decoration: const pw.BoxDecoration(
-                                border: pw.Border(
-                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
-                            child: pw.Row(
-                                children: [
-                                  pw.Container(
-                                      width: pdfWidth*0.5,
-                                      height: 100,
-                                      decoration: const pw.BoxDecoration(
-                                          border: pw.Border(
-                                              right: pw.BorderSide(width: 1, color: PdfColors.black)
-                                          )
-                                      ),
-                                      child: pw.Column(
-                                        children: [
-                                          pw.Container(height: 66.5, child: pw.Column(children: [pw.SizedBox(height: 5.5),
-                                            pw.Text("SRI NANDHA PAPER AND BOARD",
-                                                textAlign: pw.TextAlign.center,
-                                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                            pw.Text("RASIPURAM MAIN ROAD,\n"
-                                                ,textAlign:pw.TextAlign.center, style: pw.TextStyle( fontSize: 10)),
-                                            pw.Text("TIRUNCHENGODE", textAlign: pw.TextAlign.center,
-                                               style: pw.TextStyle( fontSize: 10)),])),
-                                          pw.Text("GSTIN : 33ABEFS5262P1ZQ",style: pw.TextStyle( fontSize: 10)),
-                                          pw.Text("33 - TAMIL NADU", style: pw.TextStyle( fontSize: 10))
-                                        ],
-                                      )
-                                  ),
-                                  pw.Container(
-                                      width: pdfWidth*0.5,
-                                      height: 100,
-                                      decoration: const pw.BoxDecoration(
-                                          border: pw.Border(
-                                              right: pw.BorderSide(width: 1, color: PdfColors.black)
-                                          )
-                                      ),
-                                      child: pw.Column(
-                                        children: [
-                                          pw.Container(height: 66.5, child: pw.Column(children: [
-                                            pw.SizedBox(height: 5.5),
-                                            pw.Text("SRI NANDHA PAPER AND BOARD",
-                                                textAlign: pw.TextAlign.center,
-                                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                            pw.Text("RASIPURAM MAIN ROAD,\n"
-                                                ,textAlign:pw.TextAlign.center,style: pw.TextStyle( fontSize: 10)),
-                                            pw.Text("TIRUNCHENGODE", textAlign: pw.TextAlign.center,style: pw.TextStyle( fontSize: 10)),])),
-                                          pw.Text("GSTIN : 33ABEFS5262P1ZQ",style: pw.TextStyle( fontSize: 10)),
-                                          pw.Text("33 - TAMIL NADU",style: pw.TextStyle( fontSize: 10))
-                                        ],
-                                      )
-                                  )
-                                ]
-                            )),
-                        pw.Container(width: PdfPageFormat.a4.width-40,
-                            height: 304,
-                            decoration: const pw.BoxDecoration(
-                                border: pw.Border(
-                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
-                            child:pw.Column(
-                                children: [
-                                  pw.Table(
-                                    border: const pw.TableBorder(
-                                        right: pw.BorderSide(width: 1, color: PdfColors.black),
-                                        left: pw.BorderSide(width: 1, color: PdfColors.black),
-                                        top: pw.BorderSide(width: 1, color: PdfColors.black),
-                                        verticalInside: pw.BorderSide(width: 1, color: PdfColors.black)
-                                    ),
-                                    columnWidths: {
-                                      0: pw.FlexColumnWidth(0.075),
-                                      1: pw.FlexColumnWidth(0.225),
-                                      2: pw.FlexColumnWidth(0.125),
-                                      3: pw.FlexColumnWidth(0.075),
-                                      4: pw.FlexColumnWidth(0.106),
-                                      5: pw.FlexColumnWidth(0.1),
-                                      6: pw.FlexColumnWidth(0.0976),
-                                      7: pw.FlexColumnWidth(0.0964),
-                                      8: pw.FlexColumnWidth(0.1),
-                                    },
-                                    children: [
-                                      // Header Row
-                                      pw.TableRow(
-                                        decoration: const pw.BoxDecoration(
-                                            color: PdfColors.grey300,
-                                            border: pw.Border(bottom:pw.BorderSide(width: 1, color: PdfColors.black))
-                                        ),
-                                        children: [
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text("S.No", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text("Item", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text("HSN Code", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text("Uom", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text("Quantity", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text("Rate", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text("CGST%", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text("SGST%", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text("Amount", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                          ),
-                                        ],
-                                      ),
-                                      // Data Rows (Dynamically generated)
-                                      for (var item in items) pw.TableRow(
-                                        children: [
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text(item.serialNumber.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text(item.itemName, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text(item.hsnCode, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text(item.uom, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text(item.rate.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text(item.cgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text(item.sgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
-                                          ),
-                                          pw.Padding(
-                                            padding: const pw.EdgeInsets.all(5),
-                                            child: pw.Text(item.amount.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  )
-                                ]
-                            )
-                        ),
-                        pw.Container(width: PdfPageFormat.a4.width-40,
-                            height: 20,
-                            decoration: const pw.BoxDecoration(
-                                border: pw.Border(
-                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
-                            child: pw.Row(
-                                children: [
-                                  pw.Container(
-                                      width: pdfWidth * 0.300,
-                                      height: 20,
-                                      decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                      child: pw.Row(
-                                          children: [
-                                            pw.Text("Bundles :", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                            pw.Text("0", style: pw.TextStyle( fontSize: 10)),
-                                            pw.Text("Vehicle :", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                            pw.Text("TN56C4374", style: pw.TextStyle( fontSize: 10)),
-                                          ], mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly)  ),
-                                  pw.Container(
-                                      width: pdfWidth * 0.200,
-                                      height: 20,
-                                      decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                      child: pw.Row(
-                                          children: [
-                                            pw.Text("Total Quantity : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                          ], mainAxisAlignment: pw.MainAxisAlignment.center)  ),
-                                  pw.Container(
-                                      width: pdfWidth * 0.106,
-                                      height: 20,
-                                      decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                      child: pw.Row(
-                                          children: [
-                                            pw.Text("12110.00", style: pw.TextStyle( fontSize: 10)),
-                                          ], mainAxisAlignment: pw.MainAxisAlignment.center)  ),
-                                  pw.Container(
-                                      width: pdfWidth * 0.1976,
-                                      height: 20,
-                                      decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                      child: pw.Row(
-                                          children: [
-                                            pw.Text("Total", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 10)
-                                            ),
-                                          ], mainAxisAlignment: pw.MainAxisAlignment.center)
-                                  ),
-                                  pw.Container(
-                                      width: pdfWidth * 0.1964,
-                                      height: 20,
-                                      decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                      child: pw.Row(
-                                          children: [
-                                            pw.Text("205,870.00", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 12)
-                                            ),
-                                          ], mainAxisAlignment: pw.MainAxisAlignment.center)
-                                  )
-                                ]
-                            )
-                        ),
-                        pw.Container(width: PdfPageFormat.a4.width-40,
-                            height: 110,
-                            decoration: const pw.BoxDecoration(
-                                border: pw.Border(
-                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
-                            child: pw.Row(children: [
-                              pw.Container(width: pdfWidth*0.606,
-                                  height: 110,
-                                  decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
-                                      color: PdfColors.black))),
-                                  child: pw.Column(children: [
-                                    pw.Container(
-                                        width: pdfWidth*0.606,
-                                        height: 40,
-                                        child: pw.Row(
-                                            children: [
-                                              pw.Expanded(child: pw.Text("Amount In Words: ",
-                                                  style: pw.TextStyle(fontSize: 10)))
-                                              ,
-                                              pw.Expanded(child: pw.Text("RUPEES TWO LAKHS SIXTEEN THOUSAND ONE HUNDRED SIXTY-FOUR ONLY",
-                                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10),
-                                                  overflow: pw.TextOverflow.span)),
-
-                                            ], mainAxisAlignment: pw.MainAxisAlignment.center,
-                                            crossAxisAlignment: pw.CrossAxisAlignment.center
-                                        )
-                                    ),
-                                    pw.Container(
-                                        width: pdfWidth*0.606,
-                                        height: 70,
-                                        child: pw.Row(
-                                            children: [
-                                              pw.Expanded(child: pw.Text("Terms and Conditions: ",
-                                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)))
-                                              ,
-                                              pw.Expanded(child: pw.Text("We are small industry as per MSME act "
-                                                  "Our Udyam registrtion no is TN28-0137367 "
-                                                  "The provisions  of section 43B(h) of income tax act is applicable on our supplies."
-                                                  "Subject to Palladam Jurisdiction.",
-                                                  style: pw.TextStyle( fontSize: 10),
-                                                  overflow: pw.TextOverflow.span)),
-
-                                            ], mainAxisAlignment: pw.MainAxisAlignment.center,
-                                            crossAxisAlignment: pw.CrossAxisAlignment.center
-                                        )
-                                    )
-                                  ])),
-                              pw.Container(width: pdfWidth* 0.1976,
-                                  height: 110,
-                                  decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
-                                      color: PdfColors.black))),
-                                  child: pw.Column(children: [
-                                    pw.SizedBox(height: 5),
-                                    pw.Text("Discount", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                    pw.SizedBox(height: 5),
-                                    pw.Text("CGST", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                    pw.SizedBox(height: 5),
-                                    pw.Text("SGST", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                    pw.SizedBox(height: 5),
-                                    pw.Text("Roundoff", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
-                                  ])
-                              ),
-                              pw.Container(width: pdfWidth* 0.1964,
-                                  height: 110,
-                                  decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
-                                      color: PdfColors.black))),
-                                  child: pw.Column(children: [
-                                    pw.SizedBox(height: 5),
-                                    pw.Text(" 0.00", style: pw.TextStyle(fontSize: 10)),
-                                    pw.SizedBox(height: 5),
-                                    pw.Text("5,146.75", style: pw.TextStyle(fontSize: 10)),
-                                    pw.SizedBox(height: 5),
-                                    pw.Text("5,146.75", style: pw.TextStyle(fontSize: 10)),
-                                    pw.SizedBox(height: 5),
-                                    pw.Text("0.50", style: pw.TextStyle(fontSize: 10))
-                                  ]))
-                            ])),
-                        pw.Container(width: PdfPageFormat.a4.width-40,
-                            height: 20,
-                            decoration: const pw.BoxDecoration(
-                                border: pw.Border(
-                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
-                            child: pw.Row(children: [
-                              pw.Container(width: pdfWidth*0.606,
-                                  height: 20,
+                              width: PdfPageFormat.a4.width - 40,
+                              height: 80,
+                              decoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(
+                                color:PdfColors.black,
+                                width: 1,
+                              ))),
+                              child:pw.Row(children: [
+                                pw.Container(
                                   decoration: const pw.BoxDecoration(
-                                      border: pw.Border(
-                                          right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                  child: pw.Column(children:[
-                                    pw.SizedBox(height: 3.5),
-                                    pw.Text("Bank Details", style:pw.TextStyle(
-                                      fontWeight: pw.FontWeight.bold,fontSize: 10
-                                    ), textAlign: pw.TextAlign.center)]) ),
-                              pw.Container(width: pdfWidth*0.394,
-                                  height: 20,
-                                  decoration: const pw.BoxDecoration(
-                                      border: pw.Border(
-                                          right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                  child: pw.Row(children:[
-                                    pw.SizedBox(width: 7.5),
-                                    pw.Text("Net Amount",style:pw.TextStyle(
-                                      fontWeight: pw.FontWeight.bold,fontSize: 10
-                                    )),
-                                    pw.SizedBox(width: 73.5),
-                                    pw.Text("216,164.00", style:pw.TextStyle(
-                                      fontWeight: pw.FontWeight.bold,fontSize: 10
-                                    ),textAlign: pw.TextAlign.end ),
-                                    pw.SizedBox(width: 23.5),], mainAxisAlignment: pw.MainAxisAlignment.center,
-                                      crossAxisAlignment: pw.CrossAxisAlignment.center) )
-                            ], )
-                        ),
-
-                        pw.Container(width: PdfPageFormat.a4.width-40,
-                            height: 87.8,
-                            decoration: const pw.BoxDecoration(
-                                border: pw.Border(
-                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
-                            child:  pw.Row(children: [
-                              pw.Container(width: pdfWidth*0.606,
-                                  height: 88,
-                                  decoration: const pw.BoxDecoration(
-                                      border: pw.Border(
-                                          right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                  child: pw.Column(
-                                    children: [
-                                      pw.SizedBox(height: 5.5),
-                                      pw.Row(children: [
-                                        pw.Text("Account Name : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                        pw.Text("RAKSHITH TRADERS", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
-                                      ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
-                                      pw.Row(children: [
-                                        pw.Text("Account No : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                        pw.Text("408539688376768", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
-                                      ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
-                                      pw.Row(children: [
-                                        pw.Text("IFSC Code : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                        pw.Text("TMBL0000408", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
-                                      ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
-                                      pw.Row(children: [
-                                        pw.Text("Bank Name : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                        pw.Text("TAMILNADU MERCANTILE", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
-                                      ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
-                                      pw.Row(children: [
-                                        pw.Text("Branch : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                        pw.Text("PALLADAM", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
-                                      ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
-
-                                    ],
+                                      border: pw.Border(right: pw.BorderSide(
+                                        color:PdfColors.black,
+                                        width: 1,
+                                      ))),
+                                  child:pw.Image(image,height: 80),
+                                ),
+                                pw.SizedBox(width: 50),
+                                pw.Column(
+                                    mainAxisAlignment: pw.MainAxisAlignment.center,
                                     crossAxisAlignment: pw.CrossAxisAlignment.center,
-                                    mainAxisAlignment: pw.MainAxisAlignment.center
+                                    children: [
+                                      pw.Text("${companyData['compDetails'][0]['CompanyName']}", textAlign: pw.TextAlign.center,
+                                          style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+                                      pw.Text("${companyData['compDetails'][0]['CompanyAddress1']} ${companyData['compDetails'][0]['CompanyAddress2']}${companyData['compDetails'][0]['CompanyAddress3']} - ${companyData['compDetails'][0]['CompanyPinCode']}",
+                                          style: const pw.TextStyle(fontSize: 10) ,
+                                          textAlign: pw.TextAlign.center),
+                                      pw.Text("Phone : 8072392809, Cell : 9688376768, Email : cuteraj006.01@gmail.com\n"
+                                          , style: const pw.TextStyle(fontSize: 10)
+                                          ,textAlign:pw.TextAlign.center),
+                                      pw.Text("GSTIN No : 33BIWPR5797Q1ZQ", textAlign: pw.TextAlign.center,
+                                          style: const pw.TextStyle(fontSize: 10))
+                                    ]
+                                )]),
+                            ),
+                            pw.Container(
+                                width: PdfPageFormat.a4.width-40,
+                                height: 20,
+                                decoration: const pw.BoxDecoration(
+                                    border: pw.Border(bottom: pw.BorderSide(
+                                        width: 1, color: PdfColors.black))
+                                ),
+                                child: pw.Row(mainAxisAlignment: pw.MainAxisAlignment.center,
+                                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                                    children: [pw.Text("TAX INVOICE",
+                                        style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold))]
+                                )
+                            ),
+                            pw.Container(
+                                width: PdfPageFormat.a4.width-40,
+                                height: 40,
+                                decoration: const pw.BoxDecoration(
+                                    border: pw.Border(bottom: pw.BorderSide(width: 1, color: PdfColors.black))
+                                ),
+                                child: pw.Row(
+                                    children: [
+                                      pw.Container(
+                                          width: pdfWidth*0.15,
+                                          height: 40,
+                                          decoration: const pw.BoxDecoration(
+                                              border: pw.Border(
+                                                  right: pw.BorderSide(width: 1, color: PdfColors.black))
+                                          ),
+                                          child: pw.Column(
+                                              children: [
+                                                pw.SizedBox(height: 5),
+                                                pw.Text("Invoice No",
+                                                    style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
+                                                pw.SizedBox(height: 7),
+                                                pw.Text("Invoice Date",
+                                                    style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold))
+                                              ]
+                                          )
+                                      ),
+                                      pw.Container(
+                                          width: pdfWidth*0.35,
+                                          height: 40,
+                                          decoration: const pw.BoxDecoration(border:
+                                          pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          child: pw.Column(children: [
+                                            pw.SizedBox(height: 5),
+                                            pw.Text("RST/INV00032",
+                                                style: pw.TextStyle(fontSize: 10)),
+                                            pw.SizedBox(height: 7),
+                                            pw.Text("07/11/2024",
+                                                style: pw.TextStyle(fontSize: 10)),
+                                          ])
+                                      ),
+                                      pw.Container(
+                                          width: pdfWidth*0.2,
+                                          height: 40,
+                                          decoration: const pw.BoxDecoration(
+                                              border: pw.Border(
+                                                  right: pw.BorderSide(width: 1, color: PdfColors.black))
+                                          ),
+                                          child: pw.Column(
+                                              children: [
+                                                pw.SizedBox(height: 5),
+                                                pw.Text("Transport",
+                                                    style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
+                                                pw.SizedBox(height: 7),
+                                                pw.Text("Place of Supply",
+                                                    style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold))
+                                              ]
+                                          )
+                                      ),
+                                      pw.Container(
+                                          width: pdfWidth*0.3,
+                                          height: 40,
+                                          decoration: const pw.BoxDecoration(border:
+                                          pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          child: pw.Column(children: [
+                                            pw.SizedBox(height: 5),
+                                            pw.Text("SRI SAKTHI MURUGAN",
+                                                style: pw.TextStyle(fontSize: 10)),
+                                            pw.SizedBox(height: 7),
+                                            pw.Text("33 - TAMIL NADU",
+                                                style: pw.TextStyle(fontSize: 10)),
+                                          ])
+                                      )
+                                    ]
+                                )
+                            ),
+                            pw.Container(width: PdfPageFormat.a4.width-40,
+                                height: 20,
+                                decoration: const pw.BoxDecoration(
+                                    border: pw.Border(
+                                        bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                child: pw.Row(
+                                    children: [
+                                      pw.Container(
+                                          width: pdfWidth*0.5,
+                                          height: 20,
+                                          decoration: const pw.BoxDecoration(
+                                              border: pw.Border(
+                                                  right: pw.BorderSide(width: 1, color: PdfColors.black)
+                                              )
+                                          ),
+                                          child: pw.Column(
+                                              children: [
+                                                pw.SizedBox(height: 3.5),
+                                                pw.Text("Bill To",
+                                                    style: pw.TextStyle(fontSize: 12))
+                                              ]
+                                          )
+                                      ),
+                                      pw.Container(
+                                          width: pdfWidth*0.5,
+                                          height: 20,
+                                          decoration: const pw.BoxDecoration(
+                                              border: pw.Border(
+                                                  right: pw.BorderSide(width: 1, color: PdfColors.black)
+                                              )
+                                          ),
+                                          child: pw.Column(
+                                              children: [
+                                                pw.SizedBox(height: 3.5),
+                                                pw.Text("Ship To",
+                                                    style: pw.TextStyle(fontSize: 12))
+                                              ]
+                                          )
+                                      )
+                                    ]
+                                )),
+                            pw.Container(width: PdfPageFormat.a4.width-40,
+                                height: 100,
+                                decoration: const pw.BoxDecoration(
+                                    border: pw.Border(
+                                        bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                child: pw.Row(
+                                    children: [
+                                      pw.Container(
+                                          width: pdfWidth*0.5,
+                                          height: 100,
+                                          decoration: const pw.BoxDecoration(
+                                              border: pw.Border(
+                                                  right: pw.BorderSide(width: 1, color: PdfColors.black)
+                                              )
+                                          ),
+                                          child: pw.Column(
+                                            children: [
+                                              pw.Container(height: 66.5, child: pw.Column(children: [pw.SizedBox(height: 5.5),
+                                                pw.Text("SRI NANDHA PAPER AND BOARD",
+                                                    textAlign: pw.TextAlign.center,
+                                                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                pw.Text("RASIPURAM MAIN ROAD,\n"
+                                                    ,textAlign:pw.TextAlign.center, style: pw.TextStyle( fontSize: 10)),
+                                                pw.Text("TIRUNCHENGODE", textAlign: pw.TextAlign.center,
+                                                    style: pw.TextStyle( fontSize: 10)),])),
+                                              pw.Text("GSTIN : 33ABEFS5262P1ZQ",style: pw.TextStyle( fontSize: 10)),
+                                              pw.Text("33 - TAMIL NADU", style: pw.TextStyle( fontSize: 10))
+                                            ],
+                                          )
+                                      ),
+                                      pw.Container(
+                                          width: pdfWidth*0.5,
+                                          height: 100,
+                                          decoration: const pw.BoxDecoration(
+                                              border: pw.Border(
+                                                  right: pw.BorderSide(width: 1, color: PdfColors.black)
+                                              )
+                                          ),
+                                          child: pw.Column(
+                                            children: [
+                                              pw.Container(height: 66.5, child: pw.Column(children: [
+                                                pw.SizedBox(height: 5.5),
+                                                pw.Text("SRI NANDHA PAPER AND BOARD",
+                                                    textAlign: pw.TextAlign.center,
+                                                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                pw.Text("RASIPURAM MAIN ROAD,\n"
+                                                    ,textAlign:pw.TextAlign.center,style: pw.TextStyle( fontSize: 10)),
+                                                pw.Text("TIRUNCHENGODE", textAlign: pw.TextAlign.center,style: pw.TextStyle( fontSize: 10)),])),
+                                              pw.Text("GSTIN : 33ABEFS5262P1ZQ",style: pw.TextStyle( fontSize: 10)),
+                                              pw.Text("33 - TAMIL NADU",style: pw.TextStyle( fontSize: 10))
+                                            ],
+                                          )
+                                      )
+                                    ]
+                                )),
+                            pw.Container(width: PdfPageFormat.a4.width-40,
+                                height: 304,
+                                decoration: const pw.BoxDecoration(
+                                    border: pw.Border(
+                                        bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                child:pw.Column(
+                                    children: [
+                                      pw.Table(
+                                        border: const pw.TableBorder(
+                                            right: pw.BorderSide(width: 1, color: PdfColors.black),
+                                            left: pw.BorderSide(width: 1, color: PdfColors.black),
+                                            top: pw.BorderSide(width: 1, color: PdfColors.black),
+                                            verticalInside: pw.BorderSide(width: 1, color: PdfColors.black)
+                                        ),
+                                        columnWidths: {
+                                          0: pw.FlexColumnWidth(0.075),
+                                          1: pw.FlexColumnWidth(0.225),
+                                          2: pw.FlexColumnWidth(0.125),
+                                          3: pw.FlexColumnWidth(0.075),
+                                          4: pw.FlexColumnWidth(0.106),
+                                          5: pw.FlexColumnWidth(0.1),
+                                          6: pw.FlexColumnWidth(0.0976),
+                                          7: pw.FlexColumnWidth(0.0964),
+                                          8: pw.FlexColumnWidth(0.1),
+                                        },
+                                        children: [
+                                          // Header Row
+                                          pw.TableRow(
+                                            decoration: const pw.BoxDecoration(
+                                                color: PdfColors.grey300,
+                                                border: pw.Border(bottom:pw.BorderSide(width: 1, color: PdfColors.black))
+                                            ),
+                                            children: [
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text("S.No", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text("Item", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text("HSN Code", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text("Uom", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text("Quantity", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text("Rate", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text("CGST%", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text("SGST%", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text("Amount", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                              ),
+                                            ],
+                                          ),
+                                          // Data Rows (Dynamically generated)
+                                          for (var item in items) pw.TableRow(
+                                            children: [
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text(item.serialNumber.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text(item.itemName, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text(item.hsnCode, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text(item.uom, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text(item.rate.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text(item.cgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text(item.sgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                              ),
+                                              pw.Padding(
+                                                padding: const pw.EdgeInsets.all(5),
+                                                child: pw.Text(item.amount.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      )
+                                    ]
+                                )
+                            ),
+                            pw.Container(width: PdfPageFormat.a4.width-40,
+                                height: 20,
+                                decoration: const pw.BoxDecoration(
+                                    border: pw.Border(
+                                        bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                child: pw.Row(
+                                    children: [
+                                      pw.Container(
+                                          width: pdfWidth * 0.300,
+                                          height: 20,
+                                          decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          child: pw.Row(
+                                              children: [
+                                                pw.Text("Bundles :", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                pw.Text("0", style: pw.TextStyle( fontSize: 10)),
+                                                pw.Text("Vehicle :", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                pw.Text("TN56C4374", style: pw.TextStyle( fontSize: 10)),
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly)  ),
+                                      pw.Container(
+                                          width: pdfWidth * 0.200,
+                                          height: 20,
+                                          decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          child: pw.Row(
+                                              children: [
+                                                pw.Text("Total Quantity : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.center)  ),
+                                      pw.Container(
+                                          width: pdfWidth * 0.106,
+                                          height: 20,
+                                          decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          child: pw.Row(
+                                              children: [
+                                                pw.Text("12110.00", style: pw.TextStyle( fontSize: 10)),
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.center)  ),
+                                      pw.Container(
+                                          width: pdfWidth * 0.1976,
+                                          height: 20,
+                                          decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          child: pw.Row(
+                                              children: [
+                                                pw.Text("Total", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 10)
+                                                ),
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.center)
+                                      ),
+                                      pw.Container(
+                                          width: pdfWidth * 0.1964,
+                                          height: 20,
+                                          decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          child: pw.Row(
+                                              children: [
+                                                pw.Text("205,870.00", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 12)
+                                                ),
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.center)
+                                      )
+                                    ]
+                                )
+                            ),
+                            pw.Container(width: PdfPageFormat.a4.width-40,
+                                height: 110,
+                                decoration: const pw.BoxDecoration(
+                                    border: pw.Border(
+                                        bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                child: pw.Row(children: [
+                                  pw.Container(width: pdfWidth*0.606,
+                                      height: 110,
+                                      decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
+                                          color: PdfColors.black))),
+                                      child: pw.Column(children: [
+                                        pw.Container(
+                                            width: pdfWidth*0.606,
+                                            height: 40,
+                                            child: pw.Row(
+                                                children: [
+                                                  pw.Expanded(child: pw.Text("Amount In Words: ",
+                                                      style: pw.TextStyle(fontSize: 10)))
+                                                  ,
+                                                  pw.Expanded(child: pw.Text("RUPEES TWO LAKHS SIXTEEN THOUSAND ONE HUNDRED SIXTY-FOUR ONLY",
+                                                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10),
+                                                      overflow: pw.TextOverflow.span)),
+
+                                                ], mainAxisAlignment: pw.MainAxisAlignment.center,
+                                                crossAxisAlignment: pw.CrossAxisAlignment.center
+                                            )
+                                        ),
+                                        pw.Container(
+                                            width: pdfWidth*0.606,
+                                            height: 70,
+                                            child: pw.Row(
+                                                children: [
+                                                  pw.Expanded(child: pw.Text("Terms and Conditions: ",
+                                                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)))
+                                                  ,
+                                                  pw.Expanded(child: pw.Text("We are small industry as per MSME act "
+                                                      "Our Udyam registrtion no is TN28-0137367 "
+                                                      "The provisions  of section 43B(h) of income tax act is applicable on our supplies."
+                                                      "Subject to Palladam Jurisdiction.",
+                                                      style: pw.TextStyle( fontSize: 10),
+                                                      overflow: pw.TextOverflow.span)),
+
+                                                ], mainAxisAlignment: pw.MainAxisAlignment.center,
+                                                crossAxisAlignment: pw.CrossAxisAlignment.center
+                                            )
+                                        )
+                                      ])),
+                                  pw.Container(width: pdfWidth* 0.1976,
+                                      height: 110,
+                                      decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
+                                          color: PdfColors.black))),
+                                      child: pw.Column(children: [
+                                        pw.SizedBox(height: 5),
+                                        pw.Text("Discount", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                        pw.SizedBox(height: 5),
+                                        pw.Text("CGST", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                        pw.SizedBox(height: 5),
+                                        pw.Text("SGST", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                        pw.SizedBox(height: 5),
+                                        pw.Text("Roundoff", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                      ])
+                                  ),
+                                  pw.Container(width: pdfWidth* 0.1964,
+                                      height: 110,
+                                      decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
+                                          color: PdfColors.black))),
+                                      child: pw.Column(children: [
+                                        pw.SizedBox(height: 5),
+                                        pw.Text(" 0.00", style: pw.TextStyle(fontSize: 10)),
+                                        pw.SizedBox(height: 5),
+                                        pw.Text("5,146.75", style: pw.TextStyle(fontSize: 10)),
+                                        pw.SizedBox(height: 5),
+                                        pw.Text("5,146.75", style: pw.TextStyle(fontSize: 10)),
+                                        pw.SizedBox(height: 5),
+                                        pw.Text("0.50", style: pw.TextStyle(fontSize: 10))
+                                      ]))
+                                ])),
+                            pw.Container(width: PdfPageFormat.a4.width-40,
+                                height: 20,
+                                decoration: const pw.BoxDecoration(
+                                    border: pw.Border(
+                                        bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                child: pw.Row(children: [
+                                  pw.Container(width: pdfWidth*0.606,
+                                      height: 20,
+                                      decoration: const pw.BoxDecoration(
+                                          border: pw.Border(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Column(children:[
+                                        pw.SizedBox(height: 3.5),
+                                        pw.Text("Bank Details", style:pw.TextStyle(
+                                            fontWeight: pw.FontWeight.bold,fontSize: 10
+                                        ), textAlign: pw.TextAlign.center)]) ),
+                                  pw.Container(width: pdfWidth*0.394,
+                                      height: 20,
+                                      decoration: const pw.BoxDecoration(
+                                          border: pw.Border(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Row(children:[
+                                        pw.SizedBox(width: 7.5),
+                                        pw.Text("Net Amount",style:pw.TextStyle(
+                                            fontWeight: pw.FontWeight.bold,fontSize: 10
+                                        )),
+                                        pw.SizedBox(width: 73.5),
+                                        pw.Text("216,164.00", style:pw.TextStyle(
+                                            fontWeight: pw.FontWeight.bold,fontSize: 10
+                                        ),textAlign: pw.TextAlign.end ),
+                                        pw.SizedBox(width: 23.5),], mainAxisAlignment: pw.MainAxisAlignment.center,
+                                          crossAxisAlignment: pw.CrossAxisAlignment.center) )
+                                ], )
+                            ),
+
+                            pw.Container(width: PdfPageFormat.a4.width-40,
+                                height: 87.8,
+                                decoration: const pw.BoxDecoration(
+                                    border: pw.Border(
+                                        bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                child:  pw.Row(children: [
+                                  pw.Container(width: pdfWidth*0.606,
+                                      height: 88,
+                                      decoration: const pw.BoxDecoration(
+                                          border: pw.Border(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Column(
+                                          children: [
+                                            pw.SizedBox(height: 5.5),
+                                            pw.Row(children: [
+                                              pw.Text("Account Name : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                              pw.Text("RAKSHITH TRADERS", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                            ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                            pw.Row(children: [
+                                              pw.Text("Account No : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                              pw.Text("408539688376768", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                            ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                            pw.Row(children: [
+                                              pw.Text("IFSC Code : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                              pw.Text("TMBL0000408", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                            ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                            pw.Row(children: [
+                                              pw.Text("Bank Name : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                              pw.Text("TAMILNADU MERCANTILE", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                            ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                            pw.Row(children: [
+                                              pw.Text("Branch : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                              pw.Text("PALLADAM", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                            ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+
+                                          ],
+                                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                                          mainAxisAlignment: pw.MainAxisAlignment.center
+                                      )
+                                  ),
+                                  pw.Container(width: pdfWidth*0.394,
+                                      height: 88,
+                                      decoration: const pw.BoxDecoration(
+                                          border: pw.Border(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Column(children: [
+                                        pw.SizedBox(height: 5.5),
+                                        pw.Row(children: [
+                                          pw.Text("For ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                                          pw.Text("RAKSHITH TRADERS", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                        ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                        pw.SizedBox(height: 45),
+                                        pw.Text("Authorised Signature", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                      ])
                                   )
-                              ),
-                              pw.Container(width: pdfWidth*0.394,
-                                  height: 88,
-                                  decoration: const pw.BoxDecoration(
-                                      border: pw.Border(
-                                          right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                  child: pw.Column(children: [
-                                    pw.SizedBox(height: 5.5),
-                                    pw.Row(children: [
-                                      pw.Text("For ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                                      pw.Text("RAKSHITH TRADERS", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
-                                    ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
-                                    pw.SizedBox(height: 45),
-                                    pw.Text("Authorised Signature", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                  ])
-                              )
-                            ])
-                        ),
+                                ])
+                            ),
 
-                      ]
+                          ]
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              // Subheader rectangle with text
+                  // Subheader rectangle with text
 
-            ],
-          );
-        },
-      ),
-    );
+                ],
+              );
+            },
+          ),
+        );
 
-    return pdf;
+        return pdf;
+      }else{
+        return null;
+      }
+    }catch(e){
+      print(e);
+      return null;
+    }
+
   }
 
 
@@ -3024,9 +3034,10 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         MaterialPageRoute(
                                           builder: (context) => Scaffold(
                                             appBar: AppBar(title: Text('Invoice Preview')),
-                                            body: PdfPreview(
+                                            body: pdf!=null? PdfPreview(
                                               build: (format) => pdf.save(),
-                                            ),
+                                            ):const Scaffold(body: Center(child: Text("Pdf Fetching Error",
+                                              style: TextStyle(fontSize: 16),),),),
                                           ),
                                         ),
                                       );
