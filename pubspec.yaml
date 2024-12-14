@@ -40,6 +40,10 @@ dependencies:
   flutter_launcher_icons: ^0.14.1
   flutter_native_splash: ^2.0.4
   dropdown_search: ^6.0.1
+  syncfusion_flutter_datagrid_export: ^26.2.11
+  pdf: ^3.11.1
+  printing: ^5.13.4
+  path_provider: ^2.1.5
 
 
 dev_dependencies:

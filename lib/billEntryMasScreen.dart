@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:billentry/CustomWidgets/appBar.dart';
 import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
 import 'package:billentry/branchTransfer.dart';
 import 'package:billentry/main.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:billentry/purchaseEntryMasScreen.dart';
 import 'package:billentry/stockReport.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
@@ -14,8 +17,12 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
-
+import 'package:syncfusion_flutter_datagrid_export/export.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:path_provider/path_provider.dart';
+// import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:printing/printing.dart';
 
 
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -49,8 +56,12 @@ class billEntryFirstScreen extends StatefulWidget {
   _billEntryFirstState createState() => _billEntryFirstState();
 }
 
-class _billEntryFirstState extends State<billEntryFirstScreen> {
 
+class _billEntryFirstState extends State<billEntryFirstScreen> {
+  final GlobalKey<SfDataGridState> pdfKey = GlobalKey<SfDataGridState>();
+  int? pages = 0;
+  int? currentPage = 0;
+  bool isReady = false;
 
   List<String> ENAME =[];
   List<String> CustomerList =[];
@@ -113,6 +124,151 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   TextEditingController toDateController = new TextEditingController();
   TextEditingController _controller= new TextEditingController();
 
+  List<Item> items = [
+    Item(
+      serialNumber: "1",
+      itemName: "",
+      hsnCode: "",
+      uom: "",
+      quantity: "",
+      rate: "",
+      cgstPercent: "",
+      sgstPercent: "",
+      amount: ""
+    ),
+    Item(
+      serialNumber: "2",
+      itemName: "",
+      hsnCode: "",
+      uom: "",
+      quantity: "",
+      rate: "",
+      cgstPercent: "",
+      sgstPercent: "",
+      amount: ""
+    ),Item(
+        serialNumber: "3",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),
+    Item(
+        serialNumber: "4",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),
+    Item(
+        serialNumber: "5",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),
+    Item(
+        serialNumber: "6",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),
+    Item(
+        serialNumber: "7",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),
+    Item(
+        serialNumber: "8",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),
+    Item(
+        serialNumber: "9",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),
+    Item(
+        serialNumber: "10",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),
+    Item(
+        serialNumber: "11",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),Item(
+        serialNumber: "12",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),
+    Item(
+        serialNumber: "13",
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    ),
+
+  ];
+
 
   DateTime currentDate = DateTime.now();
 
@@ -151,6 +307,641 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       },
     );
 
+  }
+
+  Future<pw.Document> fetchPdfDocument() async{
+
+    // try{
+    //   String url=ipAddress+"api/getBillEntryData";
+    //   final response = await http.post(Uri.parse(url),
+    //       headers: <String, String>{
+    //         'Content-Type': 'application/json; charset=UTF-8',
+    //       }, body: jsonEncode({
+    //         "TRANSNO":Transno
+    //       }));
+    // }catch(e){
+    //   print(e);
+    // }
+    final ByteData data = await rootBundle.load('assets/icon/logo.png');
+    final Uint8List imageBytes = data.buffer.asUint8List();
+    final image = pw.MemoryImage(imageBytes);
+
+    final pdf = pw.Document();
+    double pdfWidth =PdfPageFormat.a4.width-40;
+    print(pdfWidth);
+    print("width");
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: pw.EdgeInsets.zero,
+        build: (pw.Context context) {
+          return pw.Stack(
+            children: [
+              // Outer border ensuring full visibility
+
+              pw.Positioned(
+                top: 0,
+                left: 0,
+                child: pw.Container(
+                  width: PdfPageFormat.a4.width,
+                  height: PdfPageFormat.a4.height,
+                  decoration: const pw.BoxDecoration(
+                    border: pw.Border(
+                      top: pw.BorderSide(width: 2),
+                      left: pw.BorderSide(width: 2),
+                      right: pw.BorderSide(width: 2),
+                      bottom: pw.BorderSide(width: 2),
+                    ),
+                  ),
+                ),
+              ),
+              // Header rectangle with text
+              pw.Positioned(
+                top: 20,
+                left: 20,
+                child: pw.Container(
+                  width: PdfPageFormat.a4.width - 40, // Adjusted for margins
+                  height: PdfPageFormat.a4.height-40,
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.all(width: 1),
+                  ),
+                  child: pw.Column(
+                      children: [
+                        pw.Container(
+                          width: PdfPageFormat.a4.width - 40,
+                          height: 80,
+                          decoration: const pw.BoxDecoration(border: pw.Border(bottom: pw.BorderSide(
+                            color:PdfColors.black,
+                            width: 1,
+                          ))),
+                          child:pw.Row(children: [
+                            pw.Container(
+                              decoration: const pw.BoxDecoration(
+                                  border: pw.Border(right: pw.BorderSide(
+                                    color:PdfColors.black,
+                                    width: 1,
+                                  ))),
+                              child:pw.Image(image,height: 80),
+                            ),
+                            pw.SizedBox(width: 50),
+                            pw.Column(
+                                mainAxisAlignment: pw.MainAxisAlignment.center,
+                                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                                children: [
+                                  pw.Text("RAKSHITH TRADERS", textAlign: pw.TextAlign.center,
+                                      style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+                                  pw.Text("3/952,C.M. NAGAR, AMMAPALAYAM, PALLADAM,TIRUPUR,TAMILNADU - 641664",
+                                      style: const pw.TextStyle(fontSize: 10) ,
+                                      textAlign: pw.TextAlign.center),
+                                  pw.Text("Phone : 8072392809, Cell : 9688376768, Email : cuteraj006.01@gmail.com\n"
+                                      , style: const pw.TextStyle(fontSize: 10)
+                                      ,textAlign:pw.TextAlign.center),
+                                  pw.Text("GSTIN No : 33BIWPR5797Q1ZQ", textAlign: pw.TextAlign.center,
+                                      style: const pw.TextStyle(fontSize: 10))
+                                ]
+                            )]),
+                        ),
+                        pw.Container(
+                            width: PdfPageFormat.a4.width-40,
+                            height: 20,
+                            decoration: const pw.BoxDecoration(
+                                border: pw.Border(bottom: pw.BorderSide(
+                                    width: 1, color: PdfColors.black))
+                            ),
+                            child: pw.Row(mainAxisAlignment: pw.MainAxisAlignment.center,
+                                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                                children: [pw.Text("TAX INVOICE",
+                                    style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold))]
+                            )
+                        ),
+                        pw.Container(
+                            width: PdfPageFormat.a4.width-40,
+                            height: 40,
+                            decoration: const pw.BoxDecoration(
+                                border: pw.Border(bottom: pw.BorderSide(width: 1, color: PdfColors.black))
+                            ),
+                            child: pw.Row(
+                                children: [
+                                  pw.Container(
+                                      width: pdfWidth*0.15,
+                                      height: 40,
+                                      decoration: const pw.BoxDecoration(
+                                          border: pw.Border(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black))
+                                      ),
+                                      child: pw.Column(
+                                          children: [
+                                            pw.SizedBox(height: 5),
+                                            pw.Text("Invoice No",
+                                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
+                                            pw.SizedBox(height: 7),
+                                            pw.Text("Invoice Date",
+                                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold))
+                                          ]
+                                      )
+                                  ),
+                                  pw.Container(
+                                      width: pdfWidth*0.35,
+                                      height: 40,
+                                      decoration: const pw.BoxDecoration(border:
+                                      pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Column(children: [
+                                        pw.SizedBox(height: 5),
+                                        pw.Text("RST/INV00032",
+                                            style: pw.TextStyle(fontSize: 10)),
+                                        pw.SizedBox(height: 7),
+                                        pw.Text("07/11/2024",
+                                            style: pw.TextStyle(fontSize: 10)),
+                                      ])
+                                  ),
+                                  pw.Container(
+                                      width: pdfWidth*0.2,
+                                      height: 40,
+                                      decoration: const pw.BoxDecoration(
+                                          border: pw.Border(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black))
+                                      ),
+                                      child: pw.Column(
+                                          children: [
+                                            pw.SizedBox(height: 5),
+                                            pw.Text("Transport",
+                                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
+                                            pw.SizedBox(height: 7),
+                                            pw.Text("Place of Supply",
+                                                style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold))
+                                          ]
+                                      )
+                                  ),
+                                  pw.Container(
+                                      width: pdfWidth*0.3,
+                                      height: 40,
+                                      decoration: const pw.BoxDecoration(border:
+                                      pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Column(children: [
+                                        pw.SizedBox(height: 5),
+                                        pw.Text("SRI SAKTHI MURUGAN",
+                                            style: pw.TextStyle(fontSize: 10)),
+                                        pw.SizedBox(height: 7),
+                                        pw.Text("33 - TAMIL NADU",
+                                            style: pw.TextStyle(fontSize: 10)),
+                                      ])
+                                  )
+                                ]
+                            )
+                        ),
+                        pw.Container(width: PdfPageFormat.a4.width-40,
+                            height: 20,
+                            decoration: const pw.BoxDecoration(
+                                border: pw.Border(
+                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                            child: pw.Row(
+                                children: [
+                                  pw.Container(
+                                      width: pdfWidth*0.5,
+                                      height: 20,
+                                      decoration: const pw.BoxDecoration(
+                                          border: pw.Border(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black)
+                                          )
+                                      ),
+                                      child: pw.Column(
+                                          children: [
+                                            pw.SizedBox(height: 3.5),
+                                            pw.Text("Bill To",
+                                                style: pw.TextStyle(fontSize: 12))
+                                          ]
+                                      )
+                                  ),
+                                  pw.Container(
+                                      width: pdfWidth*0.5,
+                                      height: 20,
+                                      decoration: const pw.BoxDecoration(
+                                          border: pw.Border(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black)
+                                          )
+                                      ),
+                                      child: pw.Column(
+                                          children: [
+                                            pw.SizedBox(height: 3.5),
+                                            pw.Text("Ship To",
+                                                style: pw.TextStyle(fontSize: 12))
+                                          ]
+                                      )
+                                  )
+                                ]
+                            )),
+                        pw.Container(width: PdfPageFormat.a4.width-40,
+                            height: 100,
+                            decoration: const pw.BoxDecoration(
+                                border: pw.Border(
+                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                            child: pw.Row(
+                                children: [
+                                  pw.Container(
+                                      width: pdfWidth*0.5,
+                                      height: 100,
+                                      decoration: const pw.BoxDecoration(
+                                          border: pw.Border(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black)
+                                          )
+                                      ),
+                                      child: pw.Column(
+                                        children: [
+                                          pw.Container(height: 66.5, child: pw.Column(children: [pw.SizedBox(height: 5.5),
+                                            pw.Text("SRI NANDHA PAPER AND BOARD",
+                                                textAlign: pw.TextAlign.center,
+                                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                            pw.Text("RASIPURAM MAIN ROAD,\n"
+                                                ,textAlign:pw.TextAlign.center, style: pw.TextStyle( fontSize: 10)),
+                                            pw.Text("TIRUNCHENGODE", textAlign: pw.TextAlign.center,
+                                               style: pw.TextStyle( fontSize: 10)),])),
+                                          pw.Text("GSTIN : 33ABEFS5262P1ZQ",style: pw.TextStyle( fontSize: 10)),
+                                          pw.Text("33 - TAMIL NADU", style: pw.TextStyle( fontSize: 10))
+                                        ],
+                                      )
+                                  ),
+                                  pw.Container(
+                                      width: pdfWidth*0.5,
+                                      height: 100,
+                                      decoration: const pw.BoxDecoration(
+                                          border: pw.Border(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black)
+                                          )
+                                      ),
+                                      child: pw.Column(
+                                        children: [
+                                          pw.Container(height: 66.5, child: pw.Column(children: [
+                                            pw.SizedBox(height: 5.5),
+                                            pw.Text("SRI NANDHA PAPER AND BOARD",
+                                                textAlign: pw.TextAlign.center,
+                                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                            pw.Text("RASIPURAM MAIN ROAD,\n"
+                                                ,textAlign:pw.TextAlign.center,style: pw.TextStyle( fontSize: 10)),
+                                            pw.Text("TIRUNCHENGODE", textAlign: pw.TextAlign.center,style: pw.TextStyle( fontSize: 10)),])),
+                                          pw.Text("GSTIN : 33ABEFS5262P1ZQ",style: pw.TextStyle( fontSize: 10)),
+                                          pw.Text("33 - TAMIL NADU",style: pw.TextStyle( fontSize: 10))
+                                        ],
+                                      )
+                                  )
+                                ]
+                            )),
+                        pw.Container(width: PdfPageFormat.a4.width-40,
+                            height: 304,
+                            decoration: const pw.BoxDecoration(
+                                border: pw.Border(
+                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                            child:pw.Column(
+                                children: [
+                                  pw.Table(
+                                    border: const pw.TableBorder(
+                                        right: pw.BorderSide(width: 1, color: PdfColors.black),
+                                        left: pw.BorderSide(width: 1, color: PdfColors.black),
+                                        top: pw.BorderSide(width: 1, color: PdfColors.black),
+                                        verticalInside: pw.BorderSide(width: 1, color: PdfColors.black)
+                                    ),
+                                    columnWidths: {
+                                      0: pw.FlexColumnWidth(0.075),
+                                      1: pw.FlexColumnWidth(0.225),
+                                      2: pw.FlexColumnWidth(0.125),
+                                      3: pw.FlexColumnWidth(0.075),
+                                      4: pw.FlexColumnWidth(0.106),
+                                      5: pw.FlexColumnWidth(0.1),
+                                      6: pw.FlexColumnWidth(0.0976),
+                                      7: pw.FlexColumnWidth(0.0964),
+                                      8: pw.FlexColumnWidth(0.1),
+                                    },
+                                    children: [
+                                      // Header Row
+                                      pw.TableRow(
+                                        decoration: const pw.BoxDecoration(
+                                            color: PdfColors.grey300,
+                                            border: pw.Border(bottom:pw.BorderSide(width: 1, color: PdfColors.black))
+                                        ),
+                                        children: [
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text("S.No", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text("Item", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text("HSN Code", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text("Uom", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text("Quantity", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text("Rate", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text("CGST%", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text("SGST%", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text("Amount", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                          ),
+                                        ],
+                                      ),
+                                      // Data Rows (Dynamically generated)
+                                      for (var item in items) pw.TableRow(
+                                        children: [
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text(item.serialNumber.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text(item.itemName, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text(item.hsnCode, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text(item.uom, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text(item.rate.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text(item.cgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text(item.sgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                          ),
+                                          pw.Padding(
+                                            padding: const pw.EdgeInsets.all(5),
+                                            child: pw.Text(item.amount.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                ]
+                            )
+                        ),
+                        pw.Container(width: PdfPageFormat.a4.width-40,
+                            height: 20,
+                            decoration: const pw.BoxDecoration(
+                                border: pw.Border(
+                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                            child: pw.Row(
+                                children: [
+                                  pw.Container(
+                                      width: pdfWidth * 0.300,
+                                      height: 20,
+                                      decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Row(
+                                          children: [
+                                            pw.Text("Bundles :", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                            pw.Text("0", style: pw.TextStyle( fontSize: 10)),
+                                            pw.Text("Vehicle :", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                            pw.Text("TN56C4374", style: pw.TextStyle( fontSize: 10)),
+                                          ], mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly)  ),
+                                  pw.Container(
+                                      width: pdfWidth * 0.200,
+                                      height: 20,
+                                      decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Row(
+                                          children: [
+                                            pw.Text("Total Quantity : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                          ], mainAxisAlignment: pw.MainAxisAlignment.center)  ),
+                                  pw.Container(
+                                      width: pdfWidth * 0.106,
+                                      height: 20,
+                                      decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Row(
+                                          children: [
+                                            pw.Text("12110.00", style: pw.TextStyle( fontSize: 10)),
+                                          ], mainAxisAlignment: pw.MainAxisAlignment.center)  ),
+                                  pw.Container(
+                                      width: pdfWidth * 0.1976,
+                                      height: 20,
+                                      decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Row(
+                                          children: [
+                                            pw.Text("Total", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 10)
+                                            ),
+                                          ], mainAxisAlignment: pw.MainAxisAlignment.center)
+                                  ),
+                                  pw.Container(
+                                      width: pdfWidth * 0.1964,
+                                      height: 20,
+                                      decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                      child: pw.Row(
+                                          children: [
+                                            pw.Text("205,870.00", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 12)
+                                            ),
+                                          ], mainAxisAlignment: pw.MainAxisAlignment.center)
+                                  )
+                                ]
+                            )
+                        ),
+                        pw.Container(width: PdfPageFormat.a4.width-40,
+                            height: 110,
+                            decoration: const pw.BoxDecoration(
+                                border: pw.Border(
+                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                            child: pw.Row(children: [
+                              pw.Container(width: pdfWidth*0.606,
+                                  height: 110,
+                                  decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
+                                      color: PdfColors.black))),
+                                  child: pw.Column(children: [
+                                    pw.Container(
+                                        width: pdfWidth*0.606,
+                                        height: 40,
+                                        child: pw.Row(
+                                            children: [
+                                              pw.Expanded(child: pw.Text("Amount In Words: ",
+                                                  style: pw.TextStyle(fontSize: 10)))
+                                              ,
+                                              pw.Expanded(child: pw.Text("RUPEES TWO LAKHS SIXTEEN THOUSAND ONE HUNDRED SIXTY-FOUR ONLY",
+                                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10),
+                                                  overflow: pw.TextOverflow.span)),
+
+                                            ], mainAxisAlignment: pw.MainAxisAlignment.center,
+                                            crossAxisAlignment: pw.CrossAxisAlignment.center
+                                        )
+                                    ),
+                                    pw.Container(
+                                        width: pdfWidth*0.606,
+                                        height: 70,
+                                        child: pw.Row(
+                                            children: [
+                                              pw.Expanded(child: pw.Text("Terms and Conditions: ",
+                                                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)))
+                                              ,
+                                              pw.Expanded(child: pw.Text("We are small industry as per MSME act "
+                                                  "Our Udyam registrtion no is TN28-0137367 "
+                                                  "The provisions  of section 43B(h) of income tax act is applicable on our supplies."
+                                                  "Subject to Palladam Jurisdiction.",
+                                                  style: pw.TextStyle( fontSize: 10),
+                                                  overflow: pw.TextOverflow.span)),
+
+                                            ], mainAxisAlignment: pw.MainAxisAlignment.center,
+                                            crossAxisAlignment: pw.CrossAxisAlignment.center
+                                        )
+                                    )
+                                  ])),
+                              pw.Container(width: pdfWidth* 0.1976,
+                                  height: 110,
+                                  decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
+                                      color: PdfColors.black))),
+                                  child: pw.Column(children: [
+                                    pw.SizedBox(height: 5),
+                                    pw.Text("Discount", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                    pw.SizedBox(height: 5),
+                                    pw.Text("CGST", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                    pw.SizedBox(height: 5),
+                                    pw.Text("SGST", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                    pw.SizedBox(height: 5),
+                                    pw.Text("Roundoff", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                  ])
+                              ),
+                              pw.Container(width: pdfWidth* 0.1964,
+                                  height: 110,
+                                  decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
+                                      color: PdfColors.black))),
+                                  child: pw.Column(children: [
+                                    pw.SizedBox(height: 5),
+                                    pw.Text(" 0.00", style: pw.TextStyle(fontSize: 10)),
+                                    pw.SizedBox(height: 5),
+                                    pw.Text("5,146.75", style: pw.TextStyle(fontSize: 10)),
+                                    pw.SizedBox(height: 5),
+                                    pw.Text("5,146.75", style: pw.TextStyle(fontSize: 10)),
+                                    pw.SizedBox(height: 5),
+                                    pw.Text("0.50", style: pw.TextStyle(fontSize: 10))
+                                  ]))
+                            ])),
+                        pw.Container(width: PdfPageFormat.a4.width-40,
+                            height: 20,
+                            decoration: const pw.BoxDecoration(
+                                border: pw.Border(
+                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                            child: pw.Row(children: [
+                              pw.Container(width: pdfWidth*0.606,
+                                  height: 20,
+                                  decoration: const pw.BoxDecoration(
+                                      border: pw.Border(
+                                          right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                  child: pw.Column(children:[
+                                    pw.SizedBox(height: 3.5),
+                                    pw.Text("Bank Details", style:pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,fontSize: 10
+                                    ), textAlign: pw.TextAlign.center)]) ),
+                              pw.Container(width: pdfWidth*0.394,
+                                  height: 20,
+                                  decoration: const pw.BoxDecoration(
+                                      border: pw.Border(
+                                          right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                  child: pw.Row(children:[
+                                    pw.SizedBox(width: 7.5),
+                                    pw.Text("Net Amount",style:pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,fontSize: 10
+                                    )),
+                                    pw.SizedBox(width: 73.5),
+                                    pw.Text("216,164.00", style:pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,fontSize: 10
+                                    ),textAlign: pw.TextAlign.end ),
+                                    pw.SizedBox(width: 23.5),], mainAxisAlignment: pw.MainAxisAlignment.center,
+                                      crossAxisAlignment: pw.CrossAxisAlignment.center) )
+                            ], )
+                        ),
+
+                        pw.Container(width: PdfPageFormat.a4.width-40,
+                            height: 87.8,
+                            decoration: const pw.BoxDecoration(
+                                border: pw.Border(
+                                    bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                            child:  pw.Row(children: [
+                              pw.Container(width: pdfWidth*0.606,
+                                  height: 88,
+                                  decoration: const pw.BoxDecoration(
+                                      border: pw.Border(
+                                          right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                  child: pw.Column(
+                                    children: [
+                                      pw.SizedBox(height: 5.5),
+                                      pw.Row(children: [
+                                        pw.Text("Account Name : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                        pw.Text("RAKSHITH TRADERS", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                      ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                      pw.Row(children: [
+                                        pw.Text("Account No : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                        pw.Text("408539688376768", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                      ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                      pw.Row(children: [
+                                        pw.Text("IFSC Code : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                        pw.Text("TMBL0000408", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                      ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                      pw.Row(children: [
+                                        pw.Text("Bank Name : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                        pw.Text("TAMILNADU MERCANTILE", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                      ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                      pw.Row(children: [
+                                        pw.Text("Branch : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                        pw.Text("PALLADAM", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                      ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+
+                                    ],
+                                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                                    mainAxisAlignment: pw.MainAxisAlignment.center
+                                  )
+                              ),
+                              pw.Container(width: pdfWidth*0.394,
+                                  height: 88,
+                                  decoration: const pw.BoxDecoration(
+                                      border: pw.Border(
+                                          right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                  child: pw.Column(children: [
+                                    pw.SizedBox(height: 5.5),
+                                    pw.Row(children: [
+                                      pw.Text("For ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                                      pw.Text("RAKSHITH TRADERS", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                    ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                    pw.SizedBox(height: 45),
+                                    pw.Text("Authorised Signature", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                  ])
+                              )
+                            ])
+                        ),
+
+                      ]
+                  ),
+                ),
+              ),
+              // Subheader rectangle with text
+
+            ],
+          );
+        },
+      ),
+    );
+
+    return pdf;
   }
 
 
@@ -213,7 +1004,6 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         }
       });
       String url=ipAddress+"api/getBillEntryData";
-      String getApi="http://192.168.2.11:3000/api/getSupplierData";
       final response = await http.post(Uri.parse(url),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -883,7 +1673,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     }else{
       if(billEntryList.length>0) {
         for (int i = 0; i < billEntryList.length; i++) {
-          if (billEntryList[i].designation == item) {
+          if (billEntryList[i].item == item) {
             dupChk=true;
             break;
           }
@@ -985,7 +1775,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         billEntryList.removeAt(index);
         if (billEntryList.length > 0) {
           for (int i = 0; i < billEntryList.length; i++) {
-            billEntryList[i].id = i + 1;
+            billEntryList[i].sno = i + 1;
           }
         }
         selected = false;
@@ -997,7 +1787,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         for (int i = 0; i < billEntryList.length; i++) {
           if (index == i) {
             billEntryList[i].name = code.toString();
-            billEntryList[i].designation = item;
+            billEntryList[i].item = item;
             billEntryList[i].uom = uom;
             billEntryList[i].hsnCode = hsn;
             billEntryList[i].stock = StkQty;
@@ -1041,7 +1831,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           grandTotalAmount = billEntryList[i].TotAmt + grandTotalAmount;
           savedTotalAmount = billEntryList[i].TotAmt + savedTotalAmount;
               print(billEntryList[i].name + " ," +
-              billEntryList[i].designation + " ," +
+              billEntryList[i].item + " ," +
               billEntryList[i].uom + " ," +
               billEntryList[i].hsnCode + " ," +
               billEntryList[i].stock.toString() + " ," +
@@ -2222,6 +3012,31 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         color: Colors.white
                                     ),),
                                   ): SizedBox(height: 0.01,),
+                                  SizedBox(width: 10),
+                                  IconButton(onPressed: () async{
+                                    print("button working started");
+                                    if (pdfKey.currentState != null) {
+
+                                      final pdf = await fetchPdfDocument();
+
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Scaffold(
+                                            appBar: AppBar(title: Text('Invoice Preview')),
+                                            body: PdfPreview(
+                                              build: (format) => pdf.save(),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                      print("Export finished");
+                                    } else {
+                                      print("Error: DataGrid currentState is null");
+                                    }
+
+                                    print("button working ended");
+                                  }, icon: Icon(Icons.picture_as_pdf)),
                                 ],)
                             ),
                           ],),
@@ -2229,199 +3044,202 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
 
                           Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
-                          Container(
+                          Column(children: [
+                            Container(
                             height: gridHeight,
                             child:
-                          SfDataGridTheme(
-                            data: SfDataGridThemeData(
-                              currentCellStyle: DataGridCurrentCellStyle(
-                                borderWidth: 2,
-                                borderColor: Colors.pinkAccent,
+                            SfDataGridTheme(
+                              data: SfDataGridThemeData(
+                                currentCellStyle: DataGridCurrentCellStyle(
+                                  borderWidth: 2,
+                                  borderColor: Colors.pinkAccent,
+                                ),
+                                selectionColor: Colors.lightGreen[50],
+                                headerColor: Color(0xFF004D40),
                               ),
-                              selectionColor: Colors.lightGreen[50],
-                              headerColor: Color(0xFF004D40),
-                            ),
-                            child: Container(
-                              margin: EdgeInsets.fromLTRB(//width > 1400 ? 75
-                                  0, 0, 0, 0),
-                              child:
-                              SfDataGrid(
-                                allowEditing: true,
-                                selectionMode: SelectionMode.single,
-                                headerGridLinesVisibility: GridLinesVisibility.both,
-                                // navigationMode: GridNavigationMode.cell,
-                                source: _employeeDataSource,
-                                editingGestureType: EditingGestureType.tap,
-                                columnWidthCalculationRange: ColumnWidthCalculationRange.visibleRows,
-                                gridLinesVisibility: GridLinesVisibility.both,
-                                columns: [
-                                  GridColumn(
-                                    columnName: 'id',
-                                    width: 65,
-                                    allowEditing: false,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.centerLeft,
-                                      child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                              child: Container(
+                                margin: EdgeInsets.fromLTRB(//width > 1400 ? 75
+                                    0, 0, 0, 0),
+                                child:
+                                SfDataGrid(
+                                  key: pdfKey,
+                                  allowEditing: true,
+                                  selectionMode: SelectionMode.single,
+                                  headerGridLinesVisibility: GridLinesVisibility.both,
+                                  // navigationMode: GridNavigationMode.cell,
+                                  source: _employeeDataSource,
+                                  editingGestureType: EditingGestureType.tap,
+                                  columnWidthCalculationRange: ColumnWidthCalculationRange.visibleRows,
+                                  gridLinesVisibility: GridLinesVisibility.both,
+                                  columns: [
+                                    GridColumn(
+                                      columnName: 'sno',
+                                      width: 65,
+                                      allowEditing: false,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.centerLeft,
+                                        child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'name',
-                                    width: 75,
-                                    visible: false,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Code', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'name',
+                                      width: 75,
+                                      visible: false,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('Code', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'designation',
-                                    width: 250,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Particular', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'item',
+                                      width: 250,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('Particular', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'uom',
-                                    width: 75,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Uom', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'uom',
+                                      width: 75,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('Uom', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'hsnCode',
-                                    width: 100,
-                                    visible: false,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('HsnCode', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'hsnCode',
+                                      width: 100,
+                                      visible: false,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('HsnCode', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'stock',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Stock', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'stock',
+                                      width: 100,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('Stock', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'quantity',
-                                    width: 100,
-                                    allowEditing: true,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Quantity', overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'quantity',
+                                      width: 100,
+                                      allowEditing: true,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('Quantity', overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'rate',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Rate', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'rate',
+                                      width: 100,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('Rate', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'amount',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Amount', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'amount',
+                                      width: 100,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('Amount', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'disc',
-                                    visible: false,
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('Disc', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'disc',
+                                      visible: false,
+                                      width: 100,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('Disc', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'discAmt',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('DiscAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'discAmt',
+                                      width: 100,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('DiscAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'GSTAmt',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('GSTAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'GSTAmt',
+                                      width: 100,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('GSTAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                  GridColumn(
-                                    columnName: 'TotAmt',
-                                    width: 100,
-                                    label: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                      alignment: Alignment.center,
-                                      child: Text('TotAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                    GridColumn(
+                                      columnName: 'TotAmt',
+                                      width: 100,
+                                      label: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        alignment: Alignment.center,
+                                        child: Text('TotAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                      ),
                                     ),
-                                  ),
-                                ],
-                                controller : _dataGridController,
-                                onSelectionChanged:
-                                    (List<DataGridRow> addedRows, List<DataGridRow> removedRows) {
-                                  // apply your logic
-                                  selected=true;
-                                  index=_dataGridController.selectedIndex;
-                                  DataGridRow? data= _dataGridController.selectedRow;
-                                  print(_dataGridController.selectedIndex);
+                                  ],
+                                  controller : _dataGridController,
+                                  onSelectionChanged:
+                                      (List<DataGridRow> addedRows, List<DataGridRow> removedRows) {
+                                    // apply your logic
+                                    selected=true;
+                                    index=_dataGridController.selectedIndex;
+                                    DataGridRow? data= _dataGridController.selectedRow;
+                                    print(_dataGridController.selectedIndex);
 
-                                  print(data);
-                                  print(data);
+                                    print(data);
+                                    print(data);
 
-                                  print(data?.getCells()[2].value);
-                                  print(data?.getCells()[6].value);
-                                  print(data?.getCells()[9].value);
-                                  setState(() {
-                                    qty=data?.getCells()[6].value;
-                                    qtyTextController.text=data!.getCells()[6].value.toString();
-                                    _itemController..text=data?.getCells()[2].value;
-                                    discTextController.text=data!.getCells()[9].value.toString();
-                                    rateTextController.text=data!.getCells()[7].value.toString();
-                                    if(billType=="GST Bill") {
-                                      int gstIdx= billEntryList.indexWhere((entry){
-                                        return entry.designation==data?.getCells()[2].value.toString();
-                                      });
-                                      if(gstIdx!=-1){
-                                        if(int.parse(billEntryList[gstIdx].scode) == 68 ){
-                                          double gst= billEntryList[gstIdx].CgstP+  billEntryList[gstIdx].SgstP;
-                                          gstTextController.text=gst.toString();
-                                        }else{
-                                          gstTextController.text= billEntryList[gstIdx].IgstP.toString();
+                                    print(data?.getCells()[2].value);
+                                    print(data?.getCells()[6].value);
+                                    print(data?.getCells()[9].value);
+                                    setState(() {
+                                      qty=data?.getCells()[6].value;
+                                      qtyTextController.text=data!.getCells()[6].value.toString();
+                                      _itemController..text=data?.getCells()[2].value;
+                                      discTextController.text=data!.getCells()[9].value.toString();
+                                      rateTextController.text=data!.getCells()[7].value.toString();
+                                      if(billType=="GST Bill") {
+                                        int gstIdx= billEntryList.indexWhere((entry){
+                                          return entry.item==data?.getCells()[2].value.toString();
+                                        });
+                                        if(gstIdx!=-1){
+                                          if(int.parse(billEntryList[gstIdx].scode) == 68 ){
+                                            double gst= billEntryList[gstIdx].CgstP+  billEntryList[gstIdx].SgstP;
+                                            gstTextController.text=gst.toString();
+                                          }else{
+                                            gstTextController.text= billEntryList[gstIdx].IgstP.toString();
+                                          }
                                         }
+                                      }else{
+                                        gstTextController.text="0.0";
                                       }
-                                    }else{
-                                    gstTextController.text="0.0";
-                                    }
-                                    discount=data?.getCells()[9].value;
-                                    itemRate = data?.getCells()[7].value;
-                                  });
-                                },
-                                columnWidthMode: ColumnWidthMode.fill,
+                                      discount=data?.getCells()[9].value;
+                                      itemRate = data?.getCells()[7].value;
+                                    });
+                                  },
+                                  columnWidthMode: ColumnWidthMode.fill,
+                                ),
                               ),
-                            ),
-                          ),),
+                            ),),],),
+
 
                           Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
                           Center(child:
@@ -2448,9 +3266,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       for (int i = 0; i <
                                           billEntryList.length; i++) {
                                         detList.add({
-                                          "id": billEntryList[i].id,
+                                          "id": billEntryList[i].sno,
                                           "itemId": billEntryList[i].name,
-                                          "item": billEntryList[i].designation,
+                                          "item": billEntryList[i].item,
                                           "uom": billEntryList[i].uom,
                                           "hsnCode": billEntryList[i].hsnCode,
                                           "stock": billEntryList[i].stock,
@@ -2576,9 +3394,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         });
                                         var prevQty= jsonDecode(prevBillEntryList[pqIdx]);
                                         detList.add({
-                                          "id": billEntryList[i].id,
+                                          "id": billEntryList[i].sno,
                                           "itemId": billEntryList[i].name,
-                                          "item": billEntryList[i].designation,
+                                          "item": billEntryList[i].item,
                                           "uom": billEntryList[i].uom,
                                           "hsnCode": billEntryList[i].hsnCode,
                                           "stock": billEntryList[i].stock,
@@ -2710,9 +3528,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
 class BillEntry {
   BillEntry(
-      this.id,
+      this.sno,
       this.name,
-      this.designation,
+      this.item,
       this.uom,
       this.hsnCode,
       this.stock,
@@ -2735,9 +3553,9 @@ class BillEntry {
       this.scode
       );
 
-   int id;
+   int sno;
    String name;
-   String designation;
+   String item;
    String uom;
    String hsnCode;
    double stock;
@@ -2764,9 +3582,9 @@ class EmployeeDataSource extends DataGridSource {
   EmployeeDataSource({required List<BillEntry> billEntry}) {
     _billEntry = billEntry.map<DataGridRow>((dataGridRow) => DataGridRow(
       cells: [
-        DataGridCell<int>(columnName: 'id', value: dataGridRow.id),
+        DataGridCell<int>(columnName: 'sno', value: dataGridRow.sno),
         DataGridCell<String>(columnName: 'name', value: dataGridRow.name),
-        DataGridCell<String>(columnName: 'designation', value: dataGridRow.designation),
+        DataGridCell<String>(columnName: 'item', value: dataGridRow.item),
         DataGridCell<String>(columnName: 'uom', value: dataGridRow.uom),
         DataGridCell<String>(columnName: 'hsnCode', value: dataGridRow.hsnCode),
         DataGridCell<double>(columnName: 'stock', value: dataGridRow.stock),
@@ -2944,6 +3762,31 @@ class EmployeeDataSource extends DataGridSource {
   RegExp _getRegExp(bool isNumericKeyBoard, String columnName) {
     return isNumericKeyBoard ? RegExp('[0-9]') : RegExp('[a-zA-Z ]');
   }
+}
+
+
+class Item {
+  final String serialNumber;
+  final String itemName;
+  final String hsnCode;
+  final String uom;
+  final String quantity;
+  final String rate;
+  final String cgstPercent;
+  final String sgstPercent;
+  final String amount;
+
+  Item({
+    required this.serialNumber,
+    required this.itemName,
+    required this.hsnCode,
+    required this.uom,
+    required this.quantity,
+    required this.rate,
+    required this.cgstPercent,
+    required this.sgstPercent,
+    required this.amount
+  });
 }
 
 
