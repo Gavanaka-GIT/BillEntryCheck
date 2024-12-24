@@ -4,7 +4,6 @@ import 'package:billentry/CustomWidgets/appBar.dart';
 import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
 import 'package:billentry/main.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -21,7 +20,7 @@ class _homeScreen extends State<homeScreen> {
 
 
   Future<void> FetchMasData()async {
-    String cutTableApi =ipAddress+"api/getBranchTransferReciptDatas";
+    String cutTableApi ="${ipAddress}api/getBranchTransferReciptDatas";
     try {
 
       final response = await http.post(Uri.parse(cutTableApi),
@@ -73,7 +72,7 @@ class _homeScreen extends State<homeScreen> {
           },
           barTitle: "Home",
         ),
-        drawer: customDrawer(
+        drawer: const customDrawer(
           stkTransferCheck: false,
           brhTransferCheck: false,
         ),
@@ -95,10 +94,10 @@ class _homeScreen extends State<homeScreen> {
 
               // Title with animation
               AnimatedContainer(
-                duration: Duration(seconds: 1),
+                duration: const Duration(seconds: 1),
                 curve: Curves.easeInOut,
-                padding: EdgeInsets.all(20),
-                child: Text(
+                padding: const EdgeInsets.all(20),
+                child: const Text(
                   "VISION TECH - SOFTWARES",
                   style: TextStyle(
                     fontSize: 24,
@@ -117,7 +116,7 @@ class _homeScreen extends State<homeScreen> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              content: Text(
+              content: const Text(
                 "Are you sure you want to logout?",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
@@ -126,13 +125,13 @@ class _homeScreen extends State<homeScreen> {
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },
-                  child: Text("YES"),
+                  child: const Text("YES"),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },
-                  child: Text("NO"),
+                  child: const Text("NO"),
                 ),
               ],
             );
@@ -142,7 +141,7 @@ class _homeScreen extends State<homeScreen> {
         if (value) {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => Home()), // Replace with your home widget
+            MaterialPageRoute(builder: (context) => const Home()), // Replace with your home widget
             ModalRoute.withName('/'),
           );
           return true;

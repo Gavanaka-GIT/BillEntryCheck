@@ -6,7 +6,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Function onMenuPressed;
   final String barTitle;
 
-  const CustomAppBar({
+  const CustomAppBar({super.key, 
     required this.userName,
     required this.emailId,
     required this.onMenuPressed,

@@ -3,12 +3,10 @@ import 'dart:convert';
 import 'package:billentry/CustomWidgets/appBar.dart';
 import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
-import 'package:billentry/billEntryMasScreen.dart';
 import 'package:billentry/main.dart';
 import 'package:intl/intl.dart';
 import 'package:billentry/purchaseEntryMasScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:flutter/services.dart';
@@ -18,11 +16,11 @@ import 'package:http/http.dart' as http;
 
 
 
-import 'package:dropdown_button2/dropdown_button2.dart';
 
 class purchaseReportPage extends StatefulWidget{
   const purchaseReportPage({super.key});
 
+  @override
   State<purchaseReportPage> createState()=> _stockReport();
 }
 
@@ -46,10 +44,10 @@ class _stockReport extends State<purchaseReportPage>{
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: Row(
         children: [
-          CircularProgressIndicator(color: Color(0xFF004D40),),
-          Container(margin: EdgeInsets.only(left: 7),child:Text("..Loading" )),
+          const CircularProgressIndicator(color: Color(0xFF004D40),),
+          Container(margin: const EdgeInsets.only(left: 7),child:const Text("..Loading" )),
         ],),
     );
     showDialog(barrierDismissible: false,
@@ -61,7 +59,7 @@ class _stockReport extends State<purchaseReportPage>{
   }
 
   Future<void> FetchMasData()async {
-    String cutTableApi =ipAddress+"api/getPurchaseMonth";
+    String cutTableApi ="${ipAddress}api/getPurchaseMonth";
     try {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -113,12 +111,12 @@ class _stockReport extends State<purchaseReportPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("No Data Found"),
+                  title: const Text('REASON'),
+                  content: const Text("No Data Found"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -139,11 +137,11 @@ class _stockReport extends State<purchaseReportPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -162,11 +160,11 @@ class _stockReport extends State<purchaseReportPage>{
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -179,7 +177,7 @@ class _stockReport extends State<purchaseReportPage>{
   }
 
   Future<void> FetchDetData()async {
-    String cutTableApi =ipAddress+"api/getPurchaseData";
+    String cutTableApi ="${ipAddress}api/getPurchaseData";
     try {
       // showLoaderDialog(context);
       final response = await http.post(Uri.parse(cutTableApi),
@@ -226,12 +224,12 @@ class _stockReport extends State<purchaseReportPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("No Data Found"),
+                  title: const Text('REASON'),
+                  content: const Text("No Data Found"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -252,11 +250,11 @@ class _stockReport extends State<purchaseReportPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -275,11 +273,11 @@ class _stockReport extends State<purchaseReportPage>{
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -340,21 +338,21 @@ class _stockReport extends State<purchaseReportPage>{
               onMenuPressed: (){
                 Scaffold.of(context).openDrawer();
               }, barTitle: "PURCHASE REPORT"),
-          drawer: customDrawer(stkTransferCheck: false,
+          drawer: const customDrawer(stkTransferCheck: false,
               brhTransferCheck: false),
           body:
           SingleChildScrollView(
               child:Column(children: [
-                SizedBox(height: 10,),
-                Center(child:
+                const SizedBox(height: 10,),
+                const Center(child:
                 Text("PURCHASE REPORT - MONTH WISE", style:
                 TextStyle(fontWeight:FontWeight.bold,
                     fontSize: 20),
                 ),),
-                SizedBox(height: 10,),
+                const SizedBox(height: 10,),
                 Row(mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    !mainChk ? Padding(padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    !mainChk ? Padding(padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                       child: ElevatedButton.icon(
                         onPressed: (){
                           setState(() {
@@ -362,18 +360,18 @@ class _stockReport extends State<purchaseReportPage>{
                           });
                         },
                         style: ElevatedButton.styleFrom(foregroundColor: Colors.black,
-                          backgroundColor: Color(0xFF004D40),),
-                        label: Text("Back",style: TextStyle(color: Colors.white),),
-                        icon: Icon(Icons.arrow_back, color: Colors.pink,), ),)
-                        :SizedBox(width: 1,),
-                    Expanded(child: Padding(padding: EdgeInsets.all(15), child:
+                          backgroundColor: const Color(0xFF004D40),),
+                        label: const Text("Back",style: TextStyle(color: Colors.white),),
+                        icon: const Icon(Icons.arrow_back, color: Colors.pink,), ),)
+                        :const SizedBox(width: 1,),
+                    Expanded(child: Padding(padding: const EdgeInsets.all(15), child:
                     SizedBox(
                       width: width >500?width*0.5: width,
                       child: TextField(
                         decoration: InputDecoration(border:
                         OutlineInputBorder(borderRadius: BorderRadius.circular(25.0)),
-                            contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                            prefixIcon: Icon(Icons.search),
+                            contentPadding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                            prefixIcon: const Icon(Icons.search),
                             hintText: mainChk? "Search Month Here":"Search Party Here",
                             labelText: mainChk? "Search Month":"Search Party"
                         ),
@@ -385,7 +383,7 @@ class _stockReport extends State<purchaseReportPage>{
                               updateDetTable(tempStockReportDet);
                             }
                           }else{
-                            if(SalesReportMainList.length>0 || tempStockReportDet.length>0) {
+                            if(SalesReportMainList.isNotEmpty || tempStockReportDet.isNotEmpty) {
                               if(mainChk) {
                                 List<SalesReportMain> tempSalesList = [];
                                 for (int i = 0; i < SalesReportMainList.length; i++) {
@@ -414,11 +412,11 @@ class _stockReport extends State<purchaseReportPage>{
                                 builder: (BuildContext context) {
                                   return
                                     AlertDialog(
-                                      title: Text('REASON'),
-                                      content: Text("No Data"), // Content of the dialog
+                                      title: const Text('REASON'),
+                                      content: const Text("No Data"), // Content of the dialog
                                       actions: <Widget>[
                                         TextButton(
-                                          child: Text('OK'),
+                                          child: const Text('OK'),
                                           onPressed: () {
                                             Navigator.of(context).pop(); // Close the dialog
                                           },
@@ -438,7 +436,7 @@ class _stockReport extends State<purchaseReportPage>{
                   children:
                   [
                     Row( mainAxisAlignment:MainAxisAlignment.center,children: [
-                      Container(
+                      SizedBox(
                         width: width>500? width:width,
                         height: height * 0.5,
                         // alignment:  Alignment.center,
@@ -447,12 +445,12 @@ class _stockReport extends State<purchaseReportPage>{
                         SfDataGridTheme(
                           data: SfDataGridThemeData(
                             filterIconColor: Colors.pink,
-                            currentCellStyle: DataGridCurrentCellStyle(
+                            currentCellStyle: const DataGridCurrentCellStyle(
                               borderWidth: 2,
                               borderColor: Colors.pinkAccent,
                             ),
                             selectionColor: Colors.lightGreen[50],
-                            headerColor: Color(0xFF004D40),
+                            headerColor: const Color(0xFF004D40),
                           ),
                           child: SfDataGrid(
                             allowEditing: true,
@@ -471,18 +469,18 @@ class _stockReport extends State<purchaseReportPage>{
                                 allowEditing: false,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.centerLeft,
-                                  child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'month',
                                 width: width<500?165:width*0.4,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('MONTH', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('MONTH', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -490,9 +488,9 @@ class _stockReport extends State<purchaseReportPage>{
                                 width: width<500?105:width*0.20,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('TYPE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('TYPE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -500,9 +498,9 @@ class _stockReport extends State<purchaseReportPage>{
                                 width: width<500?135:width*0.30,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('AMOUNT', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('AMOUNT', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -511,9 +509,9 @@ class _stockReport extends State<purchaseReportPage>{
                                 allowFiltering: false,
                                 visible: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('MONTHNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('MONTHNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                             ],
@@ -547,7 +545,7 @@ class _stockReport extends State<purchaseReportPage>{
                         }
                         DateFormat dateFormat = DateFormat('dd/MM/yyyy');
                         // Sort the list by date using DateFormat
-                        if(!tempStockReportDet.isEmpty) {
+                        if(tempStockReportDet.isNotEmpty) {
                           tempStockReportDet.sort((a, b) {
                             DateTime dateA = dateFormat.parse(a.vocherDate);
                             DateTime dateB = dateFormat.parse(b.vocherDate);
@@ -573,11 +571,11 @@ class _stockReport extends State<purchaseReportPage>{
                         showDialog(context: context, builder:(BuildContext context) {
                           return
                             AlertDialog(
-                              title: Text('REASON'),
-                              content: Text("Please Select The Row"), // Content of the dialog
+                              title: const Text('REASON'),
+                              content: const Text("Please Select The Row"), // Content of the dialog
                               actions: <Widget>[
                                 TextButton(
-                                  child: Text('OK'),
+                                  child: const Text('OK'),
                                   onPressed: () {
                                     Navigator.of(context).pop(); // Close the dialog
                                   },
@@ -591,30 +589,30 @@ class _stockReport extends State<purchaseReportPage>{
                         style: TextStyle(color: Colors.white), ),
                       icon: const Icon(Icons.arrow_forward, color: Colors.pink,),
                       style: ElevatedButton.styleFrom(foregroundColor: Colors.black,
-                        backgroundColor: Color(0xFF004D40),),
+                        backgroundColor: const Color(0xFF004D40),),
                     )
 
                   ],):
                 Column(children: [Center(child:
-                Text(" ITEM GROUP : ${secondGridName}", style:
-                TextStyle(fontWeight:FontWeight.bold,
+                Text(" ITEM GROUP : $secondGridName", style:
+                const TextStyle(fontWeight:FontWeight.bold,
                     fontSize: 20),
                 ),),
-                  SizedBox(height: 5,),
+                  const SizedBox(height: 5,),
                   SizedBox(width: width>500? width:width
                     , height: height*0.5,
                     child: SfDataGridTheme(
                       data: SfDataGridThemeData(
                         filterIconColor: Colors.pink,
-                        currentCellStyle: DataGridCurrentCellStyle(
+                        currentCellStyle: const DataGridCurrentCellStyle(
                           borderWidth: 2,
                           borderColor: Colors.pinkAccent,
                         ),
                         selectionColor: Colors.lightGreen[50],
-                        headerColor: Color(0xFF004D40),
+                        headerColor: const Color(0xFF004D40),
                       ),
                       child: Container(
-                        margin: EdgeInsets.fromLTRB(//width > 1400 ? 75
+                        margin: const EdgeInsets.fromLTRB(//width > 1400 ? 75
                             0, 0, 0, 0),
                         child:
                         SfDataGrid(
@@ -635,18 +633,18 @@ class _stockReport extends State<purchaseReportPage>{
                               allowEditing: false,
                               allowFiltering: false,
                               label: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                 alignment: Alignment.centerLeft,
-                                child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                child: const Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                               ),
                             ),
                             GridColumn(
                               columnName: 'voucherDate',
                               width: width<500?135:width*0.150,
                               label: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                 alignment: Alignment.center,
-                                child: Text('DATE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                child: const Text('DATE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                               ),
                             ),
                             GridColumn(
@@ -654,9 +652,9 @@ class _stockReport extends State<purchaseReportPage>{
                               width: width<500?135:width*0.225,
                               allowFiltering: false,
                               label: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                 alignment: Alignment.center,
-                                child: Text('PARTY', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                child: const Text('PARTY', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                               ),
                             ),
                             GridColumn(
@@ -664,9 +662,9 @@ class _stockReport extends State<purchaseReportPage>{
                               width: width<500?105:width*0.100,
                               allowFiltering: false,
                               label: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                 alignment: Alignment.center,
-                                child: Text('TYPE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                child: const Text('TYPE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                               ),
                             ),
                             GridColumn(
@@ -674,9 +672,9 @@ class _stockReport extends State<purchaseReportPage>{
                               width: width<500?135:width*0.250,
                               allowFiltering: false,
                               label: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                 alignment: Alignment.center,
-                                child: Text('VOUCHERNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                child: const Text('VOUCHERNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                               ),
                             ),
                             GridColumn(
@@ -684,9 +682,9 @@ class _stockReport extends State<purchaseReportPage>{
                               width: width<500?115:width*0.175,
                               allowFiltering: false,
                               label: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                 alignment: Alignment.center,
-                                child: Text('AMOUNT', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                child: const Text('AMOUNT', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                               ),
                             ),
                             GridColumn(
@@ -695,9 +693,9 @@ class _stockReport extends State<purchaseReportPage>{
                               allowFiltering: false,
                               visible: false,
                               label: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                 alignment: Alignment.center,
-                                child: Text('MonthNo', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                child: const Text('MonthNo', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                               ),
                             ),
                           ],
@@ -771,11 +769,11 @@ class _stockReport extends State<purchaseReportPage>{
                       showDialog(context: context, builder:(BuildContext context) {
                         return
                           AlertDialog(
-                            title: Text('REASON'),
-                            content: Text("Please Select The Row"), // Content of the dialog
+                            title: const Text('REASON'),
+                            content: const Text("Please Select The Row"), // Content of the dialog
                             actions: <Widget>[
                               TextButton(
-                                child: Text('OK'),
+                                child: const Text('OK'),
                                 onPressed: () {
                                   Navigator.of(context).pop(); // Close the dialog
                                 },
@@ -785,10 +783,10 @@ class _stockReport extends State<purchaseReportPage>{
                       } );
                     }
                   },
-                    label: Text("Fetch Selected TransNo",style: TextStyle(color: Colors.white), ),
-                    icon: Icon(Icons.arrow_forward, color: Colors.pink,),
+                    label: const Text("Fetch Selected TransNo",style: TextStyle(color: Colors.white), ),
+                    icon: const Icon(Icons.arrow_forward, color: Colors.pink,),
                     style: ElevatedButton.styleFrom(foregroundColor: Colors.black,
-                      backgroundColor: Color(0xFF004D40),),
+                      backgroundColor: const Color(0xFF004D40),),
                   )],)
 
 
@@ -978,8 +976,8 @@ class StockReportDetSource extends DataGridSource {
         controller: editingController..text = displayText,
         textAlign: isNumericType ? TextAlign.right : TextAlign.left,
         autocorrect: false,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 16.0),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 16.0),
         ),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.allow(regExp)
@@ -1014,7 +1012,7 @@ class StockReportDetSource extends DataGridSource {
                   dataGridCell.columnName == 'salary')
                   ? Alignment.center
                   : Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 dataGridCell.value.toString(),
                 overflow: TextOverflow.ellipsis,
@@ -1156,8 +1154,8 @@ class SalesReportMainSource extends DataGridSource {
         controller: editingController..text = displayText,
         textAlign: isNumericType ? TextAlign.right : TextAlign.left,
         autocorrect: false,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 16.0),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 16.0),
         ),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.allow(regExp)
@@ -1192,7 +1190,7 @@ class SalesReportMainSource extends DataGridSource {
                   dataGridCell.columnName == 'salary')
                   ? Alignment.center
                   : Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 dataGridCell.value.toString(),
                 overflow: TextOverflow.ellipsis,

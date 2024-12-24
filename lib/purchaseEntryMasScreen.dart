@@ -2,10 +2,7 @@ import 'dart:convert';
 import 'package:billentry/CustomWidgets/appBar.dart';
 import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
-import 'package:billentry/billEntryMasScreen.dart';
 import 'package:billentry/main.dart';
-import 'package:billentry/stockReport.dart';
-import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bootstrap/flutter_bootstrap.dart';
 import 'package:http/http.dart' as http;
@@ -33,7 +30,7 @@ class _purchaseEntryMasState extends State<PurchaseEntryMasScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: purchaseEntryFirstScreen(),
     );
   }
@@ -41,7 +38,7 @@ class _purchaseEntryMasState extends State<PurchaseEntryMasScreen> {
 
 class purchaseEntryFirstScreen extends StatefulWidget {
   final dynamic data;
-  const purchaseEntryFirstScreen({Key? key, this.data}) : super(key: key);
+  const purchaseEntryFirstScreen({super.key, this.data});
 
   @override
   _billEntryFirstState createState() => _billEntryFirstState();
@@ -99,17 +96,17 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
   var selected = false;
   var index  =-1;
 
-  TextEditingController date = new TextEditingController();
-  TextEditingController supplierInDateController = new TextEditingController();
-  TextEditingController _itemController = new TextEditingController();
-  TextEditingController _shipToController = new TextEditingController();
-  TextEditingController _customerController = new TextEditingController();
-  TextEditingController qtyTextController = new TextEditingController();
-  TextEditingController itemTextController = new TextEditingController();
-  TextEditingController discTextController = new TextEditingController();
-  TextEditingController rateTextController = new TextEditingController();
-  TextEditingController gstTextController = new TextEditingController();
-  TextEditingController narrationController = new TextEditingController();
+  TextEditingController date = TextEditingController();
+  TextEditingController supplierInDateController = TextEditingController();
+  TextEditingController _itemController = TextEditingController();
+  TextEditingController _shipToController = TextEditingController();
+  TextEditingController _customerController = TextEditingController();
+  TextEditingController qtyTextController = TextEditingController();
+  TextEditingController itemTextController = TextEditingController();
+  TextEditingController discTextController = TextEditingController();
+  TextEditingController rateTextController = TextEditingController();
+  TextEditingController gstTextController = TextEditingController();
+  TextEditingController narrationController = TextEditingController();
   final DataGridController _dataGridController = DataGridController();
 
 
@@ -117,10 +114,10 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: Row(
         children: [
-          CircularProgressIndicator(color: Color(0xFF004D40),),
-          Container(margin: EdgeInsets.only(left: 7),child:Text("..In Progress" )),
+          const CircularProgressIndicator(color: Color(0xFF004D40),),
+          Container(margin: const EdgeInsets.only(left: 7),child:const Text("..In Progress" )),
         ],),
     );
     showDialog(barrierDismissible: false,
@@ -132,7 +129,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
   }
 
   showPurchaseNoLoaderDialog(BuildContext context){
-    AlertDialog alert=AlertDialog(
+    AlertDialog alert=const AlertDialog(
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -157,7 +154,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
       // String tempResult=docId;
       // docId = docId.replaceAll("/","%2F");
       //String getLayPrep = "http://${ipAddress}:5025/api/getLayprep/" + docId ;
-      String url=ipAddress+"api/getSupplierData/"+globalCompId.toString();
+      String url="${ipAddress}api/getSupplierData/$globalCompId";
       String getApi="http://192.168.2.11:3000/api/getSupplierData";
       final response = await http.get(Uri.parse(url));
 
@@ -204,7 +201,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
       // String tempResult=docId;
       // docId = docId.replaceAll("/","%2F");
       //String getLayPrep = "http://${ipAddress}:5025/api/getLayprep/" + docId ;
-      String getApi=ipAddress+"api/getItemData/"+globalCompId.toString();;
+      String getApi="${ipAddress}api/getItemData/$globalCompId";
       final response = await http.get(Uri.parse(getApi));
 
       if (response.statusCode == 200) {
@@ -246,7 +243,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
   }
 
   showBillNoLoaderDialog(BuildContext context){
-    AlertDialog alert=AlertDialog(
+    AlertDialog alert=const AlertDialog(
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -277,7 +274,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           print("Error showing loading dialog: ${e.toString()}");
         }
       });
-      String url=ipAddress+"api/getPurchaseEntryData";
+      String url="${ipAddress}api/getPurchaseEntryData";
       String getApi="http://192.168.2.11:3000/api/getSupplierData";
       final response = await http.post(Uri.parse(url),
           headers: <String, String>{
@@ -365,7 +362,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           }
           _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
         }catch(e){
-          print("GridErr :- "+e.toString());
+          print("GridErr :- $e");
         }
         Navigator.pop(context);
         String tempDate;
@@ -389,11 +386,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Conn Err'),
-                content: Text("Please ReOpen this Page"), // Content of the dialog
+                title: const Text('Conn Err'),
+                content: const Text("Please ReOpen this Page"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -411,11 +408,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('Conn Err'),
-              content: Text("Please ReOpen this Page"), // Content of the dialog
+              title: const Text('Conn Err'),
+              content: const Text("Please ReOpen this Page"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -428,7 +425,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
   }
 
   Future<void> updateBillEntryData(List masData,List detData)async {
-    String cutTableApi =ipAddress+"api/updatePurchaseEntryData";
+    String cutTableApi ="${ipAddress}api/updatePurchaseEntryData";
     showLoaderDialog(context);
     try {
       final response = await http.post(Uri.parse(cutTableApi),
@@ -457,7 +454,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         fetchSavedData(widget.data['transno']);
                         Navigator.of(context).pop(); // Close the dialog
@@ -476,12 +473,12 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
+                  title: const Text('REASON'),
                   content: const Text("Update Failed, Please Try Again"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -500,11 +497,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -521,11 +518,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -538,7 +535,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
   }
 
   Future<void> saveBillEntryData(List masData, List detData)async {
-    String cutTableApi =ipAddress+"api/savePurchaseEntry";
+    String cutTableApi ="${ipAddress}api/savePurchaseEntry";
     showLoaderDialog(context);
     try {
       final response = await http.post(Uri.parse(cutTableApi),
@@ -618,12 +615,12 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("Purchase Bill Generated Successfully"),
+                  title: const Text('REASON'),
+                  content: const Text("Purchase Bill Generated Successfully"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -653,12 +650,12 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("Bill Entry Generation Failed"),
+                  title: const Text('REASON'),
+                  content: const Text("Bill Entry Generation Failed"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -677,11 +674,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -698,11 +695,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -715,7 +712,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
   }
 
   Future<void> getInvoiceNumber(String payType, bool chk) async{
-    String cutTableApi =ipAddress+"api/getPurchaseInvoiceNumber";
+    String cutTableApi ="${ipAddress}api/getPurchaseInvoiceNumber";
     print(cutTableApi);
     // Use addPostFrameCallback to show the dialog
     if(!chk) {
@@ -751,11 +748,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Connection Error'),
-                content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                title: const Text('Connection Error'),
+                content: const Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -774,11 +771,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('Connection Error'),
-                  content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                  title: const Text('Connection Error'),
+                  content: const Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -794,11 +791,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('Connection Error'),
-                  content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                  title: const Text('Connection Error'),
+                  content: const Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -817,11 +814,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Connection Error'),
-                content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                title: const Text('Connection Error'),
+                content: const Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -836,11 +833,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Connection Error'),
-                content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                title: const Text('Connection Error'),
+                content: const Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -910,7 +907,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
     if(selected && !delChk){
       item = _itemController.text.toString();
     }else{
-      if(billEntryList.length>0) {
+      if(billEntryList.isNotEmpty) {
         for (int i = 0; i < billEntryList.length; i++) {
           if (billEntryList[i].designation == item) {
             dupChk=true;
@@ -920,9 +917,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
       }
     }
     if(!dupChk) {
-      print("item :- " + item);
+      print("item :- $item");
       int idx = !approvalValue ? ItemList.indexOf(item):0;
-      print("idx :- " + idx.toString());
+      print("idx :- $idx");
       double rate = itemRate;
       String uom = "";
       String hsn = "";
@@ -956,10 +953,10 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
       } else {
         if(!delChk){
         if (stateCodeId == 68) { //checking TN Gst
-          print("State Code "+stateCodeId.toString());
+          print("State Code $stateCodeId");
           cgstp = !approvalValue ?CGstList[idx]: billEntryList[index].CgstP;
           sgstp = !approvalValue ?SGstList[idx]: billEntryList[index].SgstP;
-          print("State Code "+stateCodeId.toString());
+          print("State Code $stateCodeId");
           cgstA = (cgstp / 100) * totalamount;
           sgstA = (sgstp / 100) * totalamount;
           gstAmount = cgstA + sgstA;
@@ -1007,7 +1004,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
       }
       else if (delChk) {
         billEntryList.removeAt(index);
-        if (billEntryList.length > 0) {
+        if (billEntryList.isNotEmpty) {
           for (int i = 0; i < billEntryList.length; i++) {
             billEntryList[i].id = i + 1;
           }
@@ -1060,31 +1057,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
 
       grandTotalAmount = 0.0;
       savedTotalAmount = 0.0;
-      if (billEntryList.length > 0) {
+      if (billEntryList.isNotEmpty) {
         for (int i = 0; i < billEntryList.length; i++) {
           grandTotalAmount = billEntryList[i].TotAmt + grandTotalAmount;
           savedTotalAmount = billEntryList[i].TotAmt + savedTotalAmount;
-          print(billEntryList[i].name + " ," +
-              billEntryList[i].designation + " ," +
-              billEntryList[i].uom + " ," +
-              billEntryList[i].hsnCode + " ," +
-              billEntryList[i].stock.toString() + " ," +
-              billEntryList[i].quantity.toString() + " ," +
-              billEntryList[i].rate.toString() + " ," +
-              billEntryList[i].disc.toString() + " ," +
-              billEntryList[i].amount.toString() + " ," +
-              billEntryList[i].discAmt.toString() + " ," +
-              billEntryList[i].GSTAmt.toString() + " ," +
-              billEntryList[i].TotAmt.toString() + " ," +
-              billEntryList[i].AmtWOGst.toString() + " ," +
-              billEntryList[i].AmtWDisc.toString() + " ," +
-              billEntryList[i].CgstP.toString() + " ," +
-              billEntryList[i].CgstA.toString() + " ," +
-              billEntryList[i].SgstP.toString() + " ," +
-              billEntryList[i].SgstA.toString() + " ," +
-              billEntryList[i].IgstP.toString() + " ," +
-              billEntryList[i].IgstA.toString() + " ," +
-              billEntryList[i].discP.toString() + " ,");
+          print("${billEntryList[i].name} ,${billEntryList[i].designation} ,${billEntryList[i].uom} ,${billEntryList[i].hsnCode} ,${billEntryList[i].stock} ,${billEntryList[i].quantity} ,${billEntryList[i].rate} ,${billEntryList[i].disc} ,${billEntryList[i].amount} ,${billEntryList[i].discAmt} ,${billEntryList[i].GSTAmt} ,${billEntryList[i].TotAmt} ,${billEntryList[i].AmtWOGst} ,${billEntryList[i].AmtWDisc} ,${billEntryList[i].CgstP} ,${billEntryList[i].CgstA} ,${billEntryList[i].SgstP} ,${billEntryList[i].SgstA} ,${billEntryList[i].IgstP} ,${billEntryList[i].IgstA} ,${billEntryList[i].discP} ,");
         }
       }
       print("grandTotalAmount");
@@ -1095,17 +1072,17 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
     }else{
       print("Dup CheckPoint");
       print(item);
-      String valueStr="The following item("+item+") Already exists";
+      String valueStr="The following item($item) Already exists";
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('Duplicate Error'),
+              title: const Text('Duplicate Error'),
               content: Text(valueStr), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -1162,7 +1139,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
     if(gridHeightPercent>0.50){
       gridHeight= height*0.5;
     }else{
-      double length= billEntryList.length==0?initialHeightPercent:gridHeightPercent;
+      double length= billEntryList.isEmpty?initialHeightPercent:gridHeightPercent;
       gridHeight= height*length;
     }
 
@@ -1172,7 +1149,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
               Scaffold.of(context).openDrawer();
             },
             barTitle: "PURCHASE ENTRY"),
-        drawer: customDrawer(stkTransferCheck: false, brhTransferCheck: false), body:  Container(
+        drawer: const customDrawer(stkTransferCheck: false, brhTransferCheck: false), body:  Container(
       color: Colors.pink[50],
       child: Row(
           children: [
@@ -1184,7 +1161,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: EdgeInsets.fromLTRB(25, 25, 25, 0),
+                        padding: const EdgeInsets.fromLTRB(25, 25, 25, 0),
                         child:
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1193,7 +1170,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                 isExpanded: true,
                                 value: billType,
                                 decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                  contentPadding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                                   filled: true,
                                   fillColor: Colors.white,
                                   labelText: "Bill Type",
@@ -1260,7 +1237,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                   ),
                                   iconSize: 24,
                                 ),
-                                dropdownStyleData: DropdownStyleData(
+                                dropdownStyleData: const DropdownStyleData(
                                   decoration: BoxDecoration(
                                     // borderRadius: BorderRadius.circular(15),
                                   ),
@@ -1286,7 +1263,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     showCursor: false,
                                     readOnly: true,
                                     controller: TextEditingController()..text= invoiceNum.toString(),
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                         contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                         border: OutlineInputBorder(),labelText: 'Invoice No',
                                         fillColor: Colors.white, filled: true),
@@ -1310,15 +1287,15 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     controller: date,
                                     readOnly: true,
                                     decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                      contentPadding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                                       labelText: 'To Date',
-                                      border: OutlineInputBorder(
+                                      border: const OutlineInputBorder(
                                         borderSide: BorderSide(color: Colors.red), // Change the border color here
                                       ),
                                       filled: true,
                                       fillColor: Colors.white,
                                       suffixIcon: IconButton(
-                                        icon: Icon(Icons.calendar_today),
+                                        icon: const Icon(Icons.calendar_today),
                                         onPressed:
                                         !approvalValue ?
                                             () async {
@@ -1367,7 +1344,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                       //const Padding(padding:EdgeInsets.all(5)),
                       !approvalValue ?
                       Padding(
-                        padding: EdgeInsets.fromLTRB(25, 0, 25, 5),
+                        padding: const EdgeInsets.fromLTRB(25, 0, 25, 5),
                         child:
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1403,11 +1380,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         // }
                                       },
                                       onSubmitted: (value) {
-                                        if(CustomerList.indexOf(value)==-1){
-                                          controller..text="";
+                                        if(!CustomerList.contains(value)){
+                                          controller.text="";
                                         }else{
                                           setState(() {
-                                            customer = value!;
+                                            customer = value;
                                             int idx = CustomerList.indexOf(customer);
                                             stateCode=StateCodeList[idx];
                                             stateCodeId = StateCodeIdList[idx];
@@ -1423,7 +1400,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                           filled: true,
                                           labelText: "customer",
                                           hintText: 'Search for a customer',
-                                          border: OutlineInputBorder(),
+                                          border: const OutlineInputBorder(),
                                           // contentPadding: EdgeInsets.symmetric(
                                           //     vertical: height*0.015),
                                           isDense: true
@@ -1443,7 +1420,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                           onTap: () {
                                             onSelected(option);
                                             setState(() {
-                                              customer = option!;
+                                              customer = option;
                                               int idx = CustomerList.indexOf(customer);
                                               stateCode=StateCodeList[idx];
                                               stateCodeId = StateCodeIdList[idx];
@@ -1474,7 +1451,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     readOnly: true,
                                     // textAlign: TextAlign.center,
                                     controller: TextEditingController()..text= customerName.toString(),
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                       border: OutlineInputBorder(),labelText: 'Customer',
                                       fillColor: Colors.white, filled: true,
@@ -1679,7 +1656,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     Expanded(child:DropdownButtonFormField2<String>(
                                       isExpanded: true,
                                       value: payType,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                         contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                         //alignLabelWithHint: true,
                                         fillColor: Colors.white,
@@ -1731,7 +1708,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         ),
                                         iconSize: 24,
                                       ),
-                                      dropdownStyleData: DropdownStyleData(
+                                      dropdownStyleData: const DropdownStyleData(
                                         decoration: BoxDecoration(
                                           // borderRadius: BorderRadius.circular(15),
                                         ),
@@ -1740,7 +1717,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         //padding: EdgeInsets.symmetric(horizontal: 16),
                                       ),
                                     ) ),
-                                    SizedBox(width: 20,),
+                                    const SizedBox(width: 20,),
                                     Expanded(child: Autocomplete<String>(
                                       optionsBuilder: (TextEditingValue textEditingValue) {
                                         if (textEditingValue.text.isEmpty) {
@@ -1770,8 +1747,8 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                             // }
                                           },
                                           onSubmitted: (value) {
-                                            if(CustomerList.indexOf(value)==-1){
-                                              controller..text="";
+                                            if(!CustomerList.contains(value)){
+                                              controller.text="";
                                             }else{
                                               setState(() {
                                                 int idx = CustomerList.indexOf(value.toString());
@@ -1780,12 +1757,12 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                             }
                                           },
                                           decoration: InputDecoration(
-                                            contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                            contentPadding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                                             fillColor: salesTypeidx==0? Colors.white :Colors.greenAccent[100],
                                             filled: true,
                                             labelText: "Ship To",
                                             hintText: 'Please search for a ship to [destination]',
-                                            border: OutlineInputBorder(),
+                                            border: const OutlineInputBorder(),
                                           ),
                                         );
                                       },
@@ -1820,7 +1797,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     Expanded(child:DropdownButtonFormField2<String>(
                                       isExpanded: true,
                                       value: payType,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                         contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                         //alignLabelWithHint: true,
                                         fillColor: Colors.white,
@@ -1872,7 +1849,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         ),
                                         iconSize: 24,
                                       ),
-                                      dropdownStyleData: DropdownStyleData(
+                                      dropdownStyleData: const DropdownStyleData(
                                         decoration: BoxDecoration(
                                           // borderRadius: BorderRadius.circular(15),
                                         ),
@@ -1881,7 +1858,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         //padding: EdgeInsets.symmetric(horizontal: 16),
                                       ),
                                     ) ),
-                                    SizedBox(width: 20,),
+                                    const SizedBox(width: 20,),
                                     Expanded(child: TextFormField(
                                       showCursor: false,
                                       readOnly: true,
@@ -1904,7 +1881,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                 Expanded(child:DropdownButtonFormField2<String>(
                                   isExpanded: true,
                                   value: payType,
-                                  decoration: InputDecoration(
+                                  decoration: const InputDecoration(
                                     //alignLabelWithHint: true,
                                     contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                     fillColor: Colors.white,
@@ -1956,7 +1933,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     ),
                                     iconSize: 24,
                                   ),
-                                  dropdownStyleData: DropdownStyleData(
+                                  dropdownStyleData: const DropdownStyleData(
                                     decoration: BoxDecoration(
                                       // borderRadius: BorderRadius.circular(15),
                                     ),
@@ -1965,7 +1942,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     //padding: EdgeInsets.symmetric(horizontal: 16),
                                   ),
                                 ) ),
-                                SizedBox(width: 20,),
+                                const SizedBox(width: 20,),
                                 Expanded(child: TextFormField(
                                   showCursor: false,
                                   readOnly: true,
@@ -1998,15 +1975,15 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         showCursor: !approvalValue?true:false,
                                         readOnly: !approvalValue?false: true,
                                         decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                          contentPadding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                                           labelText: 'Supplier Date',
-                                          border: OutlineInputBorder(
+                                          border: const OutlineInputBorder(
                                             borderSide: BorderSide(color: Colors.red), // Change the border color here
                                           ),
                                           filled: true,
                                           fillColor: Colors.white,
                                           suffixIcon: IconButton(
-                                            icon: Icon(Icons.calendar_today),
+                                            icon: const Icon(Icons.calendar_today),
                                             onPressed:
                                             !approvalValue ?
                                                 () async {
@@ -2028,7 +2005,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                           ),
                                         ),
                                       )),
-                                      SizedBox(width: 20,),
+                                      const SizedBox(width: 20,),
                                       Expanded(child:TextFormField(
                                         showCursor: !approvalValue?true:false,
                                         readOnly: !approvalValue?false: true,
@@ -2036,7 +2013,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                           supInvNumber= newValue.toString();
                                         },
                                         controller: TextEditingController()..text= supInvNumber.toString(),
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                             contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                             border: OutlineInputBorder(),labelText: 'Supplier Inv No',
                                             fillColor: Colors.white, filled: true),
@@ -2094,7 +2071,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     },
                                     onChanged: (value){
                                       setState(() {
-                                        item = value!;
+                                        item = value;
                                       });
                                     },
                                     onSubmitted: (value) {
@@ -2102,11 +2079,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       //   controller..text="";
                                       // }else{
                                       setState(() {
-                                        item = value!;
+                                        item = value;
                                       });
                                       // }
                                     },
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                       fillColor: Colors.white,
                                       filled: true,
@@ -2129,13 +2106,13 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                           onTap: () {
                                             onSelected(option);
                                             setState(() {
-                                              print("Selection : "+option);
-                                              item = option!;
+                                              print("Selection : $option");
+                                              item = option;
                                               print(ItemList.indexOf(item));
-                                              if(ItemList.indexOf(item) != -1){
+                                              if(ItemList.contains(item)){
                                                 setState(() {
                                                   itemRate= RateList[ItemList.indexOf(item)];
-                                                  print("Rate : "+ itemRate.toString());
+                                                  print("Rate : $itemRate");
                                                   rateTextController.text=itemRate.toString();
                                                   if(billType=="GST Bill") {
                                                     int gstIdx = ItemList
@@ -2220,12 +2197,12 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         }
                                       },
                                       controller: qtyTextController,
-                                      decoration: InputDecoration(border: OutlineInputBorder(),
+                                      decoration: const InputDecoration(border: OutlineInputBorder(),
                                           contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                           labelText: 'Quantity',
                                           fillColor: Colors.white, filled: true),
                                     ))
-                                    ,SizedBox(width: 20,),
+                                    ,const SizedBox(width: 20,),
                                     Expanded(child: TextFormField(
                                       keyboardType: TextInputType.text,
                                       showCursor: false,
@@ -2234,7 +2211,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       //   itemRate = double.parse(newValue);
                                       // },
                                       controller: gstTextController,
-                                      decoration: InputDecoration(
+                                      decoration: const InputDecoration(
                                           contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                           border: OutlineInputBorder(),labelText: 'Gst',
                                           fillColor: Colors.white, filled: true),
@@ -2260,7 +2237,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       discount = double.parse(newValue);
                                     },
                                     controller: discTextController,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                         contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                         border: OutlineInputBorder(),labelText: 'Disc',
                                         fillColor: Colors.white, filled: true),
@@ -2286,7 +2263,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                       itemRate = double.parse(newValue);
                                     },
                                     controller: rateTextController,
-                                    decoration: InputDecoration(border: OutlineInputBorder(),
+                                    decoration: const InputDecoration(border: OutlineInputBorder(),
                                         contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),labelText: 'Rate',
                                         fillColor: Colors.white, filled: true),
                                   ),
@@ -2310,7 +2287,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                 // );
                                 print("qty");
                                 print(qty);
-                                if(qty != 0.0 && qty != null) {
+                                if(qty != 0.0) {
                                   !approvalValue? getGridData(false, false):getGridData(false, true) ;
                                   _itemController.clear();
                                   qtyTextController.clear();
@@ -2327,11 +2304,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     builder: (BuildContext context) {
                                       return
                                         AlertDialog(
-                                          title: Text('REASON'),
-                                          content: Text("Please Enter The Qty"), // Content of the dialog
+                                          title: const Text('REASON'),
+                                          content: const Text("Please Enter The Qty"), // Content of the dialog
                                           actions: <Widget>[
                                             TextButton(
-                                              child: Text('OK'),
+                                              child: const Text('OK'),
                                               onPressed: () {
                                                 Navigator.of(context).pop(); // Close the dialog
                                               },
@@ -2344,15 +2321,15 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                               },
                               style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.black,
-                                  backgroundColor: Color(0xFF004D40),
-                                  textStyle: TextStyle(color: Colors.black,
+                                  backgroundColor: const Color(0xFF004D40),
+                                  textStyle: const TextStyle(color: Colors.black,
                                       fontWeight: FontWeight.bold)
                               ),
-                              child: Text('Save', style: TextStyle(
+                              child: const Text('Save', style: TextStyle(
                                   color: Colors.white
                               ),),
                             ),
-                            !approvalValue ? SizedBox(width: 10): SizedBox(height: 0.01,),
+                            !approvalValue ? const SizedBox(width: 10): const SizedBox(height: 0.01,),
                             !approvalValue ? ElevatedButton(
                               onPressed: () {
                                 getGridData(true, false);
@@ -2368,31 +2345,31 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                               },
                               style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.black,
-                                  backgroundColor: Color(0xFF004D40),
-                                  textStyle: TextStyle(color: Colors.black,
+                                  backgroundColor: const Color(0xFF004D40),
+                                  textStyle: const TextStyle(color: Colors.black,
                                       fontWeight: FontWeight.bold)
                               ),
-                              child: Text('Delete', style: TextStyle(
+                              child: const Text('Delete', style: TextStyle(
                                   color: Colors.white
                               ),),
-                            ) : SizedBox(height: 0.01,),
+                            ) : const SizedBox(height: 0.01,),
                           ],)
                       ),
 
-                      Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
-                      Container(
+                      const Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
+                      SizedBox(
                         height: gridHeight,
                         child: SfDataGridTheme(
                         data: SfDataGridThemeData(
-                          currentCellStyle: DataGridCurrentCellStyle(
+                          currentCellStyle: const DataGridCurrentCellStyle(
                             borderWidth: 2,
                             borderColor: Colors.pinkAccent,
                           ),
                           selectionColor: Colors.lightGreen[50],
-                          headerColor: Color(0xFF004D40),
+                          headerColor: const Color(0xFF004D40),
                         ),
                         child: Container(
-                          margin: EdgeInsets.fromLTRB(//width > 1400 ? 75
+                          margin: const EdgeInsets.fromLTRB(//width > 1400 ? 75
                               0, 0, 0, 0),
                           child:
                           SfDataGrid(
@@ -2410,9 +2387,9 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                 width: 65,
                                 allowEditing: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.centerLeft,
-                                  child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -2420,27 +2397,27 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                 width: 75,
                                 visible: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('Code', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('Code', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'designation',
                                 width: 250,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('Particular', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('Particular', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'uom',
                                 width: 75,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('Uom', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('Uom', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -2448,18 +2425,18 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                 width: 100,
                                 visible: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('HsnCode', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('HsnCode', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'stock',
                                 width: 100,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('Stock', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('Stock', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -2467,27 +2444,27 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                 width: 100,
                                 allowEditing: true,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('Quantity', overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white)),
+                                  child: const Text('Quantity', overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'rate',
                                 width: 100,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('Rate', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('Rate', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'amount',
                                 width: 100,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('Amount', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('Amount', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -2495,36 +2472,36 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                 visible: false,
                                 width: 100,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('Disc', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('Disc', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'discAmt',
                                 width: 100,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('DiscAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('DiscAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'GSTAmt',
                                 width: 100,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('GSTAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('GSTAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'TotAmt',
                                 width: 100,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('TotAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('TotAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                             ],
@@ -2546,12 +2523,12 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                               setState(() {
                                 qty=data?.getCells()[6].value;
                                 qtyTextController.text=data!.getCells()[6].value.toString();
-                                _itemController..text=data?.getCells()[2].value;
-                                discTextController.text=data!.getCells()[9].value.toString();
-                                rateTextController.text=data!.getCells()[7].value.toString();
+                                _itemController.text=data.getCells()[2].value;
+                                discTextController.text=data.getCells()[9].value.toString();
+                                rateTextController.text=data.getCells()[7].value.toString();
                                 if(billType=="GST Bill") {
                                   int gstIdx= billEntryList.indexWhere((entry){
-                                    return entry.designation==data?.getCells()[2].value.toString();
+                                    return entry.designation==data.getCells()[2].value.toString();
                                   });
                                   if(gstIdx!=-1){
                                     if(int.parse(billEntryList[gstIdx].scode) == 68 ){
@@ -2564,8 +2541,8 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                 }else{
                                   gstTextController.text="0.0";
                                 }
-                                discount=data?.getCells()[9].value;
-                                itemRate = data?.getCells()[7].value;
+                                discount=data.getCells()[9].value;
+                                itemRate = data.getCells()[7].value;
                               });
                             },
                             columnWidthMode: ColumnWidthMode.fill,
@@ -2590,7 +2567,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                         }
                                       });
                                     },
-                                    decoration: InputDecoration(border: OutlineInputBorder(),
+                                    decoration: const InputDecoration(border: OutlineInputBorder(),
                                         contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                         labelText: 'Narration',
                                         fillColor: Colors.white, filled: true),
@@ -2605,12 +2582,12 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(width: 20,),Text("Total Amount : - ${!approvalValue?grandTotalAmount:savedTotalAmount}"),
-                          SizedBox(width: 20,),
+                          const SizedBox(width: 20,),Text("Total Amount : - ${!approvalValue?grandTotalAmount:savedTotalAmount}"),
+                          const SizedBox(width: 20,),
                           ElevatedButton(
                             onPressed: () {
                               if(!approvalValue){
-                                if(billEntryList.length>0 && shipTo !=0){
+                                if(billEntryList.isNotEmpty && shipTo !=0){
                                   List<dynamic> detList=[];
                                   double totalAmount=0.0;
                                   double totalQty=0.0;
@@ -2694,12 +2671,12 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     builder: (BuildContext context) {
                                       return
                                         AlertDialog(
-                                          title: Text('ALERT'),
-                                          content: shipTo==0?Text("Please select/Reselect the shipTo"):Text("Please Save The Item, Before Generating The Purchase Bill"), // Content of the dialog
+                                          title: const Text('ALERT'),
+                                          content: shipTo==0?const Text("Please select/Reselect the shipTo"):const Text("Please Save The Item, Before Generating The Purchase Bill"), // Content of the dialog
                                           // Content of the dialog
                                           actions: <Widget>[
                                             TextButton(
-                                              child: Text('OK'),
+                                              child: const Text('OK'),
                                               onPressed: () {
                                                 Navigator.of(context).pop(); // Close the dialog
                                               },
@@ -2710,7 +2687,7 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                   );
                                 }
                               }else{
-                                if(billEntryList.length>0 ){
+                                if(billEntryList.isNotEmpty ){
                                   List<dynamic> detList=[];
                                   double totalAmount=0.0;
                                   double totalQty=0.0;
@@ -2786,12 +2763,12 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                                     builder: (BuildContext context) {
                                       return
                                         AlertDialog(
-                                          title: Text('ALERT'),
+                                          title: const Text('ALERT'),
                                           content: const Text("No Valid Item To Update"), // Content of the dialog
                                           // Content of the dialog
                                           actions: <Widget>[
                                             TextButton(
-                                              child: Text('OK'),
+                                              child: const Text('OK'),
                                               onPressed: () {
                                                 Navigator.of(context).pop(); // Close the dialog
                                               },
@@ -2806,11 +2783,11 @@ class _billEntryFirstState extends State<purchaseEntryFirstScreen> {
                             },
                             style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.black,
-                                backgroundColor: Color(0xFF004D40),
-                                textStyle: TextStyle(color: Colors.black,
+                                backgroundColor: const Color(0xFF004D40),
+                                textStyle: const TextStyle(color: Colors.black,
                                     fontWeight: FontWeight.bold)
                             ),
-                            child: Text(!approvalValue?'Save': 'Update', style: TextStyle(
+                            child: Text(!approvalValue?'Save': 'Update', style: const TextStyle(
                                 color: Colors.white
                             ),),
                           ),],)
@@ -3024,8 +3001,8 @@ class EmployeeDataSource extends DataGridSource {
         controller: editingController..text = displayText,
         textAlign: isNumericType ? TextAlign.right : TextAlign.left,
         autocorrect: false,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 16.0),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 16.0),
         ),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.allow(regExp)
@@ -3060,7 +3037,7 @@ class EmployeeDataSource extends DataGridSource {
                   dataGridCell.columnName == 'salary')
                   ? Alignment.center
                   : Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 dataGridCell.value.toString(),
                 overflow: TextOverflow.ellipsis,

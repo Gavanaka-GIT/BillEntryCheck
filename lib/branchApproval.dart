@@ -3,12 +3,9 @@ import 'dart:convert';
 import 'package:billentry/CustomWidgets/appBar.dart';
 import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
-import 'package:billentry/billEntryMasScreen.dart';
 import 'package:billentry/branchTransfer.dart';
 import 'package:billentry/main.dart';
-import 'package:billentry/purchaseEntryMasScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:flutter/services.dart';
@@ -18,11 +15,11 @@ import 'package:http/http.dart' as http;
 
 
 
-import 'package:dropdown_button2/dropdown_button2.dart';
 
 class approvalReportPage extends StatefulWidget{
   const approvalReportPage({super.key});
 
+  @override
   _approvalReport createState()=> _approvalReport();
 }
 
@@ -41,10 +38,10 @@ class _approvalReport extends State<approvalReportPage>{
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: Row(
         children: [
-          CircularProgressIndicator(color: Color(0xFF004D40),),
-          Container(margin: EdgeInsets.only(left: 7),child:Text("..Loading" )),
+          const CircularProgressIndicator(color: Color(0xFF004D40),),
+          Container(margin: const EdgeInsets.only(left: 7),child:const Text("..Loading" )),
         ],),
     );
     showDialog(barrierDismissible: false,
@@ -56,7 +53,7 @@ class _approvalReport extends State<approvalReportPage>{
   }
 
   Future<void> FetchMasData()async {
-    String cutTableApi =ipAddress+"api/getBranchTransferReciptDatas";
+    String cutTableApi ="${ipAddress}api/getBranchTransferReciptDatas";
     try {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -111,12 +108,12 @@ class _approvalReport extends State<approvalReportPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("No Data Found"),
+                  title: const Text('REASON'),
+                  content: const Text("No Data Found"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -138,11 +135,11 @@ class _approvalReport extends State<approvalReportPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -161,11 +158,11 @@ class _approvalReport extends State<approvalReportPage>{
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -217,18 +214,18 @@ class _approvalReport extends State<approvalReportPage>{
               onMenuPressed: (){
                 Scaffold.of(context).openDrawer();
               }, barTitle: "TRANSFER APPROVAL"),
-          drawer: customDrawer(stkTransferCheck: true,
+          drawer: const customDrawer(stkTransferCheck: true,
               brhTransferCheck: false),
           body:
           SingleChildScrollView(
               child:Column(children: [
-                SizedBox(height: 10,),
-                Center(child:
+                const SizedBox(height: 10,),
+                const Center(child:
                 Text("BRANCH TRANSFER RECEIPT PENDING", style:
                 TextStyle(fontWeight:FontWeight.bold,
                     fontSize: 20),
                 ),),
-                SizedBox(height: 10,),
+                const SizedBox(height: 10,),
                 Row(mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // !mainChk ? Padding(padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -243,14 +240,14 @@ class _approvalReport extends State<approvalReportPage>{
                     //     label: Text("Back",style: TextStyle(color: Colors.white),),
                     //     icon: Icon(Icons.arrow_back, color: Colors.pink,), ),)
                     //     :SizedBox(width: 1,),
-                    Expanded(child: Padding(padding: EdgeInsets.all(15), child:
+                    Expanded(child: Padding(padding: const EdgeInsets.all(15), child:
                     SizedBox(
                       width: width >500?width*0.5: width,
                       child: TextField(
                         decoration: InputDecoration(border:
                         OutlineInputBorder(borderRadius: BorderRadius.circular(25.0)),
-                            contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                            prefixIcon: Icon(Icons.search),
+                            contentPadding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                            prefixIcon: const Icon(Icons.search),
                             hintText: "Search Trans Number Here",
                             labelText: "Search Transno"
 
@@ -263,7 +260,7 @@ class _approvalReport extends State<approvalReportPage>{
                               // updateDetTable(tempStockReportDet);
                             }
                           }else{
-                            if(BranchTransferReceiptList.length>0 ) {
+                            if(BranchTransferReceiptList.isNotEmpty ) {
                               if(mainChk) {
                                 List<BranchTransferReceiptPending> tempSalesList = [];
                                 for (int i = 0; i < BranchTransferReceiptList.length; i++) {
@@ -292,11 +289,11 @@ class _approvalReport extends State<approvalReportPage>{
                                 builder: (BuildContext context) {
                                   return
                                     AlertDialog(
-                                      title: Text('REASON'),
-                                      content: Text("No Data"), // Content of the dialog
+                                      title: const Text('REASON'),
+                                      content: const Text("No Data"), // Content of the dialog
                                       actions: <Widget>[
                                         TextButton(
-                                          child: Text('OK'),
+                                          child: const Text('OK'),
                                           onPressed: () {
                                             Navigator.of(context).pop(); // Close the dialog
                                           },
@@ -318,7 +315,7 @@ class _approvalReport extends State<approvalReportPage>{
                   children:
                   [
                     Row( mainAxisAlignment:MainAxisAlignment.center,children: [
-                      Container(
+                      SizedBox(
                         width: width>500? width:width,
                         height: height * 0.65,
                         // alignment:  Alignment.center,
@@ -327,12 +324,12 @@ class _approvalReport extends State<approvalReportPage>{
                         SfDataGridTheme(
                           data: SfDataGridThemeData(
                             filterIconColor: Colors.pink,
-                            currentCellStyle: DataGridCurrentCellStyle(
+                            currentCellStyle: const DataGridCurrentCellStyle(
                               borderWidth: 2,
                               borderColor: Colors.pinkAccent,
                             ),
                             selectionColor: Colors.lightGreen[50],
-                            headerColor: Color(0xFF004D40),
+                            headerColor: const Color(0xFF004D40),
                           ),
                           child: SfDataGrid(
                             allowEditing: true,
@@ -351,18 +348,18 @@ class _approvalReport extends State<approvalReportPage>{
                                 allowEditing: false,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.centerLeft,
-                                  child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'transno',
                                 width: width<500?165:width*0.4,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('TRANSNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('TRANSNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -370,9 +367,9 @@ class _approvalReport extends State<approvalReportPage>{
                                 width: width<500?115:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('TRANSDATE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('TRANSDATE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -380,9 +377,9 @@ class _approvalReport extends State<approvalReportPage>{
                                 width: width<500?130:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('FROMBRANCH', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('FROMBRANCH', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -390,9 +387,9 @@ class _approvalReport extends State<approvalReportPage>{
                                 width: width<500?115:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('QUANTITY', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('QUANTITY', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -400,9 +397,9 @@ class _approvalReport extends State<approvalReportPage>{
                                 width: width<500?115:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('AMOUNT', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('AMOUNT', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -411,9 +408,9 @@ class _approvalReport extends State<approvalReportPage>{
                                 allowFiltering: false,
                                 visible: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('TRANSMASID', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('TRANSMASID', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                             ],
@@ -466,11 +463,11 @@ class _approvalReport extends State<approvalReportPage>{
                         showDialog(context: context, builder:(BuildContext context) {
                           return
                             AlertDialog(
-                              title: Text('REASON'),
-                              content: Text("Please Select The Row"), // Content of the dialog
+                              title: const Text('REASON'),
+                              content: const Text("Please Select The Row"), // Content of the dialog
                               actions: <Widget>[
                                 TextButton(
-                                  child: Text('OK'),
+                                  child: const Text('OK'),
                                   onPressed: () {
                                     Navigator.of(context).pop(); // Close the dialog
                                   },
@@ -480,10 +477,10 @@ class _approvalReport extends State<approvalReportPage>{
                         } );
                       }
                     },
-                      label: Text("Fetch Selected TransNo",style: TextStyle(color: Colors.white), ),
-                      icon: Icon(Icons.arrow_forward, color: Colors.pink,),
+                      label: const Text("Fetch Selected TransNo",style: TextStyle(color: Colors.white), ),
+                      icon: const Icon(Icons.arrow_forward, color: Colors.pink,),
                       style: ElevatedButton.styleFrom(foregroundColor: Colors.black,
-                        backgroundColor: Color(0xFF004D40),),
+                        backgroundColor: const Color(0xFF004D40),),
                     )
 
                   ],)
@@ -660,8 +657,8 @@ class BranchTransefrReceiptSource extends DataGridSource {
         controller: editingController..text = displayText,
         textAlign: isNumericType ? TextAlign.right : TextAlign.left,
         autocorrect: false,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 16.0),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 16.0),
         ),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.allow(regExp)
@@ -696,7 +693,7 @@ class BranchTransefrReceiptSource extends DataGridSource {
                   dataGridCell.columnName == 'salary')
                   ? Alignment.center
                   : Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 dataGridCell.value.toString(),
                 overflow: TextOverflow.ellipsis,

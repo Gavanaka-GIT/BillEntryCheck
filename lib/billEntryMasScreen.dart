@@ -1,15 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:billentry/CustomWidgets/appBar.dart';
 import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
-import 'package:billentry/branchTransfer.dart';
 import 'package:billentry/main.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:billentry/purchaseEntryMasScreen.dart';
-import 'package:billentry/stockReport.dart';
-import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bootstrap/flutter_bootstrap.dart';
 import 'package:http/http.dart' as http;
@@ -17,12 +12,10 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
-import 'package:syncfusion_flutter_datagrid_export/export.dart';
-import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:path_provider/path_provider.dart';
 // import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:printing/printing.dart';
+import 'package:num_to_words/num_to_words.dart';
 
 
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -42,7 +35,7 @@ class _billEntryMasState extends State<BillEntryMasScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: billEntryFirstScreen(),
     );
   }
@@ -50,7 +43,7 @@ class _billEntryMasState extends State<BillEntryMasScreen> {
 
 class billEntryFirstScreen extends StatefulWidget {
   final dynamic data;
-  const billEntryFirstScreen({Key? key, this.data}) : super(key: key);
+  const billEntryFirstScreen({super.key, this.data});
 
   @override
   _billEntryFirstState createState() => _billEntryFirstState();
@@ -111,18 +104,18 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   var index  =-1;
   bool approvalValue=false;
 
-  TextEditingController date = new TextEditingController();
-  TextEditingController _itemController = new TextEditingController();
-  TextEditingController _shipToController = new TextEditingController();
-  TextEditingController _customerController = new TextEditingController();
-  TextEditingController qtyTextController = new TextEditingController();
-  TextEditingController itemTextController = new TextEditingController();
-  TextEditingController discTextController = new TextEditingController();
-  TextEditingController rateTextController = new TextEditingController();
-  TextEditingController gstTextController = new TextEditingController();
+  TextEditingController date = TextEditingController();
+  TextEditingController _itemController = TextEditingController();
+  TextEditingController _shipToController = TextEditingController();
+  TextEditingController _customerController = TextEditingController();
+  TextEditingController qtyTextController = TextEditingController();
+  TextEditingController itemTextController = TextEditingController();
+  TextEditingController discTextController = TextEditingController();
+  TextEditingController rateTextController = TextEditingController();
+  TextEditingController gstTextController = TextEditingController();
   final DataGridController _dataGridController = DataGridController();
-  TextEditingController toDateController = new TextEditingController();
-  TextEditingController _controller= new TextEditingController();
+  TextEditingController toDateController = TextEditingController();
+  final TextEditingController _controller= TextEditingController();
 
   List<Item> items = [
     Item(
@@ -269,15 +262,31 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
   ];
 
+  List<Item> items2 = List.generate(25, (index) {
+    int serialNumber = index + 14;
+    return Item(
+        serialNumber: serialNumber.toString(),
+        itemName: "",
+        hsnCode: "",
+        uom: "",
+        quantity: "",
+        rate: "",
+        cgstPercent: "",
+        sgstPercent: "",
+        amount: ""
+    );
+  });
+
+
 
   DateTime currentDate = DateTime.now();
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: Row(
         children: [
-          CircularProgressIndicator(color: Color(0xFF004D40),),
-          Container(margin: EdgeInsets.only(left: 7),child:Text("..In Progress" )),
+          const CircularProgressIndicator(color: Color(0xFF004D40),),
+          Container(margin: const EdgeInsets.only(left: 7),child:const Text("..In Progress" )),
         ],),
     );
     showDialog(
@@ -290,7 +299,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   }
 
   showBillNoLoaderDialog(BuildContext context){
-    AlertDialog alert=AlertDialog(
+    AlertDialog alert=const AlertDialog(
       content: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -309,21 +318,60 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
   }
 
-  Future<pw.Document?> fetchPdfDocument() async{
+  bool pdfChk=true;
+  Future<pw.Document?> fetchPdfDocument( String InvNo) async{
 
     try{
-      String url=ipAddress+"api/getPdfData";
+      String url="${ipAddress}api/getPdfData";
       print(url);
       final response = await http.post(Uri.parse(url),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           }, body: jsonEncode({
             "compId":globalCompId,
-            "InvNo":invoiceNum
+            "InvNo":InvNo
           }));
       if(response.statusCode == 200){
         final Map<String,dynamic> companyData = jsonDecode(response.body);
-        print(companyData['compDetails'][0]['CompanyName']);
+        List<Item> tempTableData=[];
+        tempTableData=items;
+        int length = companyData['getInvData'].length<=13 ?companyData['getInvData'].length:13;
+        print(length);
+         for(int i=0;i<length;i++){
+          tempTableData[i].itemName=companyData['getInvData'][i]['Item'].toString() != "null"?companyData['getInvData'][i]['Item'].toString():"";
+          tempTableData[i].hsnCode= companyData['getInvData'][i]['HsnCode'].toString() != "null"?companyData['getInvData'][i]['HsnCode'].toString():"";
+          tempTableData[i].uom= companyData['getInvData'][i]['Uom'].toString() != "null"?companyData['getInvData'][i]['Uom'].toString().substring(0,3):"";
+          tempTableData[i].quantity= companyData['getInvData'][i]['Quantity'].toString() != "null"?companyData['getInvData'][i]['Quantity'].toString():"";
+          tempTableData[i].rate= companyData['getInvData'][i]['Rate'].toString() != "null"?companyData['getInvData'][i]['Rate'].toString():"";
+          tempTableData[i].cgstPercent= companyData['getInvData'][i]['CGSTP'].toString() != "null"?companyData['getInvData'][i]['CGSTP'].toString():"";
+          tempTableData[i].sgstPercent= companyData['getInvData'][i]['SGSTP'].toString() != "null"?companyData['getInvData'][i]['SGSTP'].toString():"";
+          tempTableData[i].amount= companyData['getInvData'][i]['Amount'].toString() != "null"?companyData['getInvData'][i]['Amount'].toString():"";
+        }
+        List<Item> tempTableData2=[];
+         if(companyData['getInvData'].length>13){
+
+           tempTableData2=items2;
+           for(int i=13;i<companyData['getInvData'].length;i++){
+             print(i);
+             print(companyData['getInvData'][i]['Item'].toString());
+             tempTableData2[i-13].itemName=companyData['getInvData'][i]['Item'].toString() != "null"?companyData['getInvData'][i]['Item'].toString():"";
+             tempTableData2[i-13].hsnCode= companyData['getInvData'][i]['HsnCode'].toString() != "null"?companyData['getInvData'][i]['HsnCode'].toString():"";
+             tempTableData2[i-13].uom= companyData['getInvData'][i]['Uom'].toString() != "null"?companyData['getInvData'][i]['Uom'].toString().substring(0,3):"";
+             tempTableData2[i-13].quantity= companyData['getInvData'][i]['Quantity'].toString() != "null"?companyData['getInvData'][i]['Quantity'].toString():"";
+             tempTableData2[i-13].rate= companyData['getInvData'][i]['Rate'].toString() != "null"?companyData['getInvData'][i]['Rate'].toString():"";
+             tempTableData2[i-13].cgstPercent= companyData['getInvData'][i]['CGSTP'].toString() != "null"?companyData['getInvData'][i]['CGSTP'].toString():"";
+             tempTableData2[i-13].sgstPercent= companyData['getInvData'][i]['SGSTP'].toString() != "null"?companyData['getInvData'][i]['SGSTP'].toString():"";
+             tempTableData2[i-13].amount= companyData['getInvData'][i]['Amount'].toString() != "null"?companyData['getInvData'][i]['Amount'].toString():"";
+           }
+         }
+        print(tempTableData[0].itemName);
+
+        print(companyData['getInvData'][0]['NetAmount'].toString());
+        double value = double.parse(companyData['getInvData'][0]['NetAmount'].toString());
+        int integerPart = value.toInt();
+        print(integerPart.toWords());
+
+        print(tempTableData);
         final ByteData data = await rootBundle.load('assets/icon/logo.png');
         final Uint8List imageBytes = data.buffer.asUint8List();
         final image = pw.MemoryImage(imageBytes);
@@ -340,7 +388,6 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
               return pw.Stack(
                 children: [
                   // Outer border ensuring full visibility
-
                   pw.Positioned(
                     top: 0,
                     left: 0,
@@ -378,6 +425,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                               ))),
                               child:pw.Row(children: [
                                 pw.Container(
+                                  width: pdfWidth*0.20,
                                   decoration: const pw.BoxDecoration(
                                       border: pw.Border(right: pw.BorderSide(
                                         color:PdfColors.black,
@@ -385,23 +433,23 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       ))),
                                   child:pw.Image(image,height: 80),
                                 ),
-                                pw.SizedBox(width: 50),
-                                pw.Column(
+                                pw.Container(child: pw.Container(width: pdfWidth*0.80,child:pw.Column(
                                     mainAxisAlignment: pw.MainAxisAlignment.center,
                                     crossAxisAlignment: pw.CrossAxisAlignment.center,
                                     children: [
-                                      pw.Text("${companyData['compDetails'][0]['CompanyName']}", textAlign: pw.TextAlign.center,
+                                      pw.Text(companyData['compDetails'][0]['CompanyName'].toString() != "null"? companyData['compDetails'][0]['CompanyName'].toString(): "", textAlign: pw.TextAlign.center,
                                           style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
-                                      pw.Text("${companyData['compDetails'][0]['CompanyAddress1']} ${companyData['compDetails'][0]['CompanyAddress2']}${companyData['compDetails'][0]['CompanyAddress3']} - ${companyData['compDetails'][0]['CompanyPinCode']}",
+                                      pw.Text("${companyData['compDetails'][0]['CompanyAddress1'].toString() != "null"? "${companyData['compDetails'][0]['CompanyAddress1'].toString()}, ":""} ${companyData['compDetails'][0]['CompanyAddress2'].toString() != "null"?"${companyData['compDetails'][0]['CompanyAddress2']}, ":""} ${companyData['compDetails'][0]['CompanyAddress3'].toString()!="null"? companyData['compDetails'][0]['CompanyAddress3'].toString():""} - ${companyData['compDetails'][0]['CompanyPinCode'].toString() != "null"?companyData['compDetails'][0]['CompanyPinCode'].toString(): "" }",
                                           style: const pw.TextStyle(fontSize: 10) ,
                                           textAlign: pw.TextAlign.center),
-                                      pw.Text("Phone : 8072392809, Cell : 9688376768, Email : cuteraj006.01@gmail.com\n"
+                                      pw.Text("Phone : ${companyData['compDetails'][0]['Phone'].toString() != "null"? companyData['compDetails'][0]['Phone'].toString():""}, Cell : ${companyData['compDetails'][0]['Mobile'].toString() != "null"?companyData['compDetails'][0]['Mobile'].toString():""}, Email : ${companyData['compDetails'][0]['Email'].toString() != "null"?companyData['compDetails'][0]['Email'].toString():""}\n"
                                           , style: const pw.TextStyle(fontSize: 10)
                                           ,textAlign:pw.TextAlign.center),
-                                      pw.Text("GSTIN No : 33BIWPR5797Q1ZQ", textAlign: pw.TextAlign.center,
+                                      pw.Text("GSTIN No : ${companyData['compDetails'][0]['GstNo'].toString() != "null"?companyData['compDetails'][0]['GstNo'].toString():"" }", textAlign: pw.TextAlign.center,
                                           style: const pw.TextStyle(fontSize: 10))
                                     ]
-                                )]),
+                                )))
+                                ]),
                             ),
                             pw.Container(
                                 width: PdfPageFormat.a4.width-40,
@@ -449,11 +497,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                           child: pw.Column(children: [
                                             pw.SizedBox(height: 5),
-                                            pw.Text("RST/INV00032",
-                                                style: pw.TextStyle(fontSize: 10)),
+                                            pw.Text(companyData['getInvData'][0]['InvNo'].toString() != "null" || companyData['getInvData'][0]['InvNo'].toString() !=""? companyData['getInvData'][0]['InvNo'].toString(): "",
+                                                style: const pw.TextStyle(fontSize: 10)),
                                             pw.SizedBox(height: 7),
-                                            pw.Text("07/11/2024",
-                                                style: pw.TextStyle(fontSize: 10)),
+                                            pw.Text(companyData['getInvData'][0]['InvDate'].toString() != "null"? companyData['getInvData'][0]['InvDate'].toString(): "",
+                                                style: const pw.TextStyle(fontSize: 10)),
                                           ])
                                       ),
                                       pw.Container(
@@ -481,11 +529,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                           child: pw.Column(children: [
                                             pw.SizedBox(height: 5),
-                                            pw.Text("SRI SAKTHI MURUGAN",
-                                                style: pw.TextStyle(fontSize: 10)),
+                                            pw.Text(companyData['getInvData'][0]['Transport'].toString() != "null" && companyData['getInvData'][0]['Transport'].toString() != "" ? companyData['getInvData'][0]['Transport'].toString(): "-",
+                                                style: const pw.TextStyle(fontSize: 10)),
                                             pw.SizedBox(height: 7),
-                                            pw.Text("33 - TAMIL NADU",
-                                                style: pw.TextStyle(fontSize: 10)),
+                                            pw.Text(companyData['getInvData'][0]['ShipStateName'].toString() != "null" && companyData['getInvData'][0]['ShipStateName'].toString() != ""? companyData['getInvData'][0]['ShipStateName'].toString(): "-",
+                                                style: const pw.TextStyle(fontSize: 10)),
                                           ])
                                       )
                                     ]
@@ -510,7 +558,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                               children: [
                                                 pw.SizedBox(height: 3.5),
                                                 pw.Text("Bill To",
-                                                    style: pw.TextStyle(fontSize: 12))
+                                                    style: const pw.TextStyle(fontSize: 12))
                                               ]
                                           )
                                       ),
@@ -526,7 +574,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                               children: [
                                                 pw.SizedBox(height: 3.5),
                                                 pw.Text("Ship To",
-                                                    style: pw.TextStyle(fontSize: 12))
+                                                    style: const pw.TextStyle(fontSize: 12))
                                               ]
                                           )
                                       )
@@ -550,15 +598,17 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           child: pw.Column(
                                             children: [
                                               pw.Container(height: 66.5, child: pw.Column(children: [pw.SizedBox(height: 5.5),
-                                                pw.Text("SRI NANDHA PAPER AND BOARD",
+                                                pw.Text(companyData['getInvData'][0]['BillSupName'].toString() != "null"?companyData['getInvData'][0]['BillSupName'].toString():"",
                                                     textAlign: pw.TextAlign.center,
                                                     style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                                pw.Text("RASIPURAM MAIN ROAD,\n"
-                                                    ,textAlign:pw.TextAlign.center, style: pw.TextStyle( fontSize: 10)),
-                                                pw.Text("TIRUNCHENGODE", textAlign: pw.TextAlign.center,
-                                                    style: pw.TextStyle( fontSize: 10)),])),
-                                              pw.Text("GSTIN : 33ABEFS5262P1ZQ",style: pw.TextStyle( fontSize: 10)),
-                                              pw.Text("33 - TAMIL NADU", style: pw.TextStyle( fontSize: 10))
+                                                pw.Text(companyData['getInvData'][0]['BillSupAdd1'].toString() != "null"?companyData['getInvData'][0]['BillSupAdd1'].toString():""
+                                                    ,textAlign:pw.TextAlign.center, style: const pw.TextStyle( fontSize: 10)),
+                                                pw.Text(companyData['getInvData'][0]['BillSupAdd2'].toString() != "null"?companyData['getInvData'][0]['BillSupAdd2'].toString():"", textAlign: pw.TextAlign.center,
+                                                    style: const pw.TextStyle( fontSize: 10)),
+                                                pw.Text(companyData['getInvData'][0]['BillSupAdd3'].toString() != "null"?companyData['getInvData'][0]['BillSupAdd3'].toString():"", textAlign: pw.TextAlign.center,
+                                                    style: const pw.TextStyle( fontSize: 10))])),
+                                              pw.Text("GSTIN : ${companyData['getInvData'][0]['BillGstNo'].toString() != "null"?companyData['getInvData'][0]['BillGstNo'].toString():""}",style: const pw.TextStyle( fontSize: 10)),
+                                              pw.Text(companyData['getInvData'][0]['BillStateName'].toString() != "null"?companyData['getInvData'][0]['BillStateName'].toString() :"", style: const pw.TextStyle( fontSize: 10))
                                             ],
                                           )
                                       ),
@@ -574,14 +624,15 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             children: [
                                               pw.Container(height: 66.5, child: pw.Column(children: [
                                                 pw.SizedBox(height: 5.5),
-                                                pw.Text("SRI NANDHA PAPER AND BOARD",
+                                                pw.Text(companyData['getInvData'][0]['ShipSupName'].toString()  != "null"?companyData['getInvData'][0]['ShipSupName'].toString():"" ,
                                                     textAlign: pw.TextAlign.center,
                                                     style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                                pw.Text("RASIPURAM MAIN ROAD,\n"
-                                                    ,textAlign:pw.TextAlign.center,style: pw.TextStyle( fontSize: 10)),
-                                                pw.Text("TIRUNCHENGODE", textAlign: pw.TextAlign.center,style: pw.TextStyle( fontSize: 10)),])),
-                                              pw.Text("GSTIN : 33ABEFS5262P1ZQ",style: pw.TextStyle( fontSize: 10)),
-                                              pw.Text("33 - TAMIL NADU",style: pw.TextStyle( fontSize: 10))
+                                                pw.Text(companyData['getInvData'][0]['ShipSupAdd1'].toString()  != "null"?companyData['getInvData'][0]['ShipSupAdd1'].toString():""
+                                                    ,textAlign:pw.TextAlign.center,style: const pw.TextStyle( fontSize: 10)),
+                                                pw.Text(companyData['getInvData'][0]['ShipSupAdd2'].toString()  != "null"?companyData['getInvData'][0]['ShipSupAdd2'].toString():"", textAlign: pw.TextAlign.center,style: const pw.TextStyle( fontSize: 10)),
+                                                pw.Text(companyData['getInvData'][0]['ShipSupAdd3'].toString()  != "null"?companyData['getInvData'][0]['ShipSupAdd3'].toString():"", textAlign: pw.TextAlign.center,style: const pw.TextStyle( fontSize: 10))])),
+                                              pw.Text("GSTIN : ${companyData['getInvData'][0]['ShipGstNo'].toString()  != "null"?companyData['getInvData'][0]['ShipGstNo'].toString() :""}",style: const pw.TextStyle( fontSize: 10)),
+                                              pw.Text(companyData['getInvData'][0]['ShipStateName'].toString() ,style: const pw.TextStyle( fontSize: 10))
                                             ],
                                           )
                                       )
@@ -602,15 +653,15 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             verticalInside: pw.BorderSide(width: 1, color: PdfColors.black)
                                         ),
                                         columnWidths: {
-                                          0: pw.FlexColumnWidth(0.075),
-                                          1: pw.FlexColumnWidth(0.225),
-                                          2: pw.FlexColumnWidth(0.125),
-                                          3: pw.FlexColumnWidth(0.075),
-                                          4: pw.FlexColumnWidth(0.106),
-                                          5: pw.FlexColumnWidth(0.1),
-                                          6: pw.FlexColumnWidth(0.0976),
-                                          7: pw.FlexColumnWidth(0.0964),
-                                          8: pw.FlexColumnWidth(0.1),
+                                          0: const pw.FlexColumnWidth(0.075),
+                                          1: const pw.FlexColumnWidth(0.225),
+                                          2: const pw.FlexColumnWidth(0.125),
+                                          3: const pw.FlexColumnWidth(0.075),
+                                          4: const pw.FlexColumnWidth(0.106),
+                                          5: const pw.FlexColumnWidth(0.1),
+                                          6: const pw.FlexColumnWidth(0.0976),
+                                          7: const pw.FlexColumnWidth(0.0964),
+                                          8: const pw.FlexColumnWidth(0.1),
                                         },
                                         children: [
                                           // Header Row
@@ -626,7 +677,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text("Item", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                child: pw.Text("Item", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10), softWrap: false),
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
@@ -634,7 +685,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text("Uom", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                child: pw.Text("Uom",
+                                                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
+                                                softWrap: true),
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
@@ -659,43 +712,56 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             ],
                                           ),
                                           // Data Rows (Dynamically generated)
-                                          for (var item in items) pw.TableRow(
+                                          for (var item in tempTableData) pw.TableRow(
                                             children: [
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text(item.serialNumber.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                child: pw.Text(item.serialNumber.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10), softWrap: false),
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text(item.itemName, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                child: pw.Text(item.itemName, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10), softWrap: false),
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text(item.hsnCode, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                child: pw.Expanded(child: pw.Text(item.hsnCode, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10), softWrap: false) ),
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text(item.uom, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                child: pw.Text(item.uom,
+                                                    style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),softWrap: false,
+                                                textAlign: pw.TextAlign.center) ,
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                    softWrap: false,
+                                                textAlign: pw.TextAlign.right),
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text(item.rate.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                child: pw.Text(item.rate.toString(),
+                                                    style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                    softWrap: false,
+                                                textAlign: pw.TextAlign.right),
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text(item.cgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                child: pw.Text(item.cgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                    softWrap: false,
+                                                    textAlign: pw.TextAlign.right),
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text(item.sgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                child: pw.Text(item.sgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                    softWrap: false,
+                                                    textAlign: pw.TextAlign.right),
                                               ),
                                               pw.Padding(
                                                 padding: const pw.EdgeInsets.all(5),
-                                                child: pw.Text(item.amount.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                child: pw.Text(item.amount.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                    softWrap: false,
+                                                textAlign: pw.TextAlign.right),
                                               ),
                                             ],
                                           ),
@@ -714,18 +780,18 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       pw.Container(
                                           width: pdfWidth * 0.300,
                                           height: 20,
-                                          decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                           child: pw.Row(
                                               children: [
                                                 pw.Text("Bundles :", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                                pw.Text("0", style: pw.TextStyle( fontSize: 10)),
+                                                pw.Text("0", style: const pw.TextStyle( fontSize: 10)),
                                                 pw.Text("Vehicle :", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                                                pw.Text("TN56C4374", style: pw.TextStyle( fontSize: 10)),
+                                                pw.Text(companyData['getInvData'][0]['Vehicle'].toString()  != "null"?companyData['getInvData'][0]['Vehicle'].toString():"", style: const pw.TextStyle( fontSize: 10)),
                                               ], mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly)  ),
                                       pw.Container(
                                           width: pdfWidth * 0.200,
                                           height: 20,
-                                          decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                           child: pw.Row(
                                               children: [
                                                 pw.Text("Total Quantity : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
@@ -733,15 +799,15 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       pw.Container(
                                           width: pdfWidth * 0.106,
                                           height: 20,
-                                          decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                           child: pw.Row(
                                               children: [
-                                                pw.Text("12110.00", style: pw.TextStyle( fontSize: 10)),
+                                                pw.Text(companyData['getInvData'][0]['TotQty'].toString()  != "null"?companyData['getInvData'][0]['TotQty'].toString():"", style: const pw.TextStyle( fontSize: 10)),
                                               ], mainAxisAlignment: pw.MainAxisAlignment.center)  ),
                                       pw.Container(
                                           width: pdfWidth * 0.1976,
                                           height: 20,
-                                          decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                           child: pw.Row(
                                               children: [
                                                 pw.Text("Total", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 10)
@@ -751,10 +817,10 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       pw.Container(
                                           width: pdfWidth * 0.1964,
                                           height: 20,
-                                          decoration: pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                          decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                           child: pw.Row(
                                               children: [
-                                                pw.Text("205,870.00", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 12)
+                                                pw.Text(companyData['getInvData'][0]['TotAmount'].toString()  != "null"?companyData['getInvData'][0]['TotAmount'].toString():"", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 12)
                                                 ),
                                               ], mainAxisAlignment: pw.MainAxisAlignment.center)
                                       )
@@ -778,9 +844,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             child: pw.Row(
                                                 children: [
                                                   pw.Expanded(child: pw.Text("Amount In Words: ",
-                                                      style: pw.TextStyle(fontSize: 10)))
+                                                      style: const pw.TextStyle(fontSize: 10)))
                                                   ,
-                                                  pw.Expanded(child: pw.Text("RUPEES TWO LAKHS SIXTEEN THOUSAND ONE HUNDRED SIXTY-FOUR ONLY",
+                                                  pw.Expanded(child: pw.Text("RUPEES ${integerPart.toWords().toUpperCase()} ONLY",
                                                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10),
                                                       overflow: pw.TextOverflow.span)),
 
@@ -800,7 +866,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                       "Our Udyam registrtion no is TN28-0137367 "
                                                       "The provisions  of section 43B(h) of income tax act is applicable on our supplies."
                                                       "Subject to Palladam Jurisdiction.",
-                                                      style: pw.TextStyle( fontSize: 10),
+                                                      style: const pw.TextStyle( fontSize: 10),
                                                       overflow: pw.TextOverflow.span)),
 
                                                 ], mainAxisAlignment: pw.MainAxisAlignment.center,
@@ -829,13 +895,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           color: PdfColors.black))),
                                       child: pw.Column(children: [
                                         pw.SizedBox(height: 5),
-                                        pw.Text(" 0.00", style: pw.TextStyle(fontSize: 10)),
+                                        pw.Text(companyData['getInvData'][0]['DiscAmt'].toString()  != "null"?companyData['getInvData'][0]['DiscAmt'].toString():"", style: const pw.TextStyle(fontSize: 10)),
                                         pw.SizedBox(height: 5),
-                                        pw.Text("5,146.75", style: pw.TextStyle(fontSize: 10)),
+                                        pw.Text(companyData['getInvData'][0]['CGST'].toString()  != "null"?companyData['getInvData'][0]['CGST'].toString():"", style: const pw.TextStyle(fontSize: 10)),
                                         pw.SizedBox(height: 5),
-                                        pw.Text("5,146.75", style: pw.TextStyle(fontSize: 10)),
+                                        pw.Text(companyData['getInvData'][0]['SGST'].toString()  != "null"?companyData['getInvData'][0]['SGST'].toString():"", style: const pw.TextStyle(fontSize: 10)),
                                         pw.SizedBox(height: 5),
-                                        pw.Text("0.50", style: pw.TextStyle(fontSize: 10))
+                                        pw.Text(companyData['getInvData'][0]['RoundAmt'].toString()  != "null"?companyData['getInvData'][0]['RoundAmt'].toString():"", style: const pw.TextStyle(fontSize: 10))
                                       ]))
                                 ])),
                             pw.Container(width: PdfPageFormat.a4.width-40,
@@ -865,7 +931,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             fontWeight: pw.FontWeight.bold,fontSize: 10
                                         )),
                                         pw.SizedBox(width: 73.5),
-                                        pw.Text("216,164.00", style:pw.TextStyle(
+                                        pw.Text(companyData['getInvData'][0]['NetAmount'].toString()  != "null"?companyData['getInvData'][0]['NetAmount'].toString():"", style:pw.TextStyle(
                                             fontWeight: pw.FontWeight.bold,fontSize: 10
                                         ),textAlign: pw.TextAlign.end ),
                                         pw.SizedBox(width: 23.5),], mainAxisAlignment: pw.MainAxisAlignment.center,
@@ -889,23 +955,23 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             pw.SizedBox(height: 5.5),
                                             pw.Row(children: [
                                               pw.Text("Account Name : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                              pw.Text("RAKSHITH TRADERS", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                              pw.Text(companyData['compDetails'][0]['CompanyName'].toString() != "null" && companyData['compDetails'][0]['CompanyName'].toString() != ""?companyData['compDetails'][0]['CompanyName'].toString() : "-", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
                                             ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
                                             pw.Row(children: [
                                               pw.Text("Account No : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                              pw.Text("408539688376768", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                              pw.Text(companyData['compDetails'][0]['AccNo'].toString() != "null" && companyData['compDetails'][0]['AccNo'].toString() != "" ?companyData['compDetails'][0]['AccNo'].toString(): "-", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
                                             ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
                                             pw.Row(children: [
                                               pw.Text("IFSC Code : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                              pw.Text("TMBL0000408", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                              pw.Text(companyData['compDetails'][0]['Ifsc'].toString() != "null" && companyData['compDetails'][0]['Ifsc'].toString() != ""?companyData['compDetails'][0]['Ifsc'].toString(): "-", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
                                             ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
                                             pw.Row(children: [
                                               pw.Text("Bank Name : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                              pw.Text("TAMILNADU MERCANTILE", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                              pw.Text(companyData['compDetails'][0]['Bank'].toString() != "null" && companyData['compDetails'][0]['Bank'].toString() != ""?companyData['compDetails'][0]['Bank'].toString(): "-", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
                                             ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
                                             pw.Row(children: [
                                               pw.Text("Branch : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
-                                              pw.Text("PALLADAM", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                              pw.Text(companyData['compDetails'][0]['Branch'].toString() != "null" && companyData['compDetails'][0]['Branch'].toString() != ""?companyData['compDetails'][0]['Branch'].toString(): "-", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
                                             ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
 
                                           ],
@@ -922,7 +988,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         pw.SizedBox(height: 5.5),
                                         pw.Row(children: [
                                           pw.Text("For ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                                          pw.Text("RAKSHITH TRADERS", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                          pw.Text(companyData['compDetails'][0]['CompanyName'].toString() != "null"?companyData['compDetails'][0]['CompanyName'].toString() : "", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
                                         ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
                                         pw.SizedBox(height: 45),
                                         pw.Text("Authorised Signature", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
@@ -943,6 +1009,410 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           ),
         );
 
+        if(companyData['getInvData'].length>13){
+          pdf.addPage(
+            pw.Page(
+              pageFormat: PdfPageFormat.a4,
+              margin: pw.EdgeInsets.zero,
+              build: (pw.Context context) {
+                return pw.Stack(
+                  children: [
+                    // Outer border ensuring full visibility
+                    pw.Positioned(
+                      top: 0,
+                      left: 0,
+                      child: pw.Container(
+                        width: PdfPageFormat.a4.width,
+                        height: PdfPageFormat.a4.height,
+                        decoration: const pw.BoxDecoration(
+                          border: pw.Border(
+                            top: pw.BorderSide(width: 2),
+                            left: pw.BorderSide(width: 2),
+                            right: pw.BorderSide(width: 2),
+                            bottom: pw.BorderSide(width: 2),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Header rectangle with text
+                    pw.Positioned(
+                      top: 20,
+                      left: 20,
+                      child: pw.Container(
+                        width: PdfPageFormat.a4.width - 40, // Adjusted for margins
+                        height: PdfPageFormat.a4.height-40,
+                        decoration: pw.BoxDecoration(
+                          border: pw.Border.all(width: 1),
+                        ),
+                        child: pw.Column(
+                            children: [
+                              pw.Container(width: PdfPageFormat.a4.width-40,
+                                  height: 564,
+                                  decoration: const pw.BoxDecoration(
+                                      border: pw.Border(
+                                          bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                  child:pw.Column(
+                                      children: [
+                                        pw.Table(
+                                          border: const pw.TableBorder(
+                                              right: pw.BorderSide(width: 1, color: PdfColors.black),
+                                              left: pw.BorderSide(width: 1, color: PdfColors.black),
+                                              top: pw.BorderSide(width: 1, color: PdfColors.black),
+                                              verticalInside: pw.BorderSide(width: 1, color: PdfColors.black)
+                                          ),
+                                          columnWidths: {
+                                            0: const pw.FlexColumnWidth(0.075),
+                                            1: const pw.FlexColumnWidth(0.225),
+                                            2: const pw.FlexColumnWidth(0.125),
+                                            3: const pw.FlexColumnWidth(0.075),
+                                            4: const pw.FlexColumnWidth(0.106),
+                                            5: const pw.FlexColumnWidth(0.1),
+                                            6: const pw.FlexColumnWidth(0.0976),
+                                            7: const pw.FlexColumnWidth(0.0964),
+                                            8: const pw.FlexColumnWidth(0.1),
+                                          },
+                                          children: [
+                                            // Header Row
+                                            pw.TableRow(
+                                              decoration: const pw.BoxDecoration(
+                                                  color: PdfColors.grey300,
+                                                  border: pw.Border(bottom:pw.BorderSide(width: 1, color: PdfColors.black))
+                                              ),
+                                              children: [
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text("S.No", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text("Item", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text("HSN Code", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text("Uom",
+                                                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
+                                                      softWrap: true),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text("Quantity", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text("Rate", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text("CGST%", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text("SGST%", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text("Amount", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                ),
+                                              ],
+                                            ),
+                                            // Data Rows (Dynamically generated)
+                                            for (var item in tempTableData2) pw.TableRow(
+                                              children: [
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text(item.serialNumber.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text(item.itemName, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Expanded(child: pw.Text(item.hsnCode, style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10)) ),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Expanded(child: pw.Text(item.uom,
+                                                      style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                      textAlign: pw.TextAlign.center) ),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text(item.quantity.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                      textAlign: pw.TextAlign.right),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text(item.rate.toString(),
+                                                      style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                      textAlign: pw.TextAlign.right),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text(item.cgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                      textAlign: pw.TextAlign.right),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text(item.sgstPercent.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                      textAlign: pw.TextAlign.right),
+                                                ),
+                                                pw.Padding(
+                                                  padding: const pw.EdgeInsets.all(5),
+                                                  child: pw.Text(item.amount.toString(), style: pw.TextStyle(fontWeight: pw.FontWeight.normal, fontSize: 10),
+                                                      textAlign: pw.TextAlign.right),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        )
+                                      ]
+                                  )
+                              ),
+                              pw.Container(width: PdfPageFormat.a4.width-40,
+                                  height: 20,
+                                  decoration: const pw.BoxDecoration(
+                                      border: pw.Border(
+                                          bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                  child: pw.Row(
+                                      children: [
+                                        pw.Container(
+                                            width: pdfWidth * 0.300,
+                                            height: 20,
+                                            decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                            child: pw.Row(
+                                                children: [
+                                                  pw.Text("Bundles :", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                  pw.Text("0", style: const pw.TextStyle( fontSize: 10)),
+                                                  pw.Text("Vehicle :", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                  pw.Text(companyData['getInvData'][0]['Vehicle'].toString()  != "null"?companyData['getInvData'][0]['Vehicle'].toString():"", style: const pw.TextStyle( fontSize: 10)),
+                                                ], mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly)  ),
+                                        pw.Container(
+                                            width: pdfWidth * 0.200,
+                                            height: 20,
+                                            decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                            child: pw.Row(
+                                                children: [
+                                                  pw.Text("Total Quantity : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                                                ], mainAxisAlignment: pw.MainAxisAlignment.center)  ),
+                                        pw.Container(
+                                            width: pdfWidth * 0.106,
+                                            height: 20,
+                                            decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                            child: pw.Row(
+                                                children: [
+                                                  pw.Text(companyData['getInvData'][0]['TotQty'].toString()  != "null"?companyData['getInvData'][0]['TotQty'].toString():"", style: const pw.TextStyle( fontSize: 10)),
+                                                ], mainAxisAlignment: pw.MainAxisAlignment.center)  ),
+                                        pw.Container(
+                                            width: pdfWidth * 0.1976,
+                                            height: 20,
+                                            decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                            child: pw.Row(
+                                                children: [
+                                                  pw.Text("Total", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 10)
+                                                  ),
+                                                ], mainAxisAlignment: pw.MainAxisAlignment.center)
+                                        ),
+                                        pw.Container(
+                                            width: pdfWidth * 0.1964,
+                                            height: 20,
+                                            decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                            child: pw.Row(
+                                                children: [
+                                                  pw.Text(companyData['getInvData'][0]['TotAmount'].toString()  != "null"?companyData['getInvData'][0]['TotAmount'].toString():"", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 12)
+                                                  ),
+                                                ], mainAxisAlignment: pw.MainAxisAlignment.center)
+                                        )
+                                      ]
+                                  )
+                              ),
+                              pw.Container(width: PdfPageFormat.a4.width-40,
+                                  height: 110,
+                                  decoration: const pw.BoxDecoration(
+                                      border: pw.Border(
+                                          bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                  child: pw.Row(children: [
+                                    pw.Container(width: pdfWidth*0.606,
+                                        height: 110,
+                                        decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
+                                            color: PdfColors.black))),
+                                        child: pw.Column(children: [
+                                          pw.Container(
+                                              width: pdfWidth*0.606,
+                                              height: 40,
+                                              child: pw.Row(
+                                                  children: [
+                                                    pw.Expanded(child: pw.Text("Amount In Words: ",
+                                                        style: const pw.TextStyle(fontSize: 10)))
+                                                    ,
+                                                    pw.Expanded(child: pw.Text("RUPEES ${integerPart.toWords().toUpperCase()} ONLY",
+                                                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10),
+                                                        overflow: pw.TextOverflow.span)),
+
+                                                  ], mainAxisAlignment: pw.MainAxisAlignment.center,
+                                                  crossAxisAlignment: pw.CrossAxisAlignment.center
+                                              )
+                                          ),
+                                          pw.Container(
+                                              width: pdfWidth*0.606,
+                                              height: 70,
+                                              child: pw.Row(
+                                                  children: [
+                                                    pw.Expanded(child: pw.Text("Terms and Conditions: ",
+                                                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)))
+                                                    ,
+                                                    pw.Expanded(child: pw.Text("We are small industry as per MSME act "
+                                                        "Our Udyam registrtion no is TN28-0137367 "
+                                                        "The provisions  of section 43B(h) of income tax act is applicable on our supplies."
+                                                        "Subject to Palladam Jurisdiction.",
+                                                        style: const pw.TextStyle( fontSize: 10),
+                                                        overflow: pw.TextOverflow.span)),
+
+                                                  ], mainAxisAlignment: pw.MainAxisAlignment.center,
+                                                  crossAxisAlignment: pw.CrossAxisAlignment.center
+                                              )
+                                          )
+                                        ])),
+                                    pw.Container(width: pdfWidth* 0.1976,
+                                        height: 110,
+                                        decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
+                                            color: PdfColors.black))),
+                                        child: pw.Column(children: [
+                                          pw.SizedBox(height: 5),
+                                          pw.Text("Discount", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                          pw.SizedBox(height: 5),
+                                          pw.Text("CGST", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                          pw.SizedBox(height: 5),
+                                          pw.Text("SGST", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                          pw.SizedBox(height: 5),
+                                          pw.Text("Roundoff", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                        ])
+                                    ),
+                                    pw.Container(width: pdfWidth* 0.1964,
+                                        height: 110,
+                                        decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
+                                            color: PdfColors.black))),
+                                        child: pw.Column(children: [
+                                          pw.SizedBox(height: 5),
+                                          pw.Text(companyData['getInvData'][0]['DiscAmt'].toString()  != "null"?companyData['getInvData'][0]['DiscAmt'].toString():"", style: const pw.TextStyle(fontSize: 10)),
+                                          pw.SizedBox(height: 5),
+                                          pw.Text(companyData['getInvData'][0]['CGST'].toString()  != "null"?companyData['getInvData'][0]['CGST'].toString():"", style: const pw.TextStyle(fontSize: 10)),
+                                          pw.SizedBox(height: 5),
+                                          pw.Text(companyData['getInvData'][0]['SGST'].toString()  != "null"?companyData['getInvData'][0]['SGST'].toString():"", style: const pw.TextStyle(fontSize: 10)),
+                                          pw.SizedBox(height: 5),
+                                          pw.Text(companyData['getInvData'][0]['RoundAmt'].toString()  != "null"?companyData['getInvData'][0]['RoundAmt'].toString():"", style: const pw.TextStyle(fontSize: 10))
+                                        ]))
+                                  ])),
+                              pw.Container(width: PdfPageFormat.a4.width-40,
+                                  height: 20,
+                                  decoration: const pw.BoxDecoration(
+                                      border: pw.Border(
+                                          bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                  child: pw.Row(children: [
+                                    pw.Container(width: pdfWidth*0.606,
+                                        height: 20,
+                                        decoration: const pw.BoxDecoration(
+                                            border: pw.Border(
+                                                right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                        child: pw.Column(children:[
+                                          pw.SizedBox(height: 3.5),
+                                          pw.Text("Bank Details", style:pw.TextStyle(
+                                              fontWeight: pw.FontWeight.bold,fontSize: 10
+                                          ), textAlign: pw.TextAlign.center)]) ),
+                                    pw.Container(width: pdfWidth*0.394,
+                                        height: 20,
+                                        decoration: const pw.BoxDecoration(
+                                            border: pw.Border(
+                                                right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                        child: pw.Row(children:[
+                                          pw.SizedBox(width: 7.5),
+                                          pw.Text("Net Amount",style:pw.TextStyle(
+                                              fontWeight: pw.FontWeight.bold,fontSize: 10
+                                          )),
+                                          pw.SizedBox(width: 73.5),
+                                          pw.Text(companyData['getInvData'][0]['NetAmount'].toString()  != "null"?companyData['getInvData'][0]['NetAmount'].toString():"", style:pw.TextStyle(
+                                              fontWeight: pw.FontWeight.bold,fontSize: 10
+                                          ),textAlign: pw.TextAlign.end ),
+                                          pw.SizedBox(width: 23.5),], mainAxisAlignment: pw.MainAxisAlignment.center,
+                                            crossAxisAlignment: pw.CrossAxisAlignment.center) )
+                                  ], )
+                              ),
+
+                              pw.Container(width: PdfPageFormat.a4.width-40,
+                                  height: 87.8,
+                                  decoration: const pw.BoxDecoration(
+                                      border: pw.Border(
+                                          bottom: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                  child:  pw.Row(children: [
+                                    pw.Container(width: pdfWidth*0.606,
+                                        height: 88,
+                                        decoration: const pw.BoxDecoration(
+                                            border: pw.Border(
+                                                right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                        child: pw.Column(
+                                            children: [
+                                              pw.SizedBox(height: 5.5),
+                                              pw.Row(children: [
+                                                pw.Text("Account Name : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                                pw.Text(companyData['compDetails'][0]['CompanyName'].toString() != "null" && companyData['compDetails'][0]['CompanyName'].toString() != ""?companyData['compDetails'][0]['CompanyName'].toString() : "-", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                              pw.Row(children: [
+                                                pw.Text("Account No : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                                pw.Text(companyData['compDetails'][0]['AccNo'].toString() != "null" && companyData['compDetails'][0]['AccNo'].toString() != "" ?companyData['compDetails'][0]['AccNo'].toString(): "-", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                              pw.Row(children: [
+                                                pw.Text("IFSC Code : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                                pw.Text(companyData['compDetails'][0]['Ifsc'].toString() != "null" && companyData['compDetails'][0]['Ifsc'].toString() != ""?companyData['compDetails'][0]['Ifsc'].toString(): "-", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                              pw.Row(children: [
+                                                pw.Text("Bank Name : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                                pw.Text(companyData['compDetails'][0]['Bank'].toString() != "null" && companyData['compDetails'][0]['Bank'].toString() != ""?companyData['compDetails'][0]['Bank'].toString(): "-", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                              pw.Row(children: [
+                                                pw.Text("Branch : ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                                pw.Text(companyData['compDetails'][0]['Branch'].toString() != "null" && companyData['compDetails'][0]['Branch'].toString() != ""?companyData['compDetails'][0]['Branch'].toString(): "-", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+
+                                            ],
+                                            crossAxisAlignment: pw.CrossAxisAlignment.center,
+                                            mainAxisAlignment: pw.MainAxisAlignment.center
+                                        )
+                                    ),
+                                    pw.Container(width: pdfWidth*0.394,
+                                        height: 88,
+                                        decoration: const pw.BoxDecoration(
+                                            border: pw.Border(
+                                                right: pw.BorderSide(width: 1, color: PdfColors.black))),
+                                        child: pw.Column(children: [
+                                          pw.SizedBox(height: 5.5),
+                                          pw.Row(children: [
+                                            pw.Text("For ", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                                            pw.Text(companyData['compDetails'][0]['CompanyName'].toString() != "null"?companyData['compDetails'][0]['CompanyName'].toString() : "", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10))
+                                          ], mainAxisAlignment: pw.MainAxisAlignment.center, crossAxisAlignment: pw.CrossAxisAlignment.center),
+                                          pw.SizedBox(height: 45),
+                                          pw.Text("Authorised Signature", style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 10)),
+                                        ])
+                                    )
+                                  ])
+                              ),
+
+                            ]
+                        ),
+                      ),
+                    ),
+                    // Subheader rectangle with text
+
+                  ],
+                );
+              },
+            ),
+          );
+        }
+
         return pdf;
       }else{
         return null;
@@ -960,7 +1430,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       // String tempResult=docId;
       // docId = docId.replaceAll("/","%2F");
       //String getLayPrep = "http://${ipAddress}:5025/api/getLayprep/" + docId ;
-      String url=ipAddress+"api/getSupplierData/"+globalCompId.toString();
+      String url="${ipAddress}api/getSupplierData/$globalCompId";
       String getApi="http://192.168.2.11:3000/api/getSupplierData";
        final response = await http.get(Uri.parse(url));
 
@@ -1013,7 +1483,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           print("Error showing loading dialog: ${e.toString()}");
         }
       });
-      String url=ipAddress+"api/getBillEntryData";
+      String url="${ipAddress}api/getBillEntryData";
       final response = await http.post(Uri.parse(url),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -1091,7 +1561,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           }
           _employeeDataSource = EmployeeDataSource(billEntry: billEntryList);
         }catch(e){
-          print("GridErr :- "+e.toString());
+          print("GridErr :- $e");
         }
         Navigator.pop(context);
         String tempDate;
@@ -1115,11 +1585,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Conn Err'),
-                content: Text("Please ReOpen this Page"), // Content of the dialog
+                title: const Text('Conn Err'),
+                content: const Text("Please ReOpen this Page"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -1137,11 +1607,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('Conn Err'),
-              content: Text("Please ReOpen this Page"), // Content of the dialog
+              title: const Text('Conn Err'),
+              content: const Text("Please ReOpen this Page"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -1159,7 +1629,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       // String tempResult=docId;
       // docId = docId.replaceAll("/","%2F");
       //String getLayPrep = "http://${ipAddress}:5025/api/getLayprep/" + docId ;
-      String getApi=ipAddress+"api/getItemData/"+globalCompId.toString();;
+      String getApi="${ipAddress}api/getItemData/$globalCompId";
       final response = await http.get(Uri.parse(getApi));
 
       if (response.statusCode == 200) {
@@ -1201,7 +1671,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   }
 
   Future<void> updateBillEntryData(List masData,List detData)async {
-    String cutTableApi =ipAddress+"api/updateBillEntryData";
+    String cutTableApi ="${ipAddress}api/updateBillEntryData";
     showLoaderDialog(context);
     try {
       final response = await http.post(Uri.parse(cutTableApi),
@@ -1230,7 +1700,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         fetchSavedData(widget.data['transno']);
                         Navigator.of(context).pop(); // Close the dialog
@@ -1249,12 +1719,12 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
+                  title: const Text('REASON'),
                   content: const Text("Update Failed, Please Try Again"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -1273,11 +1743,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -1294,11 +1764,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -1311,7 +1781,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   }
 
   Future<void> saveBillEntryData(List masData, List detData)async {
-    String cutTableApi =ipAddress+"api/saveBillEntry";
+    String cutTableApi ="${ipAddress}api/saveBillEntry";
     showLoaderDialog(context);
     try {
       final response = await http.post(Uri.parse(cutTableApi),
@@ -1328,6 +1798,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
         var saveChk = data['savChk'];
 
         if (saveChk) {
+          String invNum= invoiceNum;
           ENAME.clear();
           CustomerList.clear();
           CustomerIdList.clear();
@@ -1386,12 +1857,12 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("Bill Generated Successfully"),
+                  title: const Text('REASON'),
+                  content: const Text("Bill Generated Successfully"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -1415,6 +1886,66 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           fetchItemData();
           billEntryList = [];
           _employeeDataSource = EmployeeDataSource(billEntry: []);
+
+          try {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return
+                  AlertDialog(
+                    content: const Text("Do you want the print of Invoice ?"),
+                    // Content of the dialog
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text('Yes'),
+                        onPressed: () async {
+                          showLoaderDialog(context);
+                          final pdf = await fetchPdfDocument(
+                              invNum);
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                 WillPopScope(child:  Scaffold(
+                                   appBar: AppBar(title: const Text(
+                                       'Invoice Preview')),
+                                   body: pdf != null ? PdfPreview(
+                                     build: (format) => pdf.save(),
+                                   ) : const Scaffold(body: Center(
+                                     child: Text(
+                                       "Pdf Fetching Error",
+                                       style: TextStyle(
+                                           fontSize: 16),),),),
+                                 ),  onWillPop: () async{
+                                   billEntryList.clear();
+                                   Navigator.pushNamedAndRemoveUntil(
+                                     context,
+                                     '/Home',
+                                         (Route<dynamic> route) => false, // This will remove all previous routes
+                                   );
+                                   return true;
+                                 })
+                                 ,
+                            ),
+                          ); // Close the dialog
+                        },
+                      ),
+                      TextButton(
+                        child: const Text('No'),
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                      ),
+                    ],
+                  );
+              },
+            );
+          }catch(e){
+            print("Error :- $e");
+          }
+
+
         } else {
           // Navigator.pop(context);
           showDialog(
@@ -1422,12 +1953,12 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("Bill Entry Generation Failed"),
+                  title: const Text('REASON'),
+                  content: const Text("Bill Entry Generation Failed"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -1446,11 +1977,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -1467,11 +1998,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     builder: (BuildContext context) {
       return
         AlertDialog(
-          title: Text('REASON'),
-          content: Text("Conn Err"), // Content of the dialog
+          title: const Text('REASON'),
+          content: const Text("Conn Err"), // Content of the dialog
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
@@ -1484,7 +2015,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   }
 
   Future<void> getInvoiceNumber(String payType, bool chk) async{
-    String cutTableApi =ipAddress+"api/getInvoiceNumber";
+    String cutTableApi ="${ipAddress}api/getInvoiceNumber";
     print(cutTableApi);
     // Use addPostFrameCallback to show the dialog
     if(!chk) {
@@ -1521,11 +2052,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('Connection Error'),
-                  content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                  title: const Text('Connection Error'),
+                  content: const Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -1544,11 +2075,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('Connection Error'),
-                  content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                  title: const Text('Connection Error'),
+                  content: const Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -1564,11 +2095,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('Connection Error'),
-                  content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                  title: const Text('Connection Error'),
+                  content: const Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -1587,11 +2118,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Connection Error'),
-                content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+                title: const Text('Connection Error'),
+                content: const Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -1607,11 +2138,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
          builder: (BuildContext context) {
            return
              AlertDialog(
-               title: Text('Connection Error'),
-               content: Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
+               title: const Text('Connection Error'),
+               content: const Text("Please Reselect the Bill Type to Update Invoice"), // Content of the dialog
                actions: <Widget>[
                  TextButton(
-                   child: Text('OK'),
+                   child: const Text('OK'),
                    onPressed: () {
                      Navigator.of(context).pop(); // Close the dialog
                    },
@@ -1681,7 +2212,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     if(selected && !delChk){
      item = _itemController.text.toString();
     }else{
-      if(billEntryList.length>0) {
+      if(billEntryList.isNotEmpty) {
         for (int i = 0; i < billEntryList.length; i++) {
           if (billEntryList[i].item == item) {
             dupChk=true;
@@ -1693,7 +2224,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     if(!dupChk) {
 
       int idx = !approvalValue ? ItemList.indexOf(item):0;
-      print("idx :- " + idx.toString());
+      print("idx :- $idx");
       double rate =  itemRate ;
       String uom = "";
       String hsn = "";
@@ -1731,10 +2262,10 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       } else {
         if(!delChk){
         if (stateCodeId == 68 ) { //checking TN Gst
-          print("State Code "+stateCodeId.toString());
+          print("State Code $stateCodeId");
           cgstp = !approvalValue ?CGstList[idx]: billEntryList[index].CgstP;
           sgstp = !approvalValue ?SGstList[idx]: billEntryList[index].SgstP;
-          print("State Code "+stateCodeId.toString());
+          print("State Code $stateCodeId");
           cgstA = (cgstp / 100) * totalamount;
           sgstA = (sgstp / 100) * totalamount;
           gstAmount = cgstA + sgstA;
@@ -1783,7 +2314,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
       }
       else if (delChk) {
         billEntryList.removeAt(index);
-        if (billEntryList.length > 0) {
+        if (billEntryList.isNotEmpty) {
           for (int i = 0; i < billEntryList.length; i++) {
             billEntryList[i].sno = i + 1;
           }
@@ -1836,31 +2367,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
 
       grandTotalAmount = 0.0;
       savedTotalAmount = 0.0;
-      if (billEntryList.length > 0) {
+      if (billEntryList.isNotEmpty) {
         for (int i = 0; i < billEntryList.length; i++) {
           grandTotalAmount = billEntryList[i].TotAmt + grandTotalAmount;
           savedTotalAmount = billEntryList[i].TotAmt + savedTotalAmount;
-              print(billEntryList[i].name + " ," +
-              billEntryList[i].item + " ," +
-              billEntryList[i].uom + " ," +
-              billEntryList[i].hsnCode + " ," +
-              billEntryList[i].stock.toString() + " ," +
-              billEntryList[i].quantity.toString() + " ," +
-              billEntryList[i].rate.toString() + " ," +
-              billEntryList[i].disc.toString() + " ," +
-              billEntryList[i].amount.toString() + " ," +
-              billEntryList[i].discAmt.toString() + " ," +
-              billEntryList[i].GSTAmt.toString() + " ," +
-              billEntryList[i].TotAmt.toString() + " ," +
-              billEntryList[i].AmtWOGst.toString() + " ," +
-              billEntryList[i].AmtWDisc.toString() + " ," +
-              billEntryList[i].CgstP.toString() + " ," +
-              billEntryList[i].CgstA.toString() + " ," +
-              billEntryList[i].SgstP.toString() + " ," +
-              billEntryList[i].SgstA.toString() + " ," +
-              billEntryList[i].IgstP.toString() + " ," +
-              billEntryList[i].IgstA.toString() + " ," +
-              billEntryList[i].discP.toString() + " ,");
+              print("${billEntryList[i].name} ,${billEntryList[i].item} ,${billEntryList[i].uom} ,${billEntryList[i].hsnCode} ,${billEntryList[i].stock} ,${billEntryList[i].quantity} ,${billEntryList[i].rate} ,${billEntryList[i].disc} ,${billEntryList[i].amount} ,${billEntryList[i].discAmt} ,${billEntryList[i].GSTAmt} ,${billEntryList[i].TotAmt} ,${billEntryList[i].AmtWOGst} ,${billEntryList[i].AmtWDisc} ,${billEntryList[i].CgstP} ,${billEntryList[i].CgstA} ,${billEntryList[i].SgstP} ,${billEntryList[i].SgstA} ,${billEntryList[i].IgstP} ,${billEntryList[i].IgstA} ,${billEntryList[i].discP} ,");
         }
       }
       print("grandTotalAmount");
@@ -1871,17 +2382,17 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     }else{
       print("Dup CheckPoint");
       print(item);
-      String valueStr="The following item("+item+") Already exists";
+      String valueStr="The following item($item) Already exists";
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('Duplicate Error'),
+              title: const Text('Duplicate Error'),
               content: Text(valueStr), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -1926,7 +2437,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    print(height.toString()+"height");
+    print("${height}height");
     double gridHeight=0.0;
     double initialHeight=104.47;
     double initialHeightPercent = initialHeight/height;
@@ -1938,7 +2449,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
     if(gridHeightPercent>0.50){
       gridHeight= height*0.5;
     }else{
-      double length= billEntryList.length==0?initialHeightPercent:gridHeightPercent;
+      double length= billEntryList.isEmpty?initialHeightPercent:gridHeightPercent;
       gridHeight= height*length;
     }
 
@@ -1951,7 +2462,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
               Scaffold.of(context).openDrawer();
             }, barTitle: "SALES ENTRY"),
         drawer:
-        customDrawer(stkTransferCheck: false,
+        const customDrawer(stkTransferCheck: false,
             brhTransferCheck: false),
         body:Container(
           // color: Colors.pink[50],
@@ -1965,7 +2476,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: EdgeInsets.fromLTRB(25, 25, 25, 0),
+                            padding: const EdgeInsets.fromLTRB(25, 25, 25, 0),
                             child:
                             Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1977,7 +2488,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       filled: true,
                                       fillColor: Colors.white,
                                       labelText: "Bill Type",
-                                      contentPadding: EdgeInsets.symmetric(vertical: 0,horizontal: 15),
+                                      contentPadding: const EdgeInsets.symmetric(vertical: 0,horizontal: 15),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(5),
                                       ),
@@ -2042,7 +2553,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       ),
                                       iconSize: 24,
                                     ),
-                                    dropdownStyleData: DropdownStyleData(
+                                    dropdownStyleData: const DropdownStyleData(
                                       decoration: BoxDecoration(
                                         // borderRadius: BorderRadius.circular(15),
                                       ),
@@ -2070,7 +2581,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         readOnly: true,
                                         // textAlign: TextAlign.center,
                                         controller: TextEditingController()..text= invoiceNum.toString(),
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                           border: OutlineInputBorder(),labelText: 'Invoice No',
                                             fillColor: Colors.white, filled: true,
@@ -2096,16 +2607,16 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         // textAlign: TextAlign.center,
                                         readOnly: true,
                                         decoration: InputDecoration(
-                                          contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                          contentPadding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                                           labelText: 'To Date',
-                                          border: OutlineInputBorder(
+                                          border: const OutlineInputBorder(
                                             borderSide: BorderSide(color: Colors.red), // Change the border color here
                                           ),
                                           // contentPadding: EdgeInsets.symmetric(vertical: height*0.01),
                                           filled: true,
                                           fillColor: Colors.white,
                                           suffixIcon: IconButton(
-                                            icon: Icon(Icons.calendar_today),
+                                            icon: const Icon(Icons.calendar_today),
                                             onPressed: !approvalValue ?
                                               () async {
                                               DateTime? pickedDate = await showDatePicker(
@@ -2153,7 +2664,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children:[
                                 !approvalValue?
-                                 Padding(padding: EdgeInsets.fromLTRB(25, 0, 25, 0),
+                                 Padding(padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
                                 child:Autocomplete<String>(
                                   optionsBuilder: (TextEditingValue textEditingValue) {
                                     if (textEditingValue.text.isEmpty) {
@@ -2185,11 +2696,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           // }
                                         },
                                         onSubmitted: (value) {
-                                          if(CustomerList.indexOf(value)==-1){
-                                            controller..text="";
+                                          if(!CustomerList.contains(value)){
+                                            controller.text="";
                                           }else{
                                             setState(() {
-                                              customer = value!;
+                                              customer = value;
                                               int idx = CustomerList.indexOf(customer);
                                               stateCode=StateCodeList[idx];
                                               stateCodeId = StateCodeIdList[idx];
@@ -2205,7 +2716,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             filled: true,
                                             labelText: "customer",
                                             hintText: 'Search for a customer',
-                                            border: OutlineInputBorder(),
+                                            border: const OutlineInputBorder(),
                                             // contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                             isDense: true
                                         ),
@@ -2224,7 +2735,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             onTap: () {
                                               onSelected(option);
                                               setState(() {
-                                                customer = option!;
+                                                customer = option;
                                                 int idx = CustomerList.indexOf(customer);
                                                 stateCode=StateCodeList[idx];
                                                 stateCodeId = StateCodeIdList[idx];
@@ -2253,7 +2764,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                               readOnly: true,
                                               // textAlign: TextAlign.center,
                                               controller: TextEditingController()..text= customerName.toString(),
-                                              decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Customer',
+                                              decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Customer',
                                                 fillColor: Colors.white, filled: true,
                                                 contentPadding: EdgeInsets.fromLTRB(15,0,0,0),
                                               ),
@@ -2458,7 +2969,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             Expanded(child:DropdownButtonFormField2<String>(
                                               isExpanded: true,
                                               value: payType,
-                                              decoration: InputDecoration(
+                                              decoration: const InputDecoration(
                                                 //alignLabelWithHint: true,
                                                 fillColor: Colors.white,
                                                 filled: true,
@@ -2510,7 +3021,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                 ),
                                                 iconSize: 24,
                                               ),
-                                              dropdownStyleData: DropdownStyleData(
+                                              dropdownStyleData: const DropdownStyleData(
                                                 decoration: BoxDecoration(
                                                   // borderRadius: BorderRadius.circular(15),
                                                 ),
@@ -2519,7 +3030,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                 //padding: EdgeInsets.symmetric(horizontal: 16),
                                               ),
                                             ) ),
-                                            SizedBox(width: 20,),
+                                            const SizedBox(width: 20,),
                                             Expanded(child: Autocomplete<String>(
                                               optionsBuilder: (TextEditingValue textEditingValue) {
                                                 if (textEditingValue.text.isEmpty) {
@@ -2549,8 +3060,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                     // }
                                                   },
                                                   onSubmitted: (value) {
-                                                    if(CustomerList.indexOf(value)==-1){
-                                                      controller..text="";
+                                                    if(!CustomerList.contains(value)){
+                                                      controller.text="";
                                                     }else{
                                                       setState(() {
                                                         int idx = CustomerList.indexOf(value.toString());
@@ -2563,8 +3074,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                     filled: true,
                                                     labelText: "Ship To",
                                                     hintText: 'Please search for a ship to [destination]',
-                                                    border: OutlineInputBorder(),
-                                                    contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0)
+                                                    border: const OutlineInputBorder(),
+                                                    contentPadding: const EdgeInsets.fromLTRB(15, 0, 0, 0)
                                                   ),
                                                 );
                                               },
@@ -2607,7 +3118,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             Expanded(child:DropdownButtonFormField2<String>(
                                               isExpanded: true,
                                               value: payType,
-                                              decoration: InputDecoration(
+                                              decoration: const InputDecoration(
                                                 //alignLabelWithHint: true,
                                                 fillColor: Colors.white,
                                                 filled: true,
@@ -2659,7 +3170,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                 ),
                                                 iconSize: 24,
                                               ),
-                                              dropdownStyleData: DropdownStyleData(
+                                              dropdownStyleData: const DropdownStyleData(
                                                 decoration: BoxDecoration(
                                                   // borderRadius: BorderRadius.circular(15),
                                                 ),
@@ -2668,7 +3179,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                 //padding: EdgeInsets.symmetric(horizontal: 16),
                                               ),
                                             ) ),
-                                            SizedBox(width: 20,),
+                                            const SizedBox(width: 20,),
                                             Expanded(child: TextFormField(
                                               showCursor: false,
                                               readOnly: true,
@@ -2735,7 +3246,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         },
                                         onChanged: (value){
                                           setState(() {
-                                            item = value!;
+                                            item = value;
                                           });
                                         },
                                         onSubmitted: (value) {
@@ -2743,11 +3254,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           //   controller..text="";
                                           // }else{
                                           setState(() {
-                                            item = value!;
+                                            item = value;
                                           });
                                           // }
                                         },
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           fillColor: Colors.white,
                                           filled: true,
                                           labelText: "Item",
@@ -2770,13 +3281,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                               onTap: () {
                                                 onSelected(option);
                                                 setState(() {
-                                                  print("Selection : "+option);
-                                                  item = option!;
+                                                  print("Selection : $option");
+                                                  item = option;
                                                   print(ItemList.indexOf(item));
-                                                  if(ItemList.indexOf(item) != -1){
+                                                  if(ItemList.contains(item)){
                                                     setState(() {
                                                       itemRate= RateList[ItemList.indexOf(item)];
-                                                      print("Rate : "+ itemRate.toString());
+                                                      print("Rate : $itemRate");
                                                       rateTextController.text=itemRate.toString();
                                                       if(billType=="GST Bill") {
                                                         int gstIdx = ItemList
@@ -2862,12 +3373,12 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                   }
                                                 },
                                                 controller: qtyTextController,
-                                                decoration: InputDecoration(border: OutlineInputBorder(),
+                                                decoration: const InputDecoration(border: OutlineInputBorder(),
                                                     labelText: 'Quantity',
                                                     contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                                                     fillColor: Colors.white, filled: true),
                                               ))
-                                              ,SizedBox(width: 20,),
+                                              ,const SizedBox(width: 20,),
                                               Expanded(child: TextFormField(
                                                 keyboardType: TextInputType.text,
                                                 showCursor: false,
@@ -2876,7 +3387,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                 //   itemRate = double.parse(newValue);
                                                 // },
                                                 controller: gstTextController,
-                                                decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Gst',
+                                                decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Gst',
                                                     fillColor: Colors.white, filled: true,
                                                     contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0)),
                                               )),],)
@@ -2902,7 +3413,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             discount = double.parse(newValue);
                                           },
                                           controller: discTextController,
-                                          decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Disc',
+                                          decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Disc',
                                               fillColor: Colors.white, filled: true,
                                               contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0)),
                                         ),
@@ -2928,7 +3439,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             itemRate = double.parse(newValue);
                                           },
                                           controller: rateTextController,
-                                          decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Rate',
+                                          decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Rate',
                                               fillColor: Colors.white, filled: true,
                                               contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0)),
                                         ),
@@ -2950,7 +3461,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       // );
                                       print("qty");
                                       print(qty);
-                                      if (qty != 0.0 && qty != null) {
+                                      if (qty != 0.0) {
                                         !approvalValue? getGridData(false, false):getGridData(false, true) ;
                                         _itemController.clear();
                                         qtyTextController.clear();
@@ -2968,13 +3479,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           builder: (BuildContext context) {
                                             return
                                               AlertDialog(
-                                                title: Text('REASON'),
-                                                content: Text(
+                                                title: const Text('REASON'),
+                                                content: const Text(
                                                     "Please Enter The Qty"),
                                                 // Content of the dialog
                                                 actions: <Widget>[
                                                   TextButton(
-                                                    child: Text('OK'),
+                                                    child: const Text('OK'),
                                                     onPressed: () {
                                                       Navigator.of(context)
                                                           .pop(); // Close the dialog
@@ -2990,15 +3501,15 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                     },
                                     style: ElevatedButton.styleFrom(
                                         foregroundColor: Colors.black,
-                                        backgroundColor: Color(0xFF004D40),
-                                        textStyle: TextStyle(color: Colors.black,
+                                        backgroundColor: const Color(0xFF004D40),
+                                        textStyle: const TextStyle(color: Colors.black,
                                             fontWeight: FontWeight.bold)
                                     ),
-                                    child: Text('Save', style: TextStyle(
+                                    child: const Text('Save', style: TextStyle(
                                         color: Colors.white
                                     ),),
                                   ),
-                                  !approvalValue ?SizedBox(width: 10): SizedBox(height: 0.01,),
+                                  !approvalValue ?const SizedBox(width: 10): const SizedBox(height: 0.01,),
                                   !approvalValue ?ElevatedButton(
                                     onPressed: () {
                                       getGridData(true,false);
@@ -3014,62 +3525,72 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                     },
                                     style: ElevatedButton.styleFrom(
                                         foregroundColor: Colors.black,
-                                        backgroundColor: Color(0xFF004D40),
-                                        textStyle: TextStyle(color: Colors.black,
+                                        backgroundColor: const Color(0xFF004D40),
+                                        textStyle: const TextStyle(color: Colors.black,
                                             fontWeight: FontWeight.bold)
                                     ),
-                                    child: Text('Delete', style: TextStyle(
+                                    child: const Text('Delete', style: TextStyle(
                                         color: Colors.white
                                     ),),
-                                  ): SizedBox(height: 0.01,),
-                                  SizedBox(width: 10),
-                                  IconButton(onPressed: () async{
-                                    print("button working started");
-                                    if (pdfKey.currentState != null) {
+                                  ): const SizedBox(height: 0.01,),
+                                  const SizedBox(width: 10),
+                                  approvalValue ?IconButton(onPressed: () async{
 
-                                      final pdf = await fetchPdfDocument();
+                                    if(pdfChk) {
+                                      pdfChk=false;
+                                      print("button working started");
+                                      // if (pdfKey.currentState != null) {
 
+                                      showLoaderDialog(context);
+                                      final pdf = await fetchPdfDocument(
+                                          invoiceNum);
+                                      Navigator.pop(context);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => Scaffold(
-                                            appBar: AppBar(title: Text('Invoice Preview')),
-                                            body: pdf!=null? PdfPreview(
-                                              build: (format) => pdf.save(),
-                                            ):const Scaffold(body: Center(child: Text("Pdf Fetching Error",
-                                              style: TextStyle(fontSize: 16),),),),
-                                          ),
+                                          builder: (context) =>
+                                              Scaffold(
+                                                appBar: AppBar(title: const Text(
+                                                    'Invoice Preview')),
+                                                body: pdf != null ? PdfPreview(
+                                                  build: (format) => pdf.save(),
+                                                ) : const Scaffold(body: Center(
+                                                  child: Text(
+                                                    "Pdf Fetching Error",
+                                                    style: TextStyle(
+                                                        fontSize: 16),),),),
+                                              ),
                                         ),
                                       );
                                       print("Export finished");
-                                    } else {
-                                      print("Error: DataGrid currentState is null");
-                                    }
 
-                                    print("button working ended");
-                                  }, icon: Icon(Icons.picture_as_pdf)),
+
+                                      print("button working ended");
+                                      pdfChk=true;
+                                    }
+                                  }, icon: const Icon(Icons.picture_as_pdf)):const SizedBox(height: 0.01,),
                                 ],)
                             ),
                           ],),
 
 
 
-                          Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
+                          const Padding(padding: EdgeInsets.fromLTRB(0, 30, 0, 0)),
                           Column(children: [
-                            Container(
+                            SizedBox(
                             height: gridHeight,
                             child:
                             SfDataGridTheme(
                               data: SfDataGridThemeData(
-                                currentCellStyle: DataGridCurrentCellStyle(
+                                currentCellStyle: const DataGridCurrentCellStyle(
                                   borderWidth: 2,
                                   borderColor: Colors.pinkAccent,
                                 ),
                                 selectionColor: Colors.lightGreen[50],
-                                headerColor: Color(0xFF004D40),
+                                headerColor: const Color(0xFF004D40),
                               ),
                               child: Container(
-                                margin: EdgeInsets.fromLTRB(//width > 1400 ? 75
+                                margin: const EdgeInsets.fromLTRB(//width > 1400 ? 75
                                     0, 0, 0, 0),
                                 child:
                                 SfDataGrid(
@@ -3088,9 +3609,9 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       width: 65,
                                       allowEditing: false,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.centerLeft,
-                                        child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
@@ -3098,27 +3619,27 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       width: 75,
                                       visible: false,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('Code', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('Code', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
                                       columnName: 'item',
                                       width: 250,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('Particular', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('Particular', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
                                       columnName: 'uom',
                                       width: 75,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('Uom', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('Uom', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
@@ -3126,18 +3647,18 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       width: 100,
                                       visible: false,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('HsnCode', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('HsnCode', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
                                       columnName: 'stock',
                                       width: 100,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('Stock', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('Stock', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
@@ -3145,27 +3666,27 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       width: 100,
                                       allowEditing: true,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('Quantity', overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white)),
+                                        child: const Text('Quantity', overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
                                       columnName: 'rate',
                                       width: 100,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('Rate', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('Rate', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
                                       columnName: 'amount',
                                       width: 100,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('Amount', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('Amount', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
@@ -3173,36 +3694,36 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       visible: false,
                                       width: 100,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('Disc', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('Disc', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
                                       columnName: 'discAmt',
                                       width: 100,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('DiscAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('DiscAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
                                       columnName: 'GSTAmt',
                                       width: 100,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('GSTAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('GSTAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                     GridColumn(
                                       columnName: 'TotAmt',
                                       width: 100,
                                       label: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                         alignment: Alignment.center,
-                                        child: Text('TotAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                        child: const Text('TotAmt', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                       ),
                                     ),
                                   ],
@@ -3224,12 +3745,12 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                     setState(() {
                                       qty=data?.getCells()[6].value;
                                       qtyTextController.text=data!.getCells()[6].value.toString();
-                                      _itemController..text=data?.getCells()[2].value;
-                                      discTextController.text=data!.getCells()[9].value.toString();
-                                      rateTextController.text=data!.getCells()[7].value.toString();
+                                      _itemController.text=data.getCells()[2].value;
+                                      discTextController.text=data.getCells()[9].value.toString();
+                                      rateTextController.text=data.getCells()[7].value.toString();
                                       if(billType=="GST Bill") {
                                         int gstIdx= billEntryList.indexWhere((entry){
-                                          return entry.item==data?.getCells()[2].value.toString();
+                                          return entry.item==data.getCells()[2].value.toString();
                                         });
                                         if(gstIdx!=-1){
                                           if(int.parse(billEntryList[gstIdx].scode) == 68 ){
@@ -3242,8 +3763,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       }else{
                                         gstTextController.text="0.0";
                                       }
-                                      discount=data?.getCells()[9].value;
-                                      itemRate = data?.getCells()[7].value;
+                                      discount=data.getCells()[9].value;
+                                      itemRate = data.getCells()[7].value;
                                     });
                                   },
                                   columnWidthMode: ColumnWidthMode.fill,
@@ -3252,17 +3773,17 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                             ),),],),
 
 
-                          Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
+                          const Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
                           Center(child:
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(width: 20,),Text("Total Amount : - ${!approvalValue?grandTotalAmount:savedTotalAmount}"),
-                              SizedBox(width: 20,),
+                              const SizedBox(width: 20,),Text("Total Amount : - ${!approvalValue?grandTotalAmount:savedTotalAmount}"),
+                              const SizedBox(width: 20,),
                               ElevatedButton(
                                 onPressed: () {
                                   if(!approvalValue) {
-                                    if (billEntryList.length > 0 &&
+                                    if (billEntryList.isNotEmpty &&
                                         shipTo != 0) {
                                       List<dynamic> detList = [];
                                       double totalAmount = 0.0;
@@ -3360,16 +3881,16 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         builder: (BuildContext context) {
                                           return
                                             AlertDialog(
-                                              title: Text('ALERT'),
+                                              title: const Text('ALERT'),
                                               content: shipTo == 0
-                                                  ? Text(
+                                                  ? const Text(
                                                   "Please select/Reselect the shipTo")
-                                                  : Text(
+                                                  : const Text(
                                                   "Please Save The Item, Before Generating The Bill"),
                                               // Content of the dialog
                                               actions: <Widget>[
                                                 TextButton(
-                                                  child: Text('OK'),
+                                                  child: const Text('OK'),
                                                   onPressed: () {
                                                     Navigator.of(context)
                                                         .pop(); // Close the dialog
@@ -3381,7 +3902,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       );
                                     }
                                   }else{
-                                    if (billEntryList.length > 0 ) {
+                                    if (billEntryList.isNotEmpty ) {
                                       List<dynamic> detList = [];
                                       double totalAmount = 0.0;
                                       double totalQty = 0.0;
@@ -3486,13 +4007,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         builder: (BuildContext context) {
                                           return
                                             AlertDialog(
-                                              title: Text('ALERT'),
-                                              content: Text(
+                                              title: const Text('ALERT'),
+                                              content: const Text(
                                                   "No valid to Item to Update"),
                                               // Content of the dialog
                                               actions: <Widget>[
                                                 TextButton(
-                                                  child: Text('OK'),
+                                                  child: const Text('OK'),
                                                   onPressed: () {
                                                     Navigator.of(context)
                                                         .pop(); // Close the dialog
@@ -3507,11 +4028,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                     foregroundColor: Colors.black,
-                                    backgroundColor: Color(0xFF004D40),
-                                    textStyle: TextStyle(color: Colors.black,
+                                    backgroundColor: const Color(0xFF004D40),
+                                    textStyle: const TextStyle(color: Colors.black,
                                         fontWeight: FontWeight.bold)
                                 ),
-                                child: Text( !approvalValue?'Save': 'Update', style: TextStyle(
+                                child: Text( !approvalValue?'Save': 'Update', style: const TextStyle(
                                     color: Colors.white
                                 ),),
                               ),],)
@@ -3726,8 +4247,8 @@ class EmployeeDataSource extends DataGridSource {
         controller: editingController..text = displayText,
         textAlign: isNumericType ? TextAlign.right : TextAlign.left,
         autocorrect: false,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 16.0),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 16.0),
         ),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.allow(regExp)
@@ -3762,7 +4283,7 @@ class EmployeeDataSource extends DataGridSource {
                   dataGridCell.columnName == 'salary')
                   ? Alignment.center
                   : Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 dataGridCell.value.toString(),
                 overflow: TextOverflow.ellipsis,
@@ -3777,15 +4298,15 @@ class EmployeeDataSource extends DataGridSource {
 
 
 class Item {
-  final String serialNumber;
-  final String itemName;
-  final String hsnCode;
-  final String uom;
-  final String quantity;
-  final String rate;
-  final String cgstPercent;
-  final String sgstPercent;
-  final String amount;
+  String serialNumber;
+  String itemName;
+  String hsnCode;
+  String uom;
+  String quantity;
+  String rate;
+  String cgstPercent;
+  String sgstPercent;
+  String amount;
 
   Item({
     required this.serialNumber,

@@ -9,6 +9,7 @@ import 'package:billentry/ledger.dart';
 import 'package:billentry/purchaseEntryMasScreen.dart';
 import 'package:billentry/purchaseReport.dart';
 import 'package:billentry/salesReport.dart';
+import 'package:billentry/settings.dart';
 import 'package:billentry/stockReport.dart';
 import 'package:flutter/material.dart';
 import "package:http/http.dart" as http;
@@ -24,20 +25,21 @@ Future main() async {
   runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: Home(),
+        home: const Home(),
         routes: {
-          '/Home': (context) => homeScreen(),
+          '/Home': (context) => const homeScreen(),
           '/Home/billEntry': (context) =>
               billEntryFirstScreen(data: jsonEncode({"valid": false})),
-          '/Home/stock': (context) => stockReportPage(),
+          '/Home/stock': (context) => const stockReportPage(),
           '/Home/purchaseEntry': (context) => purchaseEntryFirstScreen(data: jsonEncode({"valid": false})),
           '/Home/branchTransfer': (context) =>
               branchTranseferPage(approveData: jsonEncode(
                   {"approve": false, "selectedData": ""})),
-          '/Home/branchApproval': (context) => approvalReportPage(),
-          '/Home/sales': (context) => salesReportPage(),
-          '/Home/purchase': (context) => purchaseReportPage(),
-          '/Home/ledger': (context) => Ledger(approvedData: jsonEncode({"approve":false, "selectedData": ""}))
+          '/Home/branchApproval': (context) => const approvalReportPage(),
+          '/Home/sales': (context) => const salesReportPage(),
+          '/Home/purchase': (context) => const purchaseReportPage(),
+          '/Home/ledger': (context) => Ledger(approvedData: jsonEncode({"approve":false, "selectedData": ""})),
+          '/Home/settings':(context)=> const SettingsPage()
         },
       )
   );
@@ -70,10 +72,10 @@ class _HomeState extends State<Home>  {
   }
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: Row(
         children: [
-          CircularProgressIndicator(color: Color(0xFF004D40),),
-          Container(margin: EdgeInsets.only(left: 7),child:Text("Logging In..." )),
+          const CircularProgressIndicator(color: Color(0xFF004D40),),
+          Container(margin: const EdgeInsets.only(left: 7),child:const Text("Logging In..." )),
         ],),
     );
     showDialog(barrierDismissible: false,
@@ -86,7 +88,7 @@ class _HomeState extends State<Home>  {
 
 
   Future<void> fetchCheckPassword(String username, String password) async{
-    String cutTableApi =ipAddress+"api/postLoginCheck";
+    String cutTableApi ="${ipAddress}api/postLoginCheck";
     print(username);
     print(password);
     print(cutTableApi);
@@ -121,11 +123,11 @@ class _HomeState extends State<Home>  {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Please enter the valid userName/Password"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Please enter the valid userName/Password"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -144,11 +146,11 @@ class _HomeState extends State<Home>  {
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -165,11 +167,11 @@ class _HomeState extends State<Home>  {
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -191,7 +193,7 @@ class _HomeState extends State<Home>  {
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
             gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 colors: [
@@ -207,24 +209,24 @@ class _HomeState extends State<Home>  {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.all(50),
+                padding: const EdgeInsets.all(50),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    FadeInUp( child: Text("Login", style: TextStyle(color: Colors.white, fontSize: 40),)),
-                    FadeInUp( child: Text("Welcome Back", style: TextStyle(color: Colors.white, fontSize: 18),)),
+                    FadeInUp( child: const Text("Login", style: TextStyle(color: Colors.white, fontSize: 40),)),
+                    FadeInUp( child: const Text("Welcome Back", style: TextStyle(color: Colors.white, fontSize: 18),)),
                   ],
                 ),
               ),
               Expanded(
                   child:
                   Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.only(topLeft: Radius.circular(60), topRight: Radius.circular(60))
                       ),
                       child: Padding(
-                          padding: EdgeInsets.all(30),
+                          padding: const EdgeInsets.all(30),
                           child:
                           SingleChildScrollView(
                               child:
@@ -237,7 +239,7 @@ class _HomeState extends State<Home>  {
                                       decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(10),
-                                          boxShadow: [BoxShadow(
+                                          boxShadow: const [BoxShadow(
                                               color: Color.fromRGBO(225, 95, 27, .3),
                                               blurRadius: 20,
                                               offset: Offset(0, 10)
@@ -248,7 +250,7 @@ class _HomeState extends State<Home>  {
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: <Widget>[
                                           Container(
-                                            padding: EdgeInsets.all(10),
+                                            padding: const EdgeInsets.all(10),
                                             decoration: BoxDecoration(
                                                 border: Border(bottom: BorderSide(color: Colors.grey.shade200))
                                             ),
@@ -257,7 +259,7 @@ class _HomeState extends State<Home>  {
                                                 userName = newValue ;
                                               },
                                               controller: name,
-                                              decoration: InputDecoration(
+                                              decoration: const InputDecoration(
                                                   hintText: "USERNAME",
                                                   hintStyle: TextStyle(color: Colors.grey),
                                                   border: InputBorder.none,
@@ -269,12 +271,12 @@ class _HomeState extends State<Home>  {
                                       ),
                                     )
                                     ),
-                                    Padding(padding: EdgeInsets.all(5)),
+                                    const Padding(padding: EdgeInsets.all(5)),
                                     FadeInUp( child: Container(
                                       decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius: BorderRadius.circular(10),
-                                          boxShadow: [BoxShadow(
+                                          boxShadow: const [BoxShadow(
                                               color: Color.fromRGBO(225, 95, 27, .3),
                                               blurRadius: 20,
                                               offset: Offset(0, 10)
@@ -285,7 +287,7 @@ class _HomeState extends State<Home>  {
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: <Widget>[
                                           Container(
-                                            padding: EdgeInsets.all(10),
+                                            padding: const EdgeInsets.all(10),
                                             decoration: BoxDecoration(
                                                 border: Border(bottom: BorderSide(color: Colors.grey.shade200))
                                             ),
@@ -297,7 +299,7 @@ class _HomeState extends State<Home>  {
                                               controller: pass,
                                               decoration: InputDecoration(
                                                   hintText: "PASSWORD",
-                                                  hintStyle: TextStyle(color: Colors.grey),
+                                                  hintStyle: const TextStyle(color: Colors.grey),
                                                   border: InputBorder.none,
                                                   suffixIcon: IconButton(onPressed: (){
                                                     setState(() {
@@ -308,7 +310,7 @@ class _HomeState extends State<Home>  {
                                                       icon: Icon(
                                                           !_passwordVisible?Icons.visibility:
                                                       Icons.visibility_off)),
-                                                prefixIcon: Icon(Icons.lock)
+                                                prefixIcon: const Icon(Icons.lock)
                                                   
                                               ),
                                             ),
@@ -317,40 +319,75 @@ class _HomeState extends State<Home>  {
                                       ),
                                     )
                                     ),
-                                    Padding(padding: EdgeInsets.all(10)),
-                                    FadeInUp(child: Container(
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(10),
-                                          boxShadow: [BoxShadow(
-                                              color: Color.fromRGBO(225, 95, 27, .3),
-                                              blurRadius: 20,
-                                              offset: Offset(0, 10)
-                                          )]
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: <Widget>[
+                                    const Padding(padding: EdgeInsets.all(10)),
+                                    FadeInUp(child:
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,children:
+                                        [
                                           Container(
-                                              decoration: BoxDecoration(
-                                                  border: Border(bottom: BorderSide(color: Colors.grey.shade200))
-                                              ),
-                                              child: IconButton(
-                                                color: Colors.indigo[900],
-                                                onPressed: () {
-                                                  fetchCheckPassword(userName,password);
-                                                  // Navigator.of(context).push(
-                                                  //     MaterialPageRoute(
-                                                  //         builder: (context) => billEntryFirstScreen())
-                                                  // );
-                                                }, icon: Icon(Icons.login),
-                                              )
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(10),
+                                              boxShadow: const [BoxShadow(
+                                                  color: Color.fromRGBO(225, 95, 27, .3),
+                                                  blurRadius: 20,
+                                                  offset: Offset(0, 10)
+                                              )]
                                           ),
-                                        ],
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: <Widget>[
+                                              Container(
+                                                  decoration: BoxDecoration(
+                                                      border: Border(bottom: BorderSide(color: Colors.grey.shade200))
+                                                  ),
+                                                  child:
+                                                  IconButton(
+                                                    color: Colors.indigo[900],
+                                                    onPressed: () {
+                                                      fetchCheckPassword(userName,password);
+                                                      // Navigator.of(context).push(
+                                                      //     MaterialPageRoute(
+                                                      //         builder: (context) => billEntryFirstScreen())
+                                                      // );
+                                                    }, icon: const Icon(Icons.login),
+                                                  )
+                                              ),
+                                            ],
 
-                                      ),
-                                    ),
+                                          ),
+                                        ),const SizedBox(width: 20,),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(10),
+                                                boxShadow: const [BoxShadow(
+                                                    color: Color.fromRGBO(225, 95, 27, .3),
+                                                    blurRadius: 20,
+                                                    offset: Offset(0, 10)
+                                                )]
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: <Widget>[
+                                                Container(
+                                                    decoration: BoxDecoration(
+                                                        border: Border(bottom: BorderSide(color: Colors.grey.shade200))
+                                                    ),
+                                                    child:
+                                                    IconButton(onPressed: (){
+                                                      Navigator.pushNamed(context, '/Home/settings');
+                                                    }, icon: const Icon(Icons.settings))
+                                                ),
+                                              ],
+
+                                            ),
+                                          )
+                                          ],)
+
                                     )
                                   ]
                               )

@@ -1,9 +1,4 @@
-import 'package:billentry/billEntryMasScreen.dart';
-import 'package:billentry/branchTransfer.dart';
 import 'package:billentry/main.dart';
-import 'package:billentry/purchaseEntryMasScreen.dart';
-import 'package:billentry/stockReport.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 var approvalCnt = 0;
@@ -12,7 +7,7 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
   final bool stkTransferCheck;
   final bool brhTransferCheck;
 
-  const customDrawer({
+  const customDrawer({super.key, 
     required this.stkTransferCheck,
     required this.brhTransferCheck,
   });
@@ -24,13 +19,13 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Color(0xFF004D40),
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(0)),
               boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
             ),
             child: Padding(
-              padding: EdgeInsets.only(top: 10.0), // Adjust padding for better alignment
+              padding: const EdgeInsets.only(top: 10.0), // Adjust padding for better alignment
               child: Center(
                 child: Image.asset('assets/icon/icon.png', height: 100), // Logo size adjustment
               ),
@@ -78,7 +73,7 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
           _buildListTile(context, Icons.swap_horizontal_circle, 'Branch Transfer', '/Home/branchTransfer', condition: !brhTransferCheck),
           _buildApprovalTile(context),
           ],),
-
+          _buildListTile(context, Icons.settings, 'Settings', '/Home/settings'),
           _buildLogoutTile(context),
         ],
       ),
@@ -87,10 +82,10 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
 
   ListTile _buildListTile(BuildContext context, IconData icon, String title, String route, {bool condition = true}) {
     return ListTile(
-      leading: Icon(icon, color: Color(0xFF004D40)),
+      leading: Icon(icon, color: const Color(0xFF004D40)),
       title: Text(
         title,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
       ),
       onTap: condition ? () => Navigator.pushNamed(context, route) : null,
       tileColor: Colors.transparent,
@@ -106,31 +101,31 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
         title,
         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
       ),
-      children: children,
-      tilePadding: EdgeInsets.symmetric(horizontal: 20),
-      childrenPadding: EdgeInsets.only(left: 20),
+      tilePadding: const EdgeInsets.symmetric(horizontal: 20),
+      childrenPadding: const EdgeInsets.only(left: 20),
       initiallyExpanded: false,
-      trailing: Icon(Icons.arrow_drop_down, color: Color(0xFF004D40)),
+      trailing: const Icon(Icons.arrow_drop_down, color: Color(0xFF004D40)),
+      children: children,
     );
   }
 
   // Branch Approval Tile with Badge
   ListTile _buildApprovalTile(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.rotate_right_rounded, color: Color(0xFF004D40)),
+      leading: const Icon(Icons.rotate_right_rounded, color: Color(0xFF004D40)),
       title: Row(
         children: [
-          Text(
+          const Text(
             "Branch Approval",
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           CircleAvatar(
             radius: 12,
             backgroundColor: approvalCnt == 0 ? Colors.green : Colors.red,
             child: Text(
               "$approvalCnt",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -142,15 +137,15 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
   // Logout Tile
   ListTile _buildLogoutTile(BuildContext context) {
     return ListTile(
-      leading: Icon(Icons.logout_rounded, color: Color(0xFF004D40)),
-      title: Text(
+      leading: const Icon(Icons.logout_rounded, color: Color(0xFF004D40)),
+      title: const Text(
         "Logout",
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
       ),
       onTap: () {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => Home()),
+          MaterialPageRoute(builder: (context) => const Home()),
           ModalRoute.withName('/'),
         );
       },

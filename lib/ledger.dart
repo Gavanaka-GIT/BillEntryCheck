@@ -5,14 +5,13 @@ import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
 import 'package:billentry/LedgerReport.dart';
 import 'package:billentry/main.dart';
-import 'package:billentry/salesReport.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class Ledger extends StatefulWidget {
   final dynamic approvedData;
-  const Ledger({Key? key,required this.approvedData}):super(key:key);
+  const Ledger({super.key,required this.approvedData});
 
   @override
   State<Ledger> createState() => _LedgerState();
@@ -63,7 +62,7 @@ class _LedgerState extends State<Ledger> {
 
   Future<void> fetchSavedData() async {
     try {
-      String url=ipAddress+"api/getLegderGroup";
+      String url="${ipAddress}api/getLegderGroup";
 
       final response = await http.post(Uri.parse(url),
           headers: <String, String>{
@@ -109,11 +108,11 @@ class _LedgerState extends State<Ledger> {
 
 
 
-          if(ledgerNameController.text != "" && ledgerNameController.text != null){
+          if(ledgerNameController.text != ""){
             if(updPrintName == ledgerNameController.text.toString()) {
               printNameController.text = ledgerNameController.text.toString();
             }else if(supplierList.isNotEmpty) {
-              if (supplierList.indexOf(ledgerNameController.text.toString().toLowerCase()) != -1) {
+              if (supplierList.contains(ledgerNameController.text.toString().toLowerCase())) {
                 int cnt =0;
                 for(int i=0;i<supplierList.length;i++){
                   if(supplierList[i]==(ledgerNameController.text.toString().toLowerCase())){
@@ -139,11 +138,11 @@ class _LedgerState extends State<Ledger> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Conn Err'),
-                content: Text("Please ReOpen this Page"), // Content of the dialog
+                title: const Text('Conn Err'),
+                content: const Text("Please ReOpen this Page"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -161,11 +160,11 @@ class _LedgerState extends State<Ledger> {
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('Conn Err'),
-              content: Text("Please ReOpen this Page"), // Content of the dialog
+              title: const Text('Conn Err'),
+              content: const Text("Please ReOpen this Page"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -179,10 +178,10 @@ class _LedgerState extends State<Ledger> {
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: Row(
         children: [
-          CircularProgressIndicator(color: Color(0xFF004D40),),
-          Container(margin: EdgeInsets.only(left: 7),child:Text("..Loading" )),
+          const CircularProgressIndicator(color: Color(0xFF004D40),),
+          Container(margin: const EdgeInsets.only(left: 7),child:const Text("..Loading" )),
         ],),
     );
     showDialog(barrierDismissible: false,
@@ -199,7 +198,7 @@ class _LedgerState extends State<Ledger> {
   }
 
   Future<void> saveLedgerData(dynamic ledgerData)async {
-    String cutTableApi =ipAddress+"api/saveLedgerData";
+    String cutTableApi ="${ipAddress}api/saveLedgerData";
     List<dynamic> jsonArray=[];
     jsonArray.add(ledgerData);
     showLoaderDialog(context);
@@ -263,12 +262,12 @@ class _LedgerState extends State<Ledger> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: updChk?Text("Ledger updated Successfully"):Text("Ledger Inserted Successfully"),
+                  title: const Text('REASON'),
+                  content: updChk?const Text("Ledger updated Successfully"):const Text("Ledger Inserted Successfully"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -292,12 +291,12 @@ class _LedgerState extends State<Ledger> {
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: updChk?Text("Ledger Updation Failed"): Text("Ledger Insertion Failed"),
+                  title: const Text('REASON'),
+                  content: updChk?const Text("Ledger Updation Failed"): const Text("Ledger Insertion Failed"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -318,11 +317,11 @@ class _LedgerState extends State<Ledger> {
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -341,11 +340,11 @@ class _LedgerState extends State<Ledger> {
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -388,7 +387,7 @@ class _LedgerState extends State<Ledger> {
       setState(() {
         ledgerNameController.text=selectedData['ledgerName'].toString()=="null"?"":selectedData['ledgerName'].toString();
         updSupplierId=selectedData['values']['SupplierId'].toString()=="null"?"":selectedData['values']['SupplierId'].toString();
-        print("SupplierId" + updSupplierId);
+        print("SupplierId$updSupplierId");
         updPrintName=selectedData['ledgerName'].toString()=="null"?"":selectedData['ledgerName'].toString();
         printNameController.text= selectedData['values']['PrintName'].toString()=="null"?"":selectedData['values']['PrintName'].toString();
         codeController.text=selectedData['values']['SupCode'].toString()=="null"?"":selectedData['values']['SupCode'].toString();
@@ -408,7 +407,7 @@ class _LedgerState extends State<Ledger> {
         emailController.text = selectedData['values']['Mailid'].toString()=="null"?"":selectedData['values']['Mailid'].toString();
         openingBalanceController.text = selectedData['values']['OpBalAmt'].toString()=="null"?"":selectedData['values']['OpBalAmt'].toString();
         openingBalanceSuffixVar= selectedData['values']['OpType'].toString()=="Dr"?openingBalanceSuffix[0]: openingBalanceSuffix[1];
-        print("openingBalanceSuffixVar"+openingBalanceSuffixVar);
+        print("openingBalanceSuffixVar$openingBalanceSuffixVar");
         checkBox=selectedData['values']['active'].toString()=="Y"?true:false;
       });
 
@@ -435,7 +434,7 @@ class _LedgerState extends State<Ledger> {
             Scaffold.of(context).openDrawer();
           },
         ),
-        drawer: customDrawer(stkTransferCheck: false, brhTransferCheck: false),
+        drawer: const customDrawer(stkTransferCheck: false, brhTransferCheck: false),
         body: Container(
           child: SingleChildScrollView(
             child: Padding( padding: const EdgeInsets.all(20.0),child: Column(
@@ -502,7 +501,7 @@ class _LedgerState extends State<Ledger> {
                                   child: Card(
                                   elevation: 5,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  color: Color(0xFF004D40),
+                                  color: const Color(0xFF004D40),
                                   child: Container(
                                     width: 90,  // You can adjust the width as per your needs
                                     height: 30, // You can adjust the height as per your needs
@@ -522,17 +521,17 @@ class _LedgerState extends State<Ledger> {
                               onTap: () {
                                 // Handle tap action here, e.g., navigating to another screen or showing a message
                                 print('Card tapped!');
-                                Navigator.push(context,MaterialPageRoute(builder:(context)=>ledgerReportPage()));
+                                Navigator.push(context,MaterialPageRoute(builder:(context)=>const ledgerReportPage()));
                               },
                               child: Card(
                                 elevation: 5,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                color: Color(0xFF004D40),
+                                color: const Color(0xFF004D40),
                                 child: Container(
                                   width: 90,  // You can adjust the width as per your needs
                                   height: 30, // You can adjust the height as per your needs
                                   alignment: Alignment.center, // Center the text within the container
-                                  child: Text(
+                                  child: const Text(
                                     "PartyList",
                                     style: TextStyle(
                                       color: Colors.white,
@@ -545,7 +544,7 @@ class _LedgerState extends State<Ledger> {
                             ),],)
 
                       ),
-                      SizedBox(height: 5),  // Provides spacing below the Card
+                      const SizedBox(height: 5),  // Provides spacing below the Card
 
 
                       Row(
@@ -567,10 +566,10 @@ class _LedgerState extends State<Ledger> {
                                     print(newValue);
                                     if(updPrintName == newValue.toString()) {
                                       printNameController.text = ledgerNameController.text.toString();
-                                    }else if(supplierList.length>0) {
+                                    }else if(supplierList.isNotEmpty) {
                                       print(supplierList);
                                       print(supplierList.indexOf(newValue.toLowerCase()));
-                                      if (supplierList.indexOf(newValue.toLowerCase().trim()) != -1) {
+                                      if (supplierList.contains(newValue.toLowerCase().trim())) {
                                         int cnt =0;
                                         for(int i=0;i<supplierList.length;i++){
                                           if(supplierList[i]==(newValue.toLowerCase().trim())){
@@ -579,7 +578,7 @@ class _LedgerState extends State<Ledger> {
                                           }
                                         }
                                         setState(() {
-                                          print(cnt.toString()+"cnt");
+                                          print("${cnt}cnt");
                                           printNameController.text = ledgerNameController.text.toString()+ cnt.toString();
                                         });
                                       }else{
@@ -597,12 +596,12 @@ class _LedgerState extends State<Ledger> {
                                   },
                                   decoration: InputDecoration(
                                     labelText: 'Ledger Name',
-                                    labelStyle: TextStyle(fontSize: 14),
-                                    prefixIcon: Icon(Icons.account_balance),
+                                    labelStyle: const TextStyle(fontSize: 14),
+                                    prefixIcon: const Icon(Icons.account_balance),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
@@ -630,7 +629,7 @@ class _LedgerState extends State<Ledger> {
                                     if(updPrintName==ledgerNameController.text.toString()){
                                       printNameController.text = ledgerNameController.text.toString();
                                     }else
-                                    if (supplierList.indexOf(newValue.toLowerCase().trim()) != -1) {
+                                    if (supplierList.contains(newValue.toLowerCase().trim())) {
                                       int cnt =0;
                                       for(int i=0;i<supplierList.length;i++){
                                         if(supplierList[i]==(newValue.toLowerCase().trim())){
@@ -639,19 +638,19 @@ class _LedgerState extends State<Ledger> {
                                         }
                                       }
                                       setState(() {
-                                        print(cnt.toString()+"cnt");
+                                        print("${cnt}cnt");
                                         printNameController.text = newValue.toString()+ cnt.toString();
                                       });
                                     }
                                   },
                                   decoration: InputDecoration(
                                     labelText: 'Print Name',
-                                    labelStyle: TextStyle(fontSize: 14),
-                                    prefixIcon: Icon(Icons.person),
+                                    labelStyle: const TextStyle(fontSize: 14),
+                                    prefixIcon: const Icon(Icons.person),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                                   ),
                                   validator: (value) {
                                     // if (value == null || value.isEmpty) {
@@ -665,7 +664,7 @@ class _LedgerState extends State<Ledger> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       // Code and Group in the same row with icons
                       Row(
@@ -716,7 +715,7 @@ class _LedgerState extends State<Ledger> {
                                       }
                                     },
                                     validator: (value){
-                                      if(groupList.indexOf(value.toString())==-1){
+                                      if(!groupList.contains(value.toString())){
                                         return 'Please select the Group';
                                       }
                                       return null;
@@ -724,18 +723,18 @@ class _LedgerState extends State<Ledger> {
                                     decoratorProps: DropDownDecoratorProps(
                                         expands: false,
                                         decoration:InputDecoration(
-                                            prefixIcon: Icon(Icons.group),
+                                            prefixIcon: const Icon(Icons.group),
                                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)) ,
-                                            contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10)
+                                            contentPadding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 10)
                                         )),
-                                    popupProps: PopupPropsMultiSelection.menu(showSearchBox: true),
+                                    popupProps: const PopupPropsMultiSelection.menu(showSearchBox: true),
                                     compareFn:(item1, item2) => item1 ==item2,
                                   ),
                                 ),
                               )),
                         ],
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       Padding(
                           padding: const EdgeInsets.only(top: 0.0),
@@ -748,12 +747,12 @@ class _LedgerState extends State<Ledger> {
                               keyboardType: TextInputType.streetAddress,
                               decoration: InputDecoration(
                                 labelText: 'Address',
-                                labelStyle: TextStyle(fontSize: 14),
-                                prefixIcon: Icon(Icons.location_on),
+                                labelStyle: const TextStyle(fontSize: 14),
+                                prefixIcon: const Icon(Icons.location_on),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -763,7 +762,7 @@ class _LedgerState extends State<Ledger> {
                               },
                             ),)
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       Padding(
                           padding: const EdgeInsets.only(top: 0.0),
@@ -775,12 +774,12 @@ class _LedgerState extends State<Ledger> {
                               maxLines: 1, // Allows the address to have multiple lines
                               decoration: InputDecoration(
                                 labelText: 'Address 2',
-                                labelStyle: TextStyle(fontSize: 14),
+                                labelStyle: const TextStyle(fontSize: 14),
                                 // prefixIcon: Icon(Icons.location_on),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                               ),
                               validator: (value) {
                                 // if (value == null || value.isEmpty) {
@@ -790,7 +789,7 @@ class _LedgerState extends State<Ledger> {
                               },
                             ),)
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       Padding(
                           padding: const EdgeInsets.only(top: 0.0),
@@ -802,12 +801,12 @@ class _LedgerState extends State<Ledger> {
                               maxLines: 1, // Allows the address to have multiple lines
                               decoration: InputDecoration(
                                 labelText: 'Address 3',
-                                labelStyle: TextStyle(fontSize: 14),
+                                labelStyle: const TextStyle(fontSize: 14),
                                 // prefixIcon: Icon(Icons.location_on),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                               ),
                               validator: (value) {
                                 // if (value == null || value.isEmpty) {
@@ -817,7 +816,7 @@ class _LedgerState extends State<Ledger> {
                               },
                             ),)
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       Row(
                         children: [
@@ -840,7 +839,7 @@ class _LedgerState extends State<Ledger> {
                                   },
                                   selectedItem: cityName,
                                   validator: (value){
-                                    if(cityList.indexOf(value.toString())==-1){
+                                    if(!cityList.contains(value.toString())){
                                       return 'Please select the State';
                                     }
                                     return null;
@@ -850,12 +849,12 @@ class _LedgerState extends State<Ledger> {
                                       decoration:InputDecoration(
                                           helperMaxLines: 1,
                                           hintMaxLines: 1,
-                                          prefixIcon: Icon(Icons.map),
+                                          prefixIcon: const Icon(Icons.map),
                                           border: OutlineInputBorder(
                                               borderRadius: BorderRadius.circular(10)) ,
-                                          contentPadding:   EdgeInsets.fromLTRB(0,0,0,0)
+                                          contentPadding:   const EdgeInsets.fromLTRB(0,0,0,0)
                                       )),
-                                  popupProps: PopupPropsMultiSelection.menu(showSearchBox: true,
+                                  popupProps: const PopupPropsMultiSelection.menu(showSearchBox: true,
                                     // constraints: BoxConstraints(minHeight: 100, maxHeight: 100)
                                   ),
                                   compareFn:(item1, item2) => item1 ==item2,
@@ -865,7 +864,7 @@ class _LedgerState extends State<Ledger> {
 
                         ],
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       Row(children: [Expanded(
                         child: Padding(
@@ -878,12 +877,12 @@ class _LedgerState extends State<Ledger> {
                               enabled: updChk?false:true,
                               decoration: InputDecoration(
                                 labelText: 'Pin Code',
-                                labelStyle: TextStyle(fontSize: 14),
-                                prefixIcon: Icon(Icons.pin),
+                                labelStyle: const TextStyle(fontSize: 14),
+                                prefixIcon: const Icon(Icons.pin),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                               ),
                               validator: (value) {
                                 // if (value == null || value.isEmpty) {
@@ -894,7 +893,7 @@ class _LedgerState extends State<Ledger> {
                             ),),
                         ),
                       ),],),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       Padding(
                         padding: const EdgeInsets.only(top: 0.0),
@@ -905,12 +904,12 @@ class _LedgerState extends State<Ledger> {
                             // maxLines: 1, // Allows the address to have multiple lines
                             decoration: InputDecoration(
                               labelText: 'Gst Number',
-                              labelStyle: TextStyle(fontSize: 14),
-                              prefixIcon: Icon(Icons.receipt),
+                              labelStyle: const TextStyle(fontSize: 14),
+                              prefixIcon: const Icon(Icons.receipt),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                             ),
                             validator: (value) {
                               // if (value == null || value.isEmpty) {
@@ -920,7 +919,7 @@ class _LedgerState extends State<Ledger> {
                             },
                           ),),
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       // Padding(
                       //   padding: const EdgeInsets.only(top: 0.0),
@@ -1046,12 +1045,12 @@ class _LedgerState extends State<Ledger> {
                             // maxLines: 1, // Allows the address to have multiple lines
                             decoration: InputDecoration(
                               labelText: 'Contact',
-                              labelStyle: TextStyle(fontSize: 14),
-                              prefixIcon: Icon(Icons.abc_outlined),
+                              labelStyle: const TextStyle(fontSize: 14),
+                              prefixIcon: const Icon(Icons.abc_outlined),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -1061,7 +1060,7 @@ class _LedgerState extends State<Ledger> {
                             },
                           ),
                         ),),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       Padding(
                         padding: const EdgeInsets.only(top: 0.0),
@@ -1074,12 +1073,12 @@ class _LedgerState extends State<Ledger> {
                             keyboardType: TextInputType.phone,
                             decoration: InputDecoration(
                               labelText: 'Mobile Number',
-                              labelStyle: TextStyle(fontSize: 14),
-                              prefixIcon: Icon(Icons.phone),
+                              labelStyle: const TextStyle(fontSize: 14),
+                              prefixIcon: const Icon(Icons.phone),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                             ),
                             validator: (value) {
                               // if (value == null || value.isEmpty) {
@@ -1089,7 +1088,7 @@ class _LedgerState extends State<Ledger> {
                             },
                           ),
                         ),),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       Padding(
                         padding: const EdgeInsets.only(top: 0.0),
@@ -1102,12 +1101,12 @@ class _LedgerState extends State<Ledger> {
                             // maxLines: 1, // Allows the address to have multiple lines
                             decoration: InputDecoration(
                               labelText: 'Phone Number',
-                              labelStyle: TextStyle(fontSize: 14),
-                              prefixIcon: Icon(Icons.phone_android),
+                              labelStyle: const TextStyle(fontSize: 14),
+                              prefixIcon: const Icon(Icons.phone_android),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                             ),
                             validator: (value) {
                               // if (value == null || value.isEmpty) {
@@ -1117,7 +1116,7 @@ class _LedgerState extends State<Ledger> {
                             },
                           ),
                         ),),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       Padding(
                         padding: const EdgeInsets.only(top: 0.0),
@@ -1130,12 +1129,12 @@ class _LedgerState extends State<Ledger> {
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
                               labelText: 'Email',
-                              labelStyle: TextStyle(fontSize: 14),
-                              prefixIcon: Icon(Icons.mail),
+                              labelStyle: const TextStyle(fontSize: 14),
+                              prefixIcon: const Icon(Icons.mail),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                             ),
                             validator: (value) {
                               // if (value == null || value.isEmpty) {
@@ -1145,7 +1144,7 @@ class _LedgerState extends State<Ledger> {
                             },
                           ),
                         ),),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       // Padding(
                       //   padding: const EdgeInsets.only(top: 0.0),
@@ -1187,12 +1186,12 @@ class _LedgerState extends State<Ledger> {
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     labelText: 'Opening Balance',
-                                    labelStyle: TextStyle(fontSize: 14),
-                                    prefixIcon: Icon(Icons.money),
+                                    labelStyle: const TextStyle(fontSize: 14),
+                                    prefixIcon: const Icon(Icons.money),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
                                   ),
                                   validator: (value) {
                                     // if (value == null || value.isEmpty) {
@@ -1229,7 +1228,7 @@ class _LedgerState extends State<Ledger> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
 
                       Center(child: Row(
                         mainAxisAlignment : MainAxisAlignment.center,children: [
@@ -1237,10 +1236,10 @@ class _LedgerState extends State<Ledger> {
                           setState(() {
                             checkBox= newValue ?? false;
                           });
-                        } ), Text("IsActive")],)
+                        } ), const Text("IsActive")],)
                         ,)
                       ,
-                      SizedBox(height: 5,),
+                      const SizedBox(height: 5,),
 
 
                       Row(
@@ -1254,7 +1253,7 @@ class _LedgerState extends State<Ledger> {
                                   if (_formKey.currentState!.validate()) {
                                     print('Form is valid, performing save action');
                                     var supplierCustomer= int.parse(groupId)==1 ? "C" : "S";
-                                    var pinAddressMerger= updChk?"":","+pinCodeController.text.toString();
+                                    var pinAddressMerger= updChk?"":",${pinCodeController.text}";
                                     dynamic value= {
                                       "Supplier" : ledgerNameController.text,
                                       "Add1" : address1Controller.text,
@@ -1287,11 +1286,11 @@ class _LedgerState extends State<Ledger> {
                                       builder: (BuildContext context) {
                                         return
                                           AlertDialog(
-                                            title: Text('Alert'),
-                                            content: Text("Please Enter the Required Fields"), // Content of the dialog
+                                            title: const Text('Alert'),
+                                            content: const Text("Please Enter the Required Fields"), // Content of the dialog
                                             actions: <Widget>[
                                               TextButton(
-                                                child: Text('OK'),
+                                                child: const Text('OK'),
                                                 onPressed: () {
                                                   Navigator.of(context).pop(); // Close the dialog
                                                 },
@@ -1303,19 +1302,19 @@ class _LedgerState extends State<Ledger> {
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
                                   foregroundColor: Colors.white,
-                                  backgroundColor: Color(0xFF004D40),
+                                  backgroundColor: const Color(0xFF004D40),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
                                 child: Text(
                                   updChk?'Update':'Save',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                               ))),
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           Expanded(child: Card(elevation: 5,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               child:
@@ -1329,13 +1328,13 @@ class _LedgerState extends State<Ledger> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white,
-                                  backgroundColor: Color(0xFF004D40),
-                                  padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                                  backgroundColor: const Color(0xFF004D40),
+                                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                child: Text(
+                                child: const Text(
                                   'Cancel',
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                 ),

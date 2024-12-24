@@ -3,13 +3,9 @@ import 'dart:convert';
 import 'package:billentry/CustomWidgets/appBar.dart';
 import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
-import 'package:billentry/billEntryMasScreen.dart';
-import 'package:billentry/branchTransfer.dart';
 import 'package:billentry/ledger.dart';
 import 'package:billentry/main.dart';
-import 'package:billentry/purchaseEntryMasScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:flutter/services.dart';
@@ -19,11 +15,11 @@ import 'package:http/http.dart' as http;
 
 
 
-import 'package:dropdown_button2/dropdown_button2.dart';
 
 class ledgerReportPage extends StatefulWidget{
   const ledgerReportPage({super.key});
 
+  @override
   _ledgerReport createState()=> _ledgerReport();
 }
 
@@ -43,10 +39,10 @@ class _ledgerReport extends State<ledgerReportPage>{
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: Row(
         children: [
-          CircularProgressIndicator(color: Color(0xFF004D40),),
-          Container(margin: EdgeInsets.only(left: 7),child:Text("..Loading" )),
+          const CircularProgressIndicator(color: Color(0xFF004D40),),
+          Container(margin: const EdgeInsets.only(left: 7),child:const Text("..Loading" )),
         ],),
     );
     showDialog(barrierDismissible: false,
@@ -58,7 +54,7 @@ class _ledgerReport extends State<ledgerReportPage>{
   }
 
   Future<void> FetchMasData()async {
-    String cutTableApi =ipAddress+"api/getLedgerReportDatas";
+    String cutTableApi ="${ipAddress}api/getLedgerReportDatas";
     try {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -114,12 +110,12 @@ class _ledgerReport extends State<ledgerReportPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("No Data Found"),
+                  title: const Text('REASON'),
+                  content: const Text("No Data Found"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -141,11 +137,11 @@ class _ledgerReport extends State<ledgerReportPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -164,11 +160,11 @@ class _ledgerReport extends State<ledgerReportPage>{
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -220,7 +216,7 @@ class _ledgerReport extends State<ledgerReportPage>{
               onMenuPressed: (){
                 Scaffold.of(context).openDrawer();
               }, barTitle: "LEDGER REPORT"),
-          drawer: customDrawer(stkTransferCheck: true,
+          drawer: const customDrawer(stkTransferCheck: true,
               brhTransferCheck: false),
           body:
           SingleChildScrollView(
@@ -239,14 +235,14 @@ class _ledgerReport extends State<ledgerReportPage>{
                     //     label: Text("Back",style: TextStyle(color: Colors.white),),
                     //     icon: Icon(Icons.arrow_back, color: Colors.pink,), ),)
                     //     :SizedBox(width: 1,),
-                    Expanded(child: Padding(padding: EdgeInsets.all(15), child:
+                    Expanded(child: Padding(padding: const EdgeInsets.all(15), child:
                     SizedBox(
                       width: width >500?width*0.5: width,
                       child: TextField(
                         decoration: InputDecoration(border:
                         OutlineInputBorder(borderRadius: BorderRadius.circular(25.0)),
-                            contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                            prefixIcon: Icon(Icons.search),
+                            contentPadding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                            prefixIcon: const Icon(Icons.search),
                             hintText: "Search Ledger Name here",
                             labelText: "Search Ledger Name"
                         ),
@@ -258,7 +254,7 @@ class _ledgerReport extends State<ledgerReportPage>{
                               // updateDetTable(tempStockReportDet);
                             }
                           }else{
-                            if(BranchTransferReceiptList.length>0 ) {
+                            if(BranchTransferReceiptList.isNotEmpty ) {
                               if(mainChk) {
                                 List<BranchTransferReceiptPending> tempSalesList = [];
                                 for (int i = 0; i < BranchTransferReceiptList.length; i++) {
@@ -287,11 +283,11 @@ class _ledgerReport extends State<ledgerReportPage>{
                                 builder: (BuildContext context) {
                                   return
                                     AlertDialog(
-                                      title: Text('REASON'),
-                                      content: Text("No Data"), // Content of the dialog
+                                      title: const Text('REASON'),
+                                      content: const Text("No Data"), // Content of the dialog
                                       actions: <Widget>[
                                         TextButton(
-                                          child: Text('OK'),
+                                          child: const Text('OK'),
                                           onPressed: () {
                                             Navigator.of(context).pop(); // Close the dialog
                                           },
@@ -313,7 +309,7 @@ class _ledgerReport extends State<ledgerReportPage>{
                   children:
                   [
                     Row( mainAxisAlignment:MainAxisAlignment.center,children: [
-                      Container(
+                      SizedBox(
                         width: width>500? width:width,
                         height: height * 0.65,
                         // alignment:  Alignment.center,
@@ -322,12 +318,12 @@ class _ledgerReport extends State<ledgerReportPage>{
                         SfDataGridTheme(
                           data: SfDataGridThemeData(
                             filterIconColor: Colors.pink,
-                            currentCellStyle: DataGridCurrentCellStyle(
+                            currentCellStyle: const DataGridCurrentCellStyle(
                               borderWidth: 2,
                               borderColor: Colors.pinkAccent,
                             ),
                             selectionColor: Colors.lightGreen[50],
-                            headerColor: Color(0xFF004D40),
+                            headerColor: const Color(0xFF004D40),
                           ),
                           child: SfDataGrid(
                             allowEditing: true,
@@ -346,18 +342,18 @@ class _ledgerReport extends State<ledgerReportPage>{
                                 allowEditing: false,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.centerLeft,
-                                  child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
                                 columnName: 'ledgerName',
                                 width: width<500?166:width*0.4,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('LEDGERNAME', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('LEDGERNAME', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -365,9 +361,9 @@ class _ledgerReport extends State<ledgerReportPage>{
                                 width: width<500?163:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('LEDGERGRP', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('LEDGERGRP', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -375,9 +371,9 @@ class _ledgerReport extends State<ledgerReportPage>{
                                 width: width<500?130:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('GSTNUMBER', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('GSTNUMBER', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -385,9 +381,9 @@ class _ledgerReport extends State<ledgerReportPage>{
                                 width: width<500?115:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('CONTACT', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('CONTACT', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -395,9 +391,9 @@ class _ledgerReport extends State<ledgerReportPage>{
                                 width: width<500?115:width*0.25,
                                 allowFiltering: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('PHONE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('PHONE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -406,9 +402,9 @@ class _ledgerReport extends State<ledgerReportPage>{
                                 allowFiltering: true,
                                 visible: true,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('ACTIVE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('ACTIVE', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                               GridColumn(
@@ -417,9 +413,9 @@ class _ledgerReport extends State<ledgerReportPage>{
                                 allowFiltering: false,
                                 visible: false,
                                 label: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
-                                  child: Text('LEDGERID', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                                  child: const Text('LEDGERID', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                                 ),
                               ),
                             ],
@@ -480,11 +476,11 @@ class _ledgerReport extends State<ledgerReportPage>{
                         showDialog(context: context, builder:(BuildContext context) {
                           return
                             AlertDialog(
-                              title: Text('REASON'),
-                              content: Text("Please Select The Row"), // Content of the dialog
+                              title: const Text('REASON'),
+                              content: const Text("Please Select The Row"), // Content of the dialog
                               actions: <Widget>[
                                 TextButton(
-                                  child: Text('OK'),
+                                  child: const Text('OK'),
                                   onPressed: () {
                                     Navigator.of(context).pop(); // Close the dialog
                                   },
@@ -494,10 +490,10 @@ class _ledgerReport extends State<ledgerReportPage>{
                         } );
                       }
                     },
-                      label: Text("Fetch Selected Ledger",style: TextStyle(color: Colors.white), ),
-                      icon: Icon(Icons.arrow_forward, color: Colors.pink,),
+                      label: const Text("Fetch Selected Ledger",style: TextStyle(color: Colors.white), ),
+                      icon: const Icon(Icons.arrow_forward, color: Colors.pink,),
                       style: ElevatedButton.styleFrom(foregroundColor: Colors.black,
-                        backgroundColor: Color(0xFF004D40),),
+                        backgroundColor: const Color(0xFF004D40),),
                     )
 
                   ],)
@@ -680,8 +676,8 @@ class BranchTransefrReceiptSource extends DataGridSource {
         controller: editingController..text = displayText,
         textAlign: isNumericType ? TextAlign.right : TextAlign.left,
         autocorrect: false,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 16.0),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 16.0),
         ),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.allow(regExp)
@@ -716,7 +712,7 @@ class BranchTransefrReceiptSource extends DataGridSource {
                   dataGridCell.columnName == 'salary')
                   ? Alignment.center
                   : Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 dataGridCell.value.toString(),
                 overflow: TextOverflow.ellipsis,

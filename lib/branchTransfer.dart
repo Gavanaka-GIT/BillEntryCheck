@@ -4,7 +4,6 @@ import 'package:billentry/CustomWidgets/appBar.dart';
 import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
 import 'package:billentry/main.dart';
-import 'package:billentry/stockReport.dart';
 import 'package:flutter/material.dart'; // to import the material flutter package , package must be in single quotes,
 import 'package:flutter/services.dart';
                // In single quotes, type package right next type colon, then type the inbuilt / custom package
@@ -21,7 +20,7 @@ List<transferEntry> transferList=[];
 bool approvalScreen=false;
 class branchTranseferPage extends StatefulWidget{  // branchTransferPage is the name of the widget,
    final dynamic approveData;                                                 // this widget is the extension of statesulwidget
-   branchTranseferPage({Key? key,required this.approveData} ): super(key:key);
+   const branchTranseferPage({super.key,required this.approveData} );
 
 
   @override
@@ -74,23 +73,23 @@ class _branchStateInstance extends State<branchTranseferPage>{
   List<int> ItemIdList =[];
 
 
-  TextEditingController _itemController = new TextEditingController();
-  TextEditingController rateTextController = new TextEditingController();
-  TextEditingController qtyTextController = new TextEditingController();
+  TextEditingController _itemController = TextEditingController();
+  TextEditingController rateTextController = TextEditingController();
+  TextEditingController qtyTextController = TextEditingController();
 
   final DataGridController _dataGridController = DataGridController();
 
   var selected = false;
   var index  =-1;
 
-  TextEditingController date = new TextEditingController();
+  TextEditingController date = TextEditingController();
 
   showLoaderDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: Row(
         children: [
-          CircularProgressIndicator(color: Color(0xFF004D40),),
-          Container(margin: EdgeInsets.only(left: 7),child:Text("..In Progress" )),
+          const CircularProgressIndicator(color: Color(0xFF004D40),),
+          Container(margin: const EdgeInsets.only(left: 7),child:const Text("..In Progress" )),
         ],),
     );
     showDialog(
@@ -103,7 +102,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
   }
 
   Future<void> saveBranchTransferData(List masData, List detData)async {
-    String cutTableApi =ipAddress+"api/saveBranchTransfer";
+    String cutTableApi ="${ipAddress}api/saveBranchTransfer";
     showLoaderDialog(context);
     try {
       final response = await http.post(Uri.parse(cutTableApi),
@@ -188,12 +187,12 @@ class _branchStateInstance extends State<branchTranseferPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("Transferred Successfully"),
+                  title: const Text('REASON'),
+                  content: const Text("Transferred Successfully"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -216,12 +215,12 @@ class _branchStateInstance extends State<branchTranseferPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("Approval Failed"),
+                  title: const Text('REASON'),
+                  content: const Text("Approval Failed"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -242,11 +241,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -265,11 +264,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -282,7 +281,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
   }
 
   Future<void> saveBranchApprovalData(List detData)async {
-    String cutTableApi =ipAddress+"api/saveApprovalData";
+    String cutTableApi ="${ipAddress}api/saveApprovalData";
     showLoaderDialog(context);
     try {
       final response = await http.post(Uri.parse(cutTableApi),
@@ -305,12 +304,12 @@ class _branchStateInstance extends State<branchTranseferPage>{
               builder: (BuildContext context) {
                 return
                   AlertDialog(
-                    title: Text('REASON'),
+                    title: const Text('REASON'),
                     content: const Text("Transno Approved Already"),
                     // Content of the dialog
                     actions: <Widget>[
                       TextButton(
-                        child: Text('OK'),
+                        child: const Text('OK'),
                         onPressed: () {
                           Navigator.of(context).pop(); // Close the dialog
                         },
@@ -325,7 +324,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  content: Text(
+                  content: const Text(
                     "Transferred Sucessfully",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -334,7 +333,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                       onPressed: () {
                         Navigator.of(context).pop(true);
                       },
-                      child: Text("OK"),
+                      child: const Text("OK"),
                     )
                   ],
                 );
@@ -358,12 +357,12 @@ class _branchStateInstance extends State<branchTranseferPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('REASON'),
-                  content: Text("Transfer Failed"),
+                  title: const Text('REASON'),
+                  content: const Text("Transfer Failed"),
                   // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -384,11 +383,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('REASON'),
-                content: Text("Conn Err"), // Content of the dialog
+                title: const Text('REASON'),
+                content: const Text("Conn Err"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -407,11 +406,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('REASON'),
-              content: Text("Conn Err"), // Content of the dialog
+              title: const Text('REASON'),
+              content: const Text("Conn Err"), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -433,7 +432,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
     if(selected && !delChk){
       item = _itemController.text.toString();
     }else{
-      if(transferList.length>0) {
+      if(transferList.isNotEmpty) {
         for (int i = 0; i < transferList.length; i++) {
           if (transferList[i].itemName == item) {
             dupChk=true;
@@ -445,7 +444,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
     if(!dupChk) {
       int idx = ItemList.indexOf(item);
       int code = 0;
-      print("idx :- " + idx.toString());
+      print("idx :- $idx");
       double rate = itemRate;
       if (idx != -1) {
         if (itemRate == 0.0) {
@@ -470,7 +469,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
       }
       else if (delChk) {
         transferList.removeAt(index);
-        if (transferList.length > 0) {
+        if (transferList.isNotEmpty) {
           for (int i = 0; i < transferList.length; i++) {
             transferList[i].id = i + 1;
           }
@@ -506,7 +505,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
       }
 
       grandTotalAmount = 0.0;
-      if (transferList.length > 0) {
+      if (transferList.isNotEmpty) {
         for (int i = 0; i < transferList.length; i++) {
           grandTotalAmount = transferList[i].amount + grandTotalAmount;
         }
@@ -519,17 +518,17 @@ class _branchStateInstance extends State<branchTranseferPage>{
     }else{
       print("Dup CheckPoint");
       print(item);
-      String valueStr="The following item("+item+") Already exists";
+      String valueStr="The following item($item) Already exists";
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return
             AlertDialog(
-              title: Text('Duplicate Error'),
+              title: const Text('Duplicate Error'),
               content: Text(valueStr), // Content of the dialog
               actions: <Widget>[
                 TextButton(
-                  child: Text('OK'),
+                  child: const Text('OK'),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -542,7 +541,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
   }
 
   showBillNoLoaderDialog(BuildContext context){
-    AlertDialog alert=AlertDialog(
+    AlertDialog alert=const AlertDialog(
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -568,7 +567,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
 
   Future<void> fetchToBranchData() async {
     try {
-      String url=ipAddress+"api/getToBranchNames";
+      String url="${ipAddress}api/getToBranchNames";
       String getApi="http://192.168.2.11:3000/api/getSupplierData";
       print("check Point 1");
       final response = await http.post(Uri.parse(url),
@@ -607,11 +606,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('No Valid Sub Branch'),
-                  content: Text("No valid sub branch to this userId"), // Content of the dialog
+                  title: const Text('No Valid Sub Branch'),
+                  content: const Text("No valid sub branch to this userId"), // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -628,11 +627,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('No Valid Sub Branch'),
-                content: Text("No valid sub branch to this userId"), // Content of the dialog
+                title: const Text('No Valid Sub Branch'),
+                content: const Text("No valid sub branch to this userId"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -650,7 +649,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
 
   Future<void> fetchItemData() async {
     try {
-      String url=ipAddress+"api/getBranchTransferItems";
+      String url="${ipAddress}api/getBranchTransferItems";
       String getApi="http://192.168.2.11:3000/api/getSupplierData";
       print("check Point 1");
       final response = await http.post(Uri.parse(url),
@@ -691,11 +690,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('No Valid Items'),
-                  content: Text("No valid items to this userId"), // Content of the dialog
+                  title: const Text('No Valid Items'),
+                  content: const Text("No valid items to this userId"), // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -712,11 +711,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Conn Err'),
-                content: Text("Please ReOpen this Page"), // Content of the dialog
+                title: const Text('Conn Err'),
+                content: const Text("Please ReOpen this Page"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -733,7 +732,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
   }
 
   Future<void> getApprovalData(dynamic val) async{
-    String cutTableApi =ipAddress+"api/getTransferredData";
+    String cutTableApi ="${ipAddress}api/getTransferredData";
     print(val);
     // Use addPostFrameCallback to show the dialog
 
@@ -806,11 +805,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('Connection Error'),
-                  content: Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
+                  title: const Text('Connection Error'),
+                  content: const Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -830,11 +829,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Connection Error'),
-                content: Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
+                title: const Text('Connection Error'),
+                content: const Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -847,7 +846,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
   }
 
   Future<void> getInvoiceNumber(bool chk) async{
-    String cutTableApi =ipAddress+"api/getBranchTransferInvoiceNumber";
+    String cutTableApi ="${ipAddress}api/getBranchTransferInvoiceNumber";
     print(cutTableApi);
     // Use addPostFrameCallback to show the dialog
     if(!chk) {
@@ -907,11 +906,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('Connection Error'),
-                  content: Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
+                  title: const Text('Connection Error'),
+                  content: const Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -927,11 +926,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
             builder: (BuildContext context) {
               return
                 AlertDialog(
-                  title: Text('Connection Error'),
-                  content: Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
+                  title: const Text('Connection Error'),
+                  content: const Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
                   actions: <Widget>[
                     TextButton(
-                      child: Text('OK'),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.of(context).pop(); // Close the dialog
                       },
@@ -950,11 +949,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Connection Error'),
-                content: Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
+                title: const Text('Connection Error'),
+                content: const Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -970,11 +969,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
           builder: (BuildContext context) {
             return
               AlertDialog(
-                title: Text('Connection Error'),
-                content: Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
+                title: const Text('Connection Error'),
+                content: const Text("Conn Err:- Please Reopen this Page"), // Content of the dialog
                 actions: <Widget>[
                   TextButton(
-                    child: Text('OK'),
+                    child: const Text('OK'),
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                     },
@@ -1023,7 +1022,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
     if(gridHeightPercent>0.50){
       gridHeight= height*0.5;
     }else{
-      double length= transferList.length==0?initialHeightPercent:gridHeightPercent;
+      double length= transferList.isEmpty?initialHeightPercent:gridHeightPercent;
       gridHeight= height*length;
     }
 
@@ -1034,7 +1033,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
         onMenuPressed: (){
           Scaffold.of(context).openDrawer();
         }, barTitle: approve?"Approval Screen":"Godown Transfer",),
-      drawer: customDrawer(brhTransferCheck: true,stkTransferCheck: false,),
+      drawer: const customDrawer(brhTransferCheck: true,stkTransferCheck: false,),
       body: SingleChildScrollView(child: Column(children: [
         const Padding(padding:EdgeInsets.all(5)),
         BootstrapContainer(
@@ -1048,7 +1047,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                       showCursor: false,
                       readOnly: true,
                       controller: TextEditingController()..text= invoiceNum.toString(),
-                      decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Invoice No',
+                      decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Invoice No',
                           contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                           fillColor: Colors.white, filled: true),
                     ),
@@ -1071,14 +1070,14 @@ class _branchStateInstance extends State<branchTranseferPage>{
                       // readOnly: true,
                       decoration: InputDecoration(
                         labelText: 'Invoice Date',
-                        contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                        border: OutlineInputBorder(
+                        contentPadding: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                        border: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.red), // Change the border color here
                         ),
                         filled: true,
                         fillColor: Colors.white,
                         suffixIcon: IconButton(
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           onPressed: () async {
                             DateTime? pickedDate = await showDatePicker(
                               context: context,
@@ -1113,7 +1112,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                       showCursor: false,
                       readOnly: true,
                       controller: TextEditingController()..text= fromBranch.toString(),
-                      decoration: InputDecoration(border: OutlineInputBorder(),
+                      decoration: const InputDecoration(border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),labelText: 'From Branch',
                           fillColor: Colors.white, filled: true),
                     ),
@@ -1202,7 +1201,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
         //   },
         // ),),
 
-        !approve ?Padding(padding:EdgeInsets.fromLTRB(25, 10, 25, 0),
+        !approve ?Padding(padding:const EdgeInsets.fromLTRB(25, 10, 25, 0),
           child: Autocomplete<String>(
           optionsBuilder: (TextEditingValue textEditingValue) {
             if (textEditingValue.text.isEmpty) {
@@ -1231,11 +1230,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
                 // }
               },
               onSubmitted: (value) {
-                if(toList.indexOf(value)==-1){
-                  controller..text="";
+                if(!toList.contains(value)){
+                  controller.text="";
                 }else{
                   setState(() {
-                    toBranch = value!;
+                    toBranch = value;
                     int idx = toList.indexOf(toBranch);
                     toBranchCompId = toListMasId[idx];
                     // customer = value!;
@@ -1247,7 +1246,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                   });
                 }
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 fillColor:  Colors.white,
                 filled: true,
                 labelText: "To Branch",
@@ -1270,7 +1269,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                     onTap: () {
                       onSelected(option);
                       setState(() {
-                        toBranch = option!;
+                        toBranch = option;
                         int idx = toList.indexOf(toBranch);
                         toBranchCompId = toListMasId[idx];
                         // stateCode=StateCodeList[idx];
@@ -1297,7 +1296,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                         showCursor: false,
                         readOnly: true,
                         controller: TextEditingController()..text= toBranch.toString(),
-                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'To Branch',
+                        decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'To Branch',
                             contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                             fillColor: Colors.white, filled: true),
                       ),
@@ -1310,7 +1309,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
 
         !approve?Column(children: [
           Padding(
-          padding: EdgeInsets.fromLTRB(25, 30, 25, 5),
+          padding: const EdgeInsets.fromLTRB(25, 30, 25, 5),
           child:
           Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1352,12 +1351,12 @@ class _branchStateInstance extends State<branchTranseferPage>{
                       },
                       onChanged: (value){
                         setState(() {
-                          item = value!;
-                          if(ItemList.indexOf(item) != -1){
+                          item = value;
+                          if(ItemList.contains(item)){
                             setState(() {
                               itemRate= RateList[ItemList.indexOf(item)];
                               itemId = ItemIdList[ItemList.indexOf(item)];
-                              print("Rate : "+ itemRate.toString());
+                              print("Rate : $itemRate");
                               rateTextController.text=itemRate.toString();
                             });
 
@@ -1369,12 +1368,12 @@ class _branchStateInstance extends State<branchTranseferPage>{
                         //   controller..text="";
                         // }else{
                         setState(() {
-                          item = value!;
-                          if(ItemList.indexOf(item) != -1){
+                          item = value;
+                          if(ItemList.contains(item)){
                             setState(() {
                               itemRate= RateList[ItemList.indexOf(item)];
                               itemId = ItemIdList[ItemList.indexOf(item)];
-                              print("Rate : "+ itemRate.toString());
+                              print("Rate : $itemRate");
                               rateTextController.text=itemRate.toString();
                             });
 
@@ -1382,7 +1381,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                         });
                         // }
                       },
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         fillColor: Colors.white,
                         filled: true,
                         labelText: "Item",
@@ -1405,14 +1404,14 @@ class _branchStateInstance extends State<branchTranseferPage>{
                             onTap: () {
                               onSelected(option);
                               setState(() {
-                                print("Selection : "+option);
-                                item = option!;
+                                print("Selection : $option");
+                                item = option;
                                 print(ItemList.indexOf(item));
-                                if(ItemList.indexOf(item) != -1){
+                                if(ItemList.contains(item)){
                                   setState(() {
                                     itemRate= RateList[ItemList.indexOf(item)];
                                     itemId = ItemIdList[ItemList.indexOf(item)];
-                                    print("Rate : "+ itemRate.toString());
+                                    print("Rate : $itemRate");
                                     rateTextController.text=itemRate.toString();
                                   });
 
@@ -1451,7 +1450,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                           }
                         },
                         controller: qtyTextController,
-                        decoration: InputDecoration(border: OutlineInputBorder(),
+                        decoration: const InputDecoration(border: OutlineInputBorder(),
                             contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                             labelText: 'Quantity',
                             fillColor: Colors.white, filled: true),
@@ -1477,7 +1476,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                           itemRate = double.parse(newValue);
                         },
                         controller: rateTextController,
-                        decoration: InputDecoration(border: OutlineInputBorder(),labelText: 'Rate',
+                        decoration: const InputDecoration(border: OutlineInputBorder(),labelText: 'Rate',
                             contentPadding: EdgeInsets.fromLTRB(15, 0, 0, 0),
                             fillColor: Colors.white, filled: true),
                       ),
@@ -1500,7 +1499,7 @@ class _branchStateInstance extends State<branchTranseferPage>{
                     // );
                     print("qty");
                     print(qty);
-                    if(qty != 0.0 && qty != null) {
+                    if(qty != 0.0) {
                       if(ItemList.contains(item) && toList.contains(toBranch)) {
                         getGridData(false);
                         _itemController.clear();
@@ -1516,11 +1515,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
                         builder: (BuildContext context) {
                           return
                             AlertDialog(
-                              title: Text('REASON'),
-                              content: Text("Please Enter The Qty"), // Content of the dialog
+                              title: const Text('REASON'),
+                              content: const Text("Please Enter The Qty"), // Content of the dialog
                               actions: <Widget>[
                                 TextButton(
-                                  child: Text('OK'),
+                                  child: const Text('OK'),
                                   onPressed: () {
                                     Navigator.of(context).pop(); // Close the dialog
                                   },
@@ -1533,15 +1532,15 @@ class _branchStateInstance extends State<branchTranseferPage>{
                   },
                   style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.black,
-                      backgroundColor: Color(0xFF004D40),
-                      textStyle: TextStyle(color: Colors.black,
+                      backgroundColor: const Color(0xFF004D40),
+                      textStyle: const TextStyle(color: Colors.black,
                           fontWeight: FontWeight.bold)
                   ),
-                  child: Text('Save', style: TextStyle(
+                  child: const Text('Save', style: TextStyle(
                       color: Colors.white
                   ),),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () {
                     getGridData(true);
@@ -1554,30 +1553,30 @@ class _branchStateInstance extends State<branchTranseferPage>{
                   },
                   style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.black,
-                      backgroundColor: Color(0xFF004D40),
-                      textStyle: TextStyle(color: Colors.black,
+                      backgroundColor: const Color(0xFF004D40),
+                      textStyle: const TextStyle(color: Colors.black,
                           fontWeight: FontWeight.bold)
                   ),
-                  child: Text('Delete', style: TextStyle(
+                  child: const Text('Delete', style: TextStyle(
                       color: Colors.white
                   ),),
                 ),
               ],)
-          ),],):SizedBox(height: 0,),
+          ),],):const SizedBox(height: 0,),
 
-        Padding(padding: EdgeInsets.fromLTRB(0, 25, 0, 0)),
-        Container(height: gridHeight,
+        const Padding(padding: EdgeInsets.fromLTRB(0, 25, 0, 0)),
+        SizedBox(height: gridHeight,
           child:SfDataGridTheme(
           data: SfDataGridThemeData(
-            currentCellStyle: DataGridCurrentCellStyle(
+            currentCellStyle: const DataGridCurrentCellStyle(
               borderWidth: 2,
               borderColor: Colors.pinkAccent,
             ),
             selectionColor: Colors.lightGreen[50],
-            headerColor: Color(0xFF004D40),
+            headerColor: const Color(0xFF004D40),
           ),
           child: Container(
-            margin: EdgeInsets.fromLTRB(//width > 1400 ? 75
+            margin: const EdgeInsets.fromLTRB(//width > 1400 ? 75
                 0, 0, 0, 0),
             child:
             SfDataGrid(
@@ -1597,9 +1596,9 @@ class _branchStateInstance extends State<branchTranseferPage>{
                   width: 65,
                   allowEditing: false,
                   label: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     alignment: Alignment.centerLeft,
-                    child: Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                    child: const Text('SNO', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                   ),
                 ),
                 GridColumn(
@@ -1607,18 +1606,18 @@ class _branchStateInstance extends State<branchTranseferPage>{
                   width: 75,
                   visible: false,
                   label: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     alignment: Alignment.center,
-                    child: Text('ItemId', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                    child: const Text('ItemId', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                   ),
                 ),
                 GridColumn(
                   columnName: 'itemName',
                   width: 250,
                   label: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     alignment: Alignment.center,
-                    child: Text('Particular', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                    child: const Text('Particular', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                   ),
                 ),
                 // GridColumn(
@@ -1635,27 +1634,27 @@ class _branchStateInstance extends State<branchTranseferPage>{
                   width: 100,
                   allowEditing: true,
                   label: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     alignment: Alignment.center,
-                    child: Text('Quantity', overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white)),
+                    child: const Text('Quantity', overflow: TextOverflow.ellipsis,style: TextStyle(color: Colors.white)),
                   ),
                 ),
                 GridColumn(
                   columnName: 'rate',
                   width: 100,
                   label: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     alignment: Alignment.center,
-                    child: Text('Rate', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                    child: const Text('Rate', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                   ),
                 ),
                 GridColumn(
                   columnName: 'amount',
                   width: 100,
                   label: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     alignment: Alignment.center,
-                    child: Text('Amount', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
+                    child: const Text('Amount', overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],
@@ -1677,26 +1676,26 @@ class _branchStateInstance extends State<branchTranseferPage>{
                 setState(() {
                   qty=data?.getCells()[6].value;
                   qtyTextController.text=data!.getCells()[6].value.toString();
-                  _itemController..text=data?.getCells()[2].value;
-                  rateTextController.text=data!.getCells()[7].value.toString();
-                  itemRate = data?.getCells()[7].value;
+                  _itemController.text=data.getCells()[2].value;
+                  rateTextController.text=data.getCells()[7].value.toString();
+                  itemRate = data.getCells()[7].value;
                 });
               },
               columnWidthMode: ColumnWidthMode.fill,
             ),
           ),
         ),),
-        Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
+        const Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
         Center(child:
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(width: 20,),Text("Total Amount : - ${grandTotalAmount}"),
-            SizedBox(width: 20,),
+            const SizedBox(width: 20,),Text("Total Amount : - $grandTotalAmount"),
+            const SizedBox(width: 20,),
             ElevatedButton(
               onPressed: () {
                 if(!approve) {
-                  if (transferList.length > 0) {
+                  if (transferList.isNotEmpty) {
                     List<dynamic> detList = [];
                     for (int i = 0; i < transferList.length; i++) {
                       detList.add({
@@ -1726,13 +1725,13 @@ class _branchStateInstance extends State<branchTranseferPage>{
                       builder: (BuildContext context) {
                         return
                           AlertDialog(
-                            title: Text('ALERT'),
-                            content: Text(
+                            title: const Text('ALERT'),
+                            content: const Text(
                                 "Please Save The Item, Before Transfer"),
                             // Content of the dialog
                             actions: <Widget>[
                               TextButton(
-                                child: Text('OK'),
+                                child: const Text('OK'),
                                 onPressed: () {
                                   Navigator.of(context)
                                       .pop(); // Close the dialog
@@ -1752,13 +1751,13 @@ class _branchStateInstance extends State<branchTranseferPage>{
                       builder: (BuildContext context) {
                         return
                           AlertDialog(
-                            title: Text('ALERT'),
+                            title: const Text('ALERT'),
                             content:const Text(
                                 "No valid Items to Approve"),
                             // Content of the dialog
                             actions: <Widget>[
                               TextButton(
-                                child: Text('OK'),
+                                child: const Text('OK'),
                                 onPressed: () {
                                   Navigator.of(context)
                                       .pop(); // Close the dialog
@@ -1773,11 +1772,11 @@ class _branchStateInstance extends State<branchTranseferPage>{
               },
               style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.black,
-                  backgroundColor: Color(0xFF004D40),
-                  textStyle: TextStyle(color: Colors.black,
+                  backgroundColor: const Color(0xFF004D40),
+                  textStyle: const TextStyle(color: Colors.black,
                       fontWeight: FontWeight.bold)
               ),
-              child: Text(approve?'Approve':'Save', style: TextStyle(
+              child: Text(approve?'Approve':'Save', style: const TextStyle(
                   color: Colors.white
               ),),
             ),],)
@@ -1954,8 +1953,8 @@ class EmployeeDataSource extends DataGridSource {
         controller: editingController..text = displayText,
         textAlign: isNumericType ? TextAlign.right : TextAlign.left,
         autocorrect: false,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 16.0),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 16.0),
         ),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.allow(regExp)
@@ -1990,7 +1989,7 @@ class EmployeeDataSource extends DataGridSource {
                   dataGridCell.columnName == 'salary')
                   ? Alignment.center
                   : Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 dataGridCell.value.toString(),
                 overflow: TextOverflow.ellipsis,
