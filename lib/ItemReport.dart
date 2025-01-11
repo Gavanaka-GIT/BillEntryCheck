@@ -426,7 +426,7 @@ class _itemReport extends State<itemReportPage>{
                                 columnName: 'itemId',
                                 width: width<500?115:width*0.25,
                                 allowFiltering: false,
-                                visible: true,
+                                visible: false,
                                 label: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   alignment: Alignment.center,
@@ -459,14 +459,16 @@ class _itemReport extends State<itemReportPage>{
                         String masId =_dataGridController.selectedRow?.getCells()[8].value;
                         print(masId);
                         dynamic selectedVal;
-                        // for(int i=0;i<transferList.length;i++) {
-                        //   if(masId == transferList[i]['itemId'].toString()){
-                        //     selectedVal= transferList[i];
-                        //     break;
-                        //   }
-                        // }
+                        for(int i=0;i<transferList.length;i++) {
+                          print(masId.toString());
+                          print(transferList[i]['itemId'].toString());
+                          if(masId.toString() == transferList[i]['ItemId'].toString()){
+                            selectedVal= transferList[i];
+                            break;
+                          }
+                        }
                         print(selectedVal);
-                        ledgerData= jsonEncode({"ledgerName":value, "selectedValue":masId});
+                        ledgerData= jsonEncode({"ledgerName":value, "selectedValue":selectedVal});
                         setState(() {
                           mainChk=false;
                           // _stockReportDetSource = StockReportDetSource(stockReportDet: tempStockReportDet);
@@ -486,8 +488,7 @@ class _itemReport extends State<itemReportPage>{
                         //     // _stockReportDetSource = StockReportDetSource(stockReportDet: tempStockReportDet);
                         //   });
                         //
-                      }
-                      else{
+                      } else{
                         showDialog(context: context, builder:(BuildContext context) {
                           return
                             AlertDialog(

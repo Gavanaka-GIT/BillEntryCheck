@@ -80,6 +80,7 @@ class _LedgerState extends State<ItemLedger> {
   String uomId="";
   String altUomName="";
   String altUomId="";
+  String itemId="";
 
   Future<void> fetchIntialData() async{
     String url= "${ipAddress}api/getItemFetchData";
@@ -123,6 +124,62 @@ class _LedgerState extends State<ItemLedger> {
             uomList.add(uomRes[i]['Uom'].toString());
             uomIdList.add(uomRes[i]['UomId'].toString());
             altUomList.add(uomRes[i]['Uom'].toString());
+          }
+
+          var updVal= jsonDecode(widget.approvedData);
+          print(updVal);
+          updChk= updVal["approve"];
+          if(updChk) {
+            print("check Point");
+            print(updVal['selectedData']);
+            // print(updVal['selectedData']['selectedValue']['item']);
+            setState(() {
+              var selectedData = jsonDecode(updVal['selectedData']);
+              print(selectedData);
+              var selectedValue = selectedData['selectedValue'];
+              print(selectedValue);
+              itemNameController.text = selectedValue['item'].toString();
+              itemCodeController.text = selectedValue['ItemCode'].toString();
+              ItemGroupName= selectedValue['Item_Group'].toString();
+              int grpIdx = itemGroupList.indexOf(ItemGroupName);
+              if(grpIdx !=-1) {
+                ItemGroupId= itemGroupIdList[grpIdx];
+              }
+              uomName = selectedValue['Uom'].toString();
+
+              int uomIdx= uomList.indexOf(uomName);
+              if(uomIdx !=-1){
+                uomId=uomIdList[uomIdx];
+              }
+              print('check 1');
+              hsnCodeController.text= selectedValue['Hsn'].toString();
+              checkBox= selectedValue['IsActive'].toString()=="Y"?true:false;
+              salesRateController.text= selectedValue['SalesRate'].toString();
+              itemId = selectedValue['ItemId'].toString();
+              ItemTypeName= selectedValue['ItemType'].toString();
+              int typeIdx = itemTypeList.indexOf(ItemTypeName);
+              if(typeIdx != -1){
+                LookUpName = lookUpList[typeIdx];
+              }
+              print('check 2');
+              conversionController.text = selectedValue['conv1'].toString();
+              conversion2Controller.text = selectedValue['conv2'].toString();
+              discountController.text = selectedValue['Disp'].toString();
+              gstController.text = selectedValue['GstP'].toString();
+              igstController.text = selectedValue['Igstp'].toString();
+              cgstController.text = selectedValue['Cgstp'].toString();
+              sgstController.text= selectedValue['Sgstp'].toString();
+              print('check 3');
+              openingQtyController.text= selectedValue['opQty'].toString();
+              rateController.text=selectedValue['opRate'].toString();
+              amountController.text= selectedValue['opAmt'].toString();
+              int idx= uomIdList.indexOf(selectedValue['SecUomId'].toString());
+              print(idx.toString()+"Check");
+              if(idx !=-1) {
+                altUomName = uomList[idx].toString();
+                altUomId =uomIdList[idx].toString();
+              }
+            });
           }
 
         }else{
@@ -188,6 +245,9 @@ class _LedgerState extends State<ItemLedger> {
 
         if (saveChk) {
           setState(() {
+            if(updChk){
+              updChk=false;
+            }
             itemNameController .clear();
             itemCodeController .clear();
             conversionController .clear();
@@ -297,11 +357,10 @@ class _LedgerState extends State<ItemLedger> {
   }
 
   @override
-  void initState() {
-    var updVal= jsonDecode(widget.approvedData);
-    print(updVal);
-    updChk= updVal["approve"];
-    fetchIntialData();
+  void initState()  {
+
+     fetchIntialData();
+
   }
 
 
@@ -350,6 +409,7 @@ class _LedgerState extends State<ItemLedger> {
                                 openingQtyController .clear();
                                 rateController .clear();
                                 amountController .clear();
+                                updChk=false;
                               });
 
                             },
@@ -1124,7 +1184,8 @@ class _LedgerState extends State<ItemLedger> {
                                   "opQty" : openingQtyController.text.toString(),
                                   "opRate" : rateController.text.toString(),
                                   "opAmt" : amountController.text.toString(),
-                                  "update": false
+                                  "Update": updChk,
+                                   "ItemId":itemId
                                  };
                                saveItemData(value);
                               }else{
@@ -1168,10 +1229,11 @@ class _LedgerState extends State<ItemLedger> {
                           ElevatedButton(
                             onPressed: () {
                               // Reset the form
-                              _formKey.currentState!.reset();
-                              print('Cancel button pressed');
-                              updChk=false;
-
+                              setState(() {
+                                _formKey.currentState!.reset();
+                                print('Cancel button pressed');
+                                updChk=false;
+                              });
                             },
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
