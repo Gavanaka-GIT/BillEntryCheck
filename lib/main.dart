@@ -41,7 +41,7 @@ Future main() async {
           '/Home/purchase': (context) => const purchaseReportPage(),
           '/Home/ledger': (context) => Ledger(approvedData: jsonEncode({"approve":false, "selectedData": ""})),
           '/Home/settings':(context)=> const SettingsPage(),
-          '/Home/Item': (context)=> ItemLedger(),
+          '/Home/Item': (context)=> ItemLedger(approvedData: jsonEncode({"approve":false, "selectedData": ""})),
         },
       )
   );

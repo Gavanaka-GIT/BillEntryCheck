@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:billentry/CustomWidgets/appBar.dart';
 import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:billentry/GlobalVariables.dart';
+import 'package:billentry/ItemReport.dart';
 import 'package:billentry/LedgerReport.dart';
 import 'package:billentry/main.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -10,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ItemLedger extends StatefulWidget {
+  final dynamic approvedData;
+  const ItemLedger({super.key, required this.approvedData});
 
   @override
   State<ItemLedger> createState() => _LedgerState();
@@ -295,6 +298,9 @@ class _LedgerState extends State<ItemLedger> {
 
   @override
   void initState() {
+    var updVal= jsonDecode(widget.approvedData);
+    print(updVal);
+    updChk= updVal["approve"];
     fetchIntialData();
   }
 
@@ -322,6 +328,79 @@ class _LedgerState extends State<ItemLedger> {
               key: _formKey,
               child: Column(
                 children: [
+                  Center(
+                      child:
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {// Handle tap action here, e.g., navigating to another screen or showing a message
+                              setState(() {
+                                itemNameController .clear();
+                                itemCodeController .clear();
+                                conversionController .clear();
+                                conversion2Controller .clear();
+                                hsnCodeController .clear();
+                                salesRateController .clear();
+                                discountController .clear();
+                                cgstController .clear();
+                                igstController .clear();
+                                sgstController .clear();
+                                gstController .clear();
+                                openingQtyController .clear();
+                                rateController .clear();
+                                amountController .clear();
+                              });
+
+                            },
+                            child: Card(
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              color: const Color(0xFF004D40),
+                              child: Container(
+                                width: 90,  // You can adjust the width as per your needs
+                                height: 30, // You can adjust the height as per your needs
+                                alignment: Alignment.center, // Center the text within the container
+                                child: const Text(
+                                  "New",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,  // You can adjust the font size
+                                    fontWeight: FontWeight.bold,  // Optional: Add bold style for emphasis
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              // Handle tap action here, e.g., navigating to another screen or showing a message
+                              print('Card tapped!');
+                              Navigator.push(context,MaterialPageRoute(builder:(context)=>const itemReportPage()));
+                            },
+                            child: Card(
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              color: const Color(0xFF004D40),
+                              child: Container(
+                                width: 90,  // You can adjust the width as per your needs
+                                height: 30, // You can adjust the height as per your needs
+                                alignment: Alignment.center, // Center the text within the container
+                                child: const Text(
+                                  "ItemList",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,  // You can adjust the font size
+                                    fontWeight: FontWeight.bold,  // Optional: Add bold style for emphasis
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),],)
+
+                  ),
+                  const SizedBox(height: 5),
+
                   Row(
                     children: [
                       Expanded(
