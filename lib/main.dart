@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:billentry/GlobalVariables.dart';
+import 'package:billentry/Item.dart';
 import 'package:billentry/branchApproval.dart';
 import 'package:billentry/branchTransfer.dart';
 import 'package:billentry/homepage.dart';
@@ -39,7 +40,8 @@ Future main() async {
           '/Home/sales': (context) => const salesReportPage(),
           '/Home/purchase': (context) => const purchaseReportPage(),
           '/Home/ledger': (context) => Ledger(approvedData: jsonEncode({"approve":false, "selectedData": ""})),
-          '/Home/settings':(context)=> const SettingsPage()
+          '/Home/settings':(context)=> const SettingsPage(),
+          '/Home/Item': (context)=> ItemLedger(),
         },
       )
   );

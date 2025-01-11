@@ -495,13 +495,16 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           height: 40,
                                           decoration: const pw.BoxDecoration(border:
                                           pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                          child: pw.Column(children: [
+                                          child: pw.Column(
+                                            mainAxisAlignment: pw.MainAxisAlignment.start,
+                                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                              children: [
                                             pw.SizedBox(height: 5),
-                                            pw.Text(companyData['getInvData'][0]['InvNo'].toString() != "null" || companyData['getInvData'][0]['InvNo'].toString() !=""? companyData['getInvData'][0]['InvNo'].toString(): "",
-                                                style: const pw.TextStyle(fontSize: 10)),
+                                            pw.Padding(padding: pw.EdgeInsets.fromLTRB(5, 0, 0, 0), child:pw.Text(companyData['getInvData'][0]['InvNo'].toString() != "null" || companyData['getInvData'][0]['InvNo'].toString() !=""? companyData['getInvData'][0]['InvNo'].toString(): "",
+                                                style: const pw.TextStyle(fontSize: 10), textAlign:  pw.TextAlign.start), ),
                                             pw.SizedBox(height: 7),
-                                            pw.Text(companyData['getInvData'][0]['InvDate'].toString() != "null"? companyData['getInvData'][0]['InvDate'].toString(): "",
-                                                style: const pw.TextStyle(fontSize: 10)),
+                                          pw.Padding(padding: pw.EdgeInsets.fromLTRB(5, 0, 0, 0), child:pw.Text(companyData['getInvData'][0]['InvDate'].toString() != "null"? companyData['getInvData'][0]['InvDate'].toString(): "",
+                                              style: const pw.TextStyle(fontSize: 10))),
                                           ])
                                       ),
                                       pw.Container(
@@ -527,13 +530,19 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           height: 40,
                                           decoration: const pw.BoxDecoration(border:
                                           pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
-                                          child: pw.Column(children: [
+                                          child: pw.Column(
+                                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                            mainAxisAlignment: pw.MainAxisAlignment.start,
+                                              children: [
                                             pw.SizedBox(height: 5),
-                                            pw.Text(companyData['getInvData'][0]['Transport'].toString() != "null" && companyData['getInvData'][0]['Transport'].toString() != "" ? companyData['getInvData'][0]['Transport'].toString(): "-",
-                                                style: const pw.TextStyle(fontSize: 10)),
+                                            pw.Padding(padding: pw.EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                            child: pw.Text(companyData['getInvData'][0]['Transport'].toString() != "null" && companyData['getInvData'][0]['Transport'].toString() != "" ? companyData['getInvData'][0]['Transport'].toString(): "-",
+                                                style: const pw.TextStyle(fontSize: 10)),),
                                             pw.SizedBox(height: 7),
-                                            pw.Text(companyData['getInvData'][0]['ShipStateName'].toString() != "null" && companyData['getInvData'][0]['ShipStateName'].toString() != ""? companyData['getInvData'][0]['ShipStateName'].toString(): "-",
-                                                style: const pw.TextStyle(fontSize: 10)),
+                                            pw.Padding(padding: pw.EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                            child: pw.Text(companyData['getInvData'][0]['ShipStateName'].toString() != "null" && companyData['getInvData'][0]['ShipStateName'].toString() != ""? companyData['getInvData'][0]['ShipStateName'].toString(): "-",
+                                                style: const pw.TextStyle(fontSize: 10)),),
+
                                           ])
                                       )
                                     ]
@@ -596,8 +605,14 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                               )
                                           ),
                                           child: pw.Column(
+                                            mainAxisAlignment: pw.MainAxisAlignment.start,
+                                            crossAxisAlignment: pw.CrossAxisAlignment.start,
                                             children: [
-                                              pw.Container(height: 66.5, child: pw.Column(children: [pw.SizedBox(height: 5.5),
+                                              pw.Padding(padding: pw.EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                              child:pw.Container(height: 66.5, child: pw.Column(
+                                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                                  children: [pw.SizedBox(height: 5.5),
                                                 pw.Text(companyData['getInvData'][0]['BillSupName'].toString() != "null"?companyData['getInvData'][0]['BillSupName'].toString():"",
                                                     textAlign: pw.TextAlign.center,
                                                     style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
@@ -606,9 +621,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                 pw.Text(companyData['getInvData'][0]['BillSupAdd2'].toString() != "null"?companyData['getInvData'][0]['BillSupAdd2'].toString():"", textAlign: pw.TextAlign.center,
                                                     style: const pw.TextStyle( fontSize: 10)),
                                                 pw.Text(companyData['getInvData'][0]['BillSupAdd3'].toString() != "null"?companyData['getInvData'][0]['BillSupAdd3'].toString():"", textAlign: pw.TextAlign.center,
-                                                    style: const pw.TextStyle( fontSize: 10))])),
-                                              pw.Text("GSTIN : ${companyData['getInvData'][0]['BillGstNo'].toString() != "null"?companyData['getInvData'][0]['BillGstNo'].toString():""}",style: const pw.TextStyle( fontSize: 10)),
-                                              pw.Text(companyData['getInvData'][0]['BillStateName'].toString() != "null"?companyData['getInvData'][0]['BillStateName'].toString() :"", style: const pw.TextStyle( fontSize: 10))
+                                                    style: const pw.TextStyle( fontSize: 10))]))),
+                                              pw.Padding(padding: pw.EdgeInsets.fromLTRB(5, 0, 0, 0),child: pw.Text("GSTIN : ${companyData['getInvData'][0]['BillGstNo'].toString() != "null"?companyData['getInvData'][0]['BillGstNo'].toString():""}",style: const pw.TextStyle( fontSize: 10)),),
+                                              pw.Padding(padding: pw.EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                                  child: pw.Text(companyData['getInvData'][0]['BillStateName'].toString() != "null"?companyData['getInvData'][0]['BillStateName'].toString() :"", style: const pw.TextStyle( fontSize: 10))),
+
                                             ],
                                           )
                                       ),
@@ -621,8 +638,13 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                               )
                                           ),
                                           child: pw.Column(
+                                            mainAxisAlignment: pw.MainAxisAlignment.start,
+                                            crossAxisAlignment: pw.CrossAxisAlignment.start,
                                             children: [
-                                              pw.Container(height: 66.5, child: pw.Column(children: [
+                                              pw.Padding(padding: pw.EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                              child: pw.Container(height: 66.5, child: pw.Column(
+                                                  mainAxisAlignment: pw.MainAxisAlignment.start,
+                                                  crossAxisAlignment: pw.CrossAxisAlignment.start,children: [
                                                 pw.SizedBox(height: 5.5),
                                                 pw.Text(companyData['getInvData'][0]['ShipSupName'].toString()  != "null"?companyData['getInvData'][0]['ShipSupName'].toString():"" ,
                                                     textAlign: pw.TextAlign.center,
@@ -630,9 +652,11 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                                 pw.Text(companyData['getInvData'][0]['ShipSupAdd1'].toString()  != "null"?companyData['getInvData'][0]['ShipSupAdd1'].toString():""
                                                     ,textAlign:pw.TextAlign.center,style: const pw.TextStyle( fontSize: 10)),
                                                 pw.Text(companyData['getInvData'][0]['ShipSupAdd2'].toString()  != "null"?companyData['getInvData'][0]['ShipSupAdd2'].toString():"", textAlign: pw.TextAlign.center,style: const pw.TextStyle( fontSize: 10)),
-                                                pw.Text(companyData['getInvData'][0]['ShipSupAdd3'].toString()  != "null"?companyData['getInvData'][0]['ShipSupAdd3'].toString():"", textAlign: pw.TextAlign.center,style: const pw.TextStyle( fontSize: 10))])),
-                                              pw.Text("GSTIN : ${companyData['getInvData'][0]['ShipGstNo'].toString()  != "null"?companyData['getInvData'][0]['ShipGstNo'].toString() :""}",style: const pw.TextStyle( fontSize: 10)),
-                                              pw.Text(companyData['getInvData'][0]['ShipStateName'].toString() ,style: const pw.TextStyle( fontSize: 10))
+                                                pw.Text(companyData['getInvData'][0]['ShipSupAdd3'].toString()  != "null"?companyData['getInvData'][0]['ShipSupAdd3'].toString():"", textAlign: pw.TextAlign.center,style: const pw.TextStyle( fontSize: 10))])),),
+                                              pw.Padding(padding: pw.EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                                child: pw.Text("GSTIN : ${companyData['getInvData'][0]['ShipGstNo'].toString()  != "null"?companyData['getInvData'][0]['ShipGstNo'].toString() :""}",style: const pw.TextStyle( fontSize: 10)),),
+                                              pw.Padding(padding: pw.EdgeInsets.fromLTRB(5, 0, 0, 0),  child: pw.Text(companyData['getInvData'][0]['ShipStateName'].toString() ,style: const pw.TextStyle( fontSize: 10)))
+
                                             ],
                                           )
                                       )
@@ -820,9 +844,12 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                           child: pw.Row(
                                               children: [
+                                                pw.Padding(padding: pw.EdgeInsets.fromLTRB(0, 0, 3, 0), child:
                                                 pw.Text(companyData['getInvData'][0]['TotAmount'].toString()  != "null"?companyData['getInvData'][0]['TotAmount'].toString():"", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 12)
                                                 ),
-                                              ], mainAxisAlignment: pw.MainAxisAlignment.center)
+                                                )
+
+                                              ], mainAxisAlignment: pw.MainAxisAlignment.end)
                                       )
                                     ]
                                 )
@@ -893,9 +920,10 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       height: 110,
                                       decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
                                           color: PdfColors.black))),
-                                      child: pw.Column(children: [
+                                      child:pw.Padding(padding: pw.EdgeInsets.fromLTRB(0, 0,5, 0), child: pw.Column(crossAxisAlignment:pw.CrossAxisAlignment.end,children: [
                                         pw.SizedBox(height: 5),
-                                        pw.Text(companyData['getInvData'][0]['DiscAmt'].toString()  != "null"?companyData['getInvData'][0]['DiscAmt'].toString():"", style: const pw.TextStyle(fontSize: 10)),
+                                        pw.Text(companyData['getInvData'][0]['DiscAmt'].toString()  != "null"?companyData['getInvData'][0]['DiscAmt'].toString():"", style: const pw.TextStyle(fontSize: 10),
+                                            textAlign: pw.TextAlign.end),
                                         pw.SizedBox(height: 5),
                                         pw.Text(companyData['getInvData'][0]['CGST'].toString()  != "null"?companyData['getInvData'][0]['CGST'].toString():"", style: const pw.TextStyle(fontSize: 10)),
                                         pw.SizedBox(height: 5),
@@ -903,6 +931,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         pw.SizedBox(height: 5),
                                         pw.Text(companyData['getInvData'][0]['RoundAmt'].toString()  != "null"?companyData['getInvData'][0]['RoundAmt'].toString():"", style: const pw.TextStyle(fontSize: 10))
                                       ]))
+                                  )
+
                                 ])),
                             pw.Container(width: PdfPageFormat.a4.width-40,
                                 height: 20,
@@ -926,14 +956,22 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           border: pw.Border(
                                               right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                       child: pw.Row(children:[
-                                        pw.SizedBox(width: 7.5),
+                                        pw.SizedBox(width: 27.5),
                                         pw.Text("Net Amount",style:pw.TextStyle(
                                             fontWeight: pw.FontWeight.bold,fontSize: 10
                                         )),
-                                        pw.SizedBox(width: 73.5),
-                                        pw.Text(companyData['getInvData'][0]['NetAmount'].toString()  != "null"?companyData['getInvData'][0]['NetAmount'].toString():"", style:pw.TextStyle(
-                                            fontWeight: pw.FontWeight.bold,fontSize: 10
-                                        ),textAlign: pw.TextAlign.end ),
+                                        pw.SizedBox(width: 63.5),
+                                        pw.Container(width: 70,
+                                        child: pw.Column(
+                                          crossAxisAlignment: pw.CrossAxisAlignment.end,
+                                            children: [
+                                              pw.SizedBox(height: 2),
+                                        pw.Padding(padding:pw.EdgeInsets.fromLTRB(0, 0, 3, 0),
+                                        child:pw.Text(companyData['getInvData'][0]['NetAmount'].toString()  != "null"?companyData['getInvData'][0]['NetAmount'].toString():"", style:pw.TextStyle(
+                                        fontWeight: pw.FontWeight.bold,fontSize: 12
+                                        ),textAlign: pw.TextAlign.end ),)
+                                        ]),),
+
                                         pw.SizedBox(width: 23.5),], mainAxisAlignment: pw.MainAxisAlignment.center,
                                           crossAxisAlignment: pw.CrossAxisAlignment.center) )
                                 ], )
@@ -1223,9 +1261,12 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                             child: pw.Row(
                                                 children: [
+                                                  pw.Padding(padding: pw.EdgeInsets.fromLTRB(0, 0, 3, 0), child:
                                                   pw.Text(companyData['getInvData'][0]['TotAmount'].toString()  != "null"?companyData['getInvData'][0]['TotAmount'].toString():"", style: pw.TextStyle( fontWeight: pw.FontWeight.bold,fontSize: 12)
                                                   ),
-                                                ], mainAxisAlignment: pw.MainAxisAlignment.center)
+                                                  )
+
+                                                ], mainAxisAlignment: pw.MainAxisAlignment.end)
                                         )
                                       ]
                                   )
@@ -1296,9 +1337,10 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                         height: 110,
                                         decoration: const pw.BoxDecoration(border: pw.Border(right: pw.BorderSide(width: 1,
                                             color: PdfColors.black))),
-                                        child: pw.Column(children: [
+                                        child:pw.Padding(padding: pw.EdgeInsets.fromLTRB(0, 0,5, 0), child: pw.Column(crossAxisAlignment:pw.CrossAxisAlignment.end,children: [
                                           pw.SizedBox(height: 5),
-                                          pw.Text(companyData['getInvData'][0]['DiscAmt'].toString()  != "null"?companyData['getInvData'][0]['DiscAmt'].toString():"", style: const pw.TextStyle(fontSize: 10)),
+                                          pw.Text(companyData['getInvData'][0]['DiscAmt'].toString()  != "null"?companyData['getInvData'][0]['DiscAmt'].toString():"", style: const pw.TextStyle(fontSize: 10),
+                                              textAlign: pw.TextAlign.end),
                                           pw.SizedBox(height: 5),
                                           pw.Text(companyData['getInvData'][0]['CGST'].toString()  != "null"?companyData['getInvData'][0]['CGST'].toString():"", style: const pw.TextStyle(fontSize: 10)),
                                           pw.SizedBox(height: 5),
@@ -1306,6 +1348,7 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                           pw.SizedBox(height: 5),
                                           pw.Text(companyData['getInvData'][0]['RoundAmt'].toString()  != "null"?companyData['getInvData'][0]['RoundAmt'].toString():"", style: const pw.TextStyle(fontSize: 10))
                                         ]))
+                                    )
                                   ])),
                               pw.Container(width: PdfPageFormat.a4.width-40,
                                   height: 20,
@@ -1329,14 +1372,22 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                             border: pw.Border(
                                                 right: pw.BorderSide(width: 1, color: PdfColors.black))),
                                         child: pw.Row(children:[
-                                          pw.SizedBox(width: 7.5),
+                                          pw.SizedBox(width: 27.5),
                                           pw.Text("Net Amount",style:pw.TextStyle(
                                               fontWeight: pw.FontWeight.bold,fontSize: 10
                                           )),
-                                          pw.SizedBox(width: 73.5),
-                                          pw.Text(companyData['getInvData'][0]['NetAmount'].toString()  != "null"?companyData['getInvData'][0]['NetAmount'].toString():"", style:pw.TextStyle(
-                                              fontWeight: pw.FontWeight.bold,fontSize: 10
-                                          ),textAlign: pw.TextAlign.end ),
+                                          pw.SizedBox(width: 63.5),
+                                          pw.Container(width: 70,
+                                            child: pw.Column(
+                                                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                                                children: [
+                                                  pw.SizedBox(height: 2),
+                                                  pw.Padding(padding:pw.EdgeInsets.fromLTRB(0, 0, 3, 0),
+                                                    child:pw.Text(companyData['getInvData'][0]['NetAmount'].toString()  != "null"?companyData['getInvData'][0]['NetAmount'].toString():"", style:pw.TextStyle(
+                                                        fontWeight: pw.FontWeight.bold,fontSize: 12
+                                                    ),textAlign: pw.TextAlign.end ),)
+                                                ]),),
+
                                           pw.SizedBox(width: 23.5),], mainAxisAlignment: pw.MainAxisAlignment.center,
                                             crossAxisAlignment: pw.CrossAxisAlignment.center) )
                                   ], )

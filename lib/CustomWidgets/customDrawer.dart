@@ -39,6 +39,7 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
             'Master',
             [
               _buildListTile(context, Icons.person_add_alt_1, 'Ledger', '/Home/ledger'),
+              _buildListTile(context, Icons.shopping_cart, 'Item', '/Home/Item')
             ],
           ),
 
