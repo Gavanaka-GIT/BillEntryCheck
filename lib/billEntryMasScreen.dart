@@ -2653,7 +2653,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                   children: <BootstrapCol>[
                                     BootstrapCol(
                                       sizes: 'col-md-12',
-                                      child: TextField(
+                                      child:
+                                      TextField(
                                         controller: date,
                                         // textAlign: TextAlign.center,
                                         readOnly: true,
@@ -2716,7 +2717,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                               children:[
                                 !approvalValue?
                                  Padding(padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-                                child:Autocomplete<String>(
+                                child:
+                                Autocomplete<String>(
                                   optionsBuilder: (TextEditingValue textEditingValue) {
                                     if (textEditingValue.text.isEmpty) {
                                       return const Iterable<String>.empty();
@@ -2801,7 +2803,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       ),
                                     );
                                   },
-                                ) ,)
+                                ) ,
+                                 )
                                 :
                                  BootstrapContainer(
                                     fluid: true,
@@ -3017,7 +3020,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       sizes: 'col-md-12',
                                       child:
                                           Row(children: [
-                                            Expanded(child:DropdownButtonFormField2<String>(
+                                            Expanded(child:
+                                            DropdownButtonFormField2<String>(
                                               isExpanded: true,
                                               value: payType,
                                               decoration: const InputDecoration(
@@ -3166,7 +3170,8 @@ class _billEntryFirstState extends State<billEntryFirstScreen> {
                                       sizes: 'col-md-12',
                                       child:
                                           Row(children: [
-                                            Expanded(child:DropdownButtonFormField2<String>(
+                                            Expanded(child:
+                                            DropdownButtonFormField2<String>(
                                               isExpanded: true,
                                               value: payType,
                                               decoration: const InputDecoration(

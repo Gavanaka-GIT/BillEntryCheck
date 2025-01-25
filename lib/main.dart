@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:animate_do/animate_do.dart';
 import 'package:billentry/GlobalVariables.dart';
 import 'package:billentry/Item.dart';
+import 'package:billentry/PartyStatement.dart';
 import 'package:billentry/branchApproval.dart';
 import 'package:billentry/branchTransfer.dart';
 import 'package:billentry/homepage.dart';
@@ -42,6 +43,7 @@ Future main() async {
           '/Home/ledger': (context) => Ledger(approvedData: jsonEncode({"approve":false, "selectedData": ""})),
           '/Home/settings':(context)=> const SettingsPage(),
           '/Home/Item': (context)=> ItemLedger(approvedData: jsonEncode({"approve":false, "selectedData": ""})),
+          '/Home/Party': (context)=> partyReportPage()
         },
       )
   );
@@ -51,6 +53,14 @@ var globalUserName="";
 var globalEmailId="";
 var globalCompId=-1;
 var globalPrefix="";
+var globalAddress1="";
+var globalAddress2="";
+var globalAddress3="";
+var globalPinCode="";
+var globalPhoneNumber="";
+var globalMobileNumber="";
+var globalCompMailId="";
+var globalCompanyName="";
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -114,6 +124,22 @@ class _HomeState extends State<Home>  {
         globalCompId = data['result'];
         globalEmailId= data['EMAIL'];
         globalPrefix = data['result2'];
+        print(data['compDetails']);
+        // if(data['compDetails'].length()>0) {
+          print("Prefix Check Point 1");
+          globalAddress1 = data['compDetails']['CompanyAddress1'].toString() !="null"?data['compDetails']['CompanyAddress1'].toString():"";
+          globalAddress2 = data['compDetails']['CompanyAddress2'].toString() !="null"?data['compDetails']['CompanyAddress2'].toString() :"";
+          globalAddress3 = data['compDetails']['CompanyAddress3'].toString() !="null"?data['compDetails']['CompanyAddress3'].toString():"";
+          globalPinCode = data['compDetails']['CompanyPinCode'].toString() !="null"?data['compDetails']['CompanyPinCode'].toString():"";
+          print("Prefix Check Point 2");
+          globalPhoneNumber=data['compDetails']['Phone'].toString() !="null"?data['compDetails']['Phone'].toString():"";
+          globalMobileNumber=data['compDetails']['Mobile'].toString() != "null"?data['compDetails']['Mobile'].toString() :"";
+          globalCompMailId=data['compDetails']['Email'].toString() !="null"?data['compDetails']['Email'].toString():"";
+          globalCompanyName =data['compDetails']['CompanyName'].toString() !="null"?data['compDetails']['CompanyName'].toString():"";
+          print(globalAddress1);
+          print("Prefix Check Point 3");
+
+        // }
         print("Prefix Check Point");
         print(globalPrefix);
         Navigator.pop(context);

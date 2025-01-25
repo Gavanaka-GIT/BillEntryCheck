@@ -63,6 +63,7 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
               _buildListTile(context, Icons.table_chart, 'Stock Report', '/Home/stock', condition: !stkTransferCheck),
               _buildListTile(context, Icons.table_chart, 'Sales Report', '/Home/sales'),
               _buildListTile(context, Icons.table_chart, 'Purchase Report', '/Home/purchase'),
+              _buildListTile(context, Icons.table_chart,'Party Statement', '/Home/Party')
             ],
           ),
 
