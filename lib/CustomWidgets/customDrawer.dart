@@ -7,7 +7,8 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
   final bool stkTransferCheck;
   final bool brhTransferCheck;
 
-  const customDrawer({super.key, 
+  const customDrawer({
+    super.key,
     required this.stkTransferCheck,
     required this.brhTransferCheck,
   });
@@ -25,20 +26,22 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
               boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
             ),
             child: Padding(
-              padding: const EdgeInsets.only(top: 10.0), // Adjust padding for better alignment
+              padding: const EdgeInsets.only(
+                  top: 10.0), // Adjust padding for better alignment
               child: Center(
-                child: Image.asset('assets/icon/icon.png', height: 100), // Logo size adjustment
+                child: Image.asset('assets/icon/icon.png',
+                    height: 100), // Logo size adjustment
               ),
             ),
           ),
-
 
           _buildExpansionTile(
             context,
             Icons.account_box,
             'Master',
             [
-              _buildListTile(context, Icons.person_add_alt_1, 'Ledger', '/Home/ledger'),
+              _buildListTile(
+                  context, Icons.person_add_alt_1, 'Ledger', '/Home/ledger'),
               _buildListTile(context, Icons.shopping_cart, 'Item', '/Home/Item')
             ],
           ),
@@ -49,8 +52,14 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
             Icons.input,
             'Entry',
             [
-              _buildListTile(context, Icons.shopping_cart, 'Sales', '/Home/billEntry'),
-              _buildListTile(context, Icons.shopping_bag, 'Purchase', '/Home/purchaseEntry'),
+              _buildListTile(
+                  context, Icons.shopping_cart, 'Sales', '/Home/billEntry'),
+              _buildListTile(context, Icons.shopping_bag, 'Purchase',
+                  '/Home/purchaseEntry'),
+              _buildListTile(
+                  context, Icons.receipt_sharp, 'Receipt', '/Home/Receipt'),
+              _buildListTile(
+                  context, Icons.payments_rounded, 'Payment', '/Home/Payment')
             ],
           ),
 
@@ -60,21 +69,29 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
             Icons.report,
             'Report',
             [
-              _buildListTile(context, Icons.table_chart, 'Stock Report', '/Home/stock', condition: !stkTransferCheck),
-              _buildListTile(context, Icons.table_chart, 'Sales Report', '/Home/sales'),
-              _buildListTile(context, Icons.table_chart, 'Purchase Report', '/Home/purchase'),
-              _buildListTile(context, Icons.table_chart,'Party Statement', '/Home/Party')
+              _buildListTile(
+                  context, Icons.table_chart, 'Stock Report', '/Home/stock',
+                  condition: !stkTransferCheck),
+              _buildListTile(
+                  context, Icons.table_chart, 'Sales Report', '/Home/sales'),
+              _buildListTile(context, Icons.table_chart, 'Purchase Report',
+                  '/Home/purchase'),
+              _buildListTile(
+                  context, Icons.table_chart, 'Party Statement', '/Home/Party')
             ],
           ),
 
           _buildExpansionTile(
-          context,
-          Icons.document_scanner,
-          'Branch Report',
-          [
-          _buildListTile(context, Icons.swap_horizontal_circle, 'Branch Transfer', '/Home/branchTransfer', condition: !brhTransferCheck),
-          _buildApprovalTile(context),
-          ],),
+            context,
+            Icons.document_scanner,
+            'Branch Report',
+            [
+              _buildListTile(context, Icons.swap_horizontal_circle,
+                  'Branch Transfer', '/Home/branchTransfer',
+                  condition: !brhTransferCheck),
+              _buildApprovalTile(context),
+            ],
+          ),
           _buildListTile(context, Icons.settings, 'Settings', '/Home/settings'),
           _buildLogoutTile(context),
         ],
@@ -82,7 +99,9 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  ListTile _buildListTile(BuildContext context, IconData icon, String title, String route, {bool condition = true}) {
+  ListTile _buildListTile(
+      BuildContext context, IconData icon, String title, String route,
+      {bool condition = true}) {
     return ListTile(
       leading: Icon(icon, color: const Color(0xFF004D40)),
       title: Text(
@@ -95,8 +114,8 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-
-  ExpansionTile _buildExpansionTile(BuildContext context, IconData icon, String title, List<Widget> children) {
+  ExpansionTile _buildExpansionTile(BuildContext context, IconData icon,
+      String title, List<Widget> children) {
     return ExpansionTile(
       leading: Icon(icon, color: const Color(0xFF004D40)),
       title: Text(
@@ -127,7 +146,8 @@ class customDrawer extends StatelessWidget implements PreferredSizeWidget {
             backgroundColor: approvalCnt == 0 ? Colors.green : Colors.red,
             child: Text(
               "$approvalCnt",
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ],

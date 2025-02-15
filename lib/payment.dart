@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:billentry/CustomWidgets/appBar.dart';
 import 'package:billentry/CustomWidgets/customDrawer.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -7,38 +6,33 @@ import 'package:flutter_bootstrap/flutter_bootstrap.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import 'package:collection/collection.dart';
-import 'package:printing/printing.dart';
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-import 'GlobalVariables.dart';
 import 'main.dart';
 
-class Receipt extends StatelessWidget {
-  const Receipt({super.key});
+class Payments extends StatelessWidget {
+  const Payments({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const ReceiptPage();
+    return const PaymentPage();
   }
 }
 
-late List<DataGridRow> _ReceiptData = [];
+late List<DataGridRow> _paymentData = [];
 
-class ReceiptPage extends StatefulWidget {
-  const ReceiptPage({super.key});
+class PaymentPage extends StatefulWidget {
+  const PaymentPage({super.key});
 
   @override
-  State<ReceiptPage> createState() => _ReceiptScreenState();
+  State<PaymentPage> createState() => _ReceiptScreenState();
 }
 
-late ReceiptDataSource _ReceiptDataSource;
+late PaymentSource _receiptDataSource;
 late ListDataSource _listDataSource;
 
-class _ReceiptScreenState extends State<ReceiptPage> {
+class _ReceiptScreenState extends State<PaymentPage> {
   TextEditingController AMOUNT = TextEditingController();
   final DataGridController dataGridController = DataGridController();
-  final DataGridController ListGridController = DataGridController();
+  final DataGridController listGridController = DataGridController();
 
   String billType = "";
   String groupName = "";
@@ -56,10 +50,10 @@ class _ReceiptScreenState extends State<ReceiptPage> {
   var groupId = "";
   String customer = "";
   var customerId = "";
-  String balamount = "";
+  String balAmount = "";
   String amount = "";
   int idx = -1;
-  var payno = "";
+  var payNo = "";
 
   _ReceiptScreenState() {
     now = DateTime.now();
@@ -69,17 +63,17 @@ class _ReceiptScreenState extends State<ReceiptPage> {
   DateTime currentDate = DateTime.now();
 
   List<String> payType = ['IMPS', 'NEFT', "CHEQUE", "CASH", "QR"];
-  List<Receiptclass> receiptdata = [];
-  List<ListReceiptclass> listreceiptdata = [];
+  List<PaymentClass> paymentData = [];
+  List<ListPaymentClass> listReceiptData = [];
 
   TextEditingController date = TextEditingController();
-  TextEditingController paymode = TextEditingController();
+  TextEditingController payMode = TextEditingController();
   TextEditingController qtyTextController = TextEditingController();
   TextEditingController itemTextController = TextEditingController();
   TextEditingController discTextController = TextEditingController();
   TextEditingController rateTextController = TextEditingController();
   TextEditingController gstTextController = TextEditingController();
-  TextEditingController payNoController = new TextEditingController();
+  TextEditingController payNoController = TextEditingController();
   List<String> groupList = [];
   List<String> groupIdList = [];
   List<String> customerDataList = [];
@@ -114,283 +108,282 @@ class _ReceiptScreenState extends State<ReceiptPage> {
     );
   }
 
-  Future<void> saveData(List textData, List receiptData2, List listData) async {
-    String cutTableApi = "${ipAddress}api/saveReceiptEntry";
-    print(cutTableApi);
-    showLoaderDialog(context);
-    try {
-      print(
-          "----------------------------------------------------------cutTableApi");
-      final response = await http.post(Uri.parse(cutTableApi),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode({
-            "TEXTDAT": textData,
-            "RECEIPTDAT": receiptData2,
-            "LISTDAT": listData,
-          }));
-      print(jsonEncode);
-      print(
-          "------------------------------------------------------------------------");
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        print(data);
-        print(data['savChk']);
-        var saveChk = data['savChk'];
+  // Future<void> saveData(List textData, List receiptData2, List listData) async {
+  //   String cutTableApi = "${ipAddress}api/saveReceiptEntry";
+  //   print(cutTableApi);
+  //   showLoaderDialog(context);
+  //   try {
+  //     print(
+  //         "----------------------------------------------------------cutTableApi");
+  //     final response = await http.post(Uri.parse(cutTableApi),
+  //         headers: <String, String>{
+  //           'Content-Type': 'application/json; charset=UTF-8',
+  //         },
+  //         body: jsonEncode({
+  //           "TEXTDAT": textData,
+  //           "RECEIPTDAT": receiptData2,
+  //           "LISTDAT": listData,
+  //         }));
+  //     print(jsonEncode);
+  //     print(
+  //         "------------------------------------------------------------------------");
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> data = json.decode(response.body);
+  //       print(data);
+  //       print(data['savChk']);
+  //       var saveChk = data['savChk'];
+  //
+  //       if (saveChk) {
+  //         Navigator.pop(context);
+  //         showDialog(
+  //           context: context,
+  //           builder: (BuildContext context) {
+  //             return AlertDialog(
+  //               title: const Text('REASON'),
+  //               content: const Text("Receipt Saved Successfully"),
+  //               // Content of the dialog
+  //               actions: <Widget>[
+  //                 TextButton(
+  //                   child: const Text('OK'),
+  //                   onPressed: () {
+  //                     Navigator.of(context).pop(); // Close the dialog
+  //                   },
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         );
+  //
+  //         receiptdata = [];
+  //         listreceiptdata = [];
+  //
+  //         setState(() {
+  //           date.clear();
+  //           _ReceiptDataSource = ReceiptDataSource(receiptdata: []);
+  //           _listDataSource = ListDataSource(Listdata: []);
+  //         });
+  //       } else {
+  //         // Navigator.pop(context);
+  //         showDialog(
+  //           context: context,
+  //           builder: (BuildContext context) {
+  //             return AlertDialog(
+  //               title: const Text('REASON'),
+  //               content: const Text("Receipt Insertion Failed"),
+  //               // Content of the dialog
+  //               actions: <Widget>[
+  //                 TextButton(
+  //                   child: const Text('OK'),
+  //                   onPressed: () {
+  //                     Navigator.of(context).pop(); // Close the dialog
+  //                   },
+  //                 ),
+  //               ],
+  //             );
+  //           },
+  //         );
+  //       }
+  //     } else {
+  //       Navigator.pop(context);
+  //       showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: const Text('REASON'),
+  //             content: const Text("Conn Err"), // Content of the dialog
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 child: const Text('OK'),
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop(); // Close the dialog
+  //                 },
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     }
+  //   } catch (e) {
+  //     Navigator.pop(context);
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: const Text('REASON'),
+  //           content: const Text("Conn Err"), // Content of the dialog
+  //           actions: <Widget>[
+  //             TextButton(
+  //               child: const Text('OK'),
+  //               onPressed: () {
+  //                 Navigator.of(context).pop(); // Close the dialog
+  //               },
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   }
+  // }
 
-        if (saveChk) {
-          Navigator.pop(context);
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('REASON'),
-                content: const Text("Receipt Saved Successfully"),
-                // Content of the dialog
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text('OK'),
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-
-          receiptdata = [];
-          listreceiptdata = [];
-
-          setState(() {
-            date.clear();
-            _ReceiptDataSource = ReceiptDataSource(receiptdata: []);
-            _listDataSource = ListDataSource(Listdata: []);
-          });
-        } else {
-          // Navigator.pop(context);
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('REASON'),
-                content: const Text("Receipt Insertion Failed"),
-                // Content of the dialog
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text('OK'),
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      } else {
-        Navigator.pop(context);
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('REASON'),
-              content: const Text("Conn Err"), // Content of the dialog
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } catch (e) {
-      Navigator.pop(context);
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('REASON'),
-            content: const Text("Conn Err"), // Content of the dialog
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-  Future<void> fetchReceiptData() async {
-    try {
-      String url = "${ipAddress}api/getReceipt/receiptData/$globalCompId";
-      print(url);
-      print("---------------------------ip--------------------------------");
-      final response = await http.get(
-        Uri.parse(url),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        print(
-            "--------------------------------------------------------check 1-----------------------------------------------------");
-        print(data);
-        print(
-            "--------------------------------------------------------check 77-----------------------------------------------------");
-        print(data['valid']);
-        if (data['valid']) {
-          groupList.clear();
-          groupIdList.clear();
-
-          List<dynamic> getGroupData = data['bankdetiles'];
-          for (int i = 0; i < getGroupData.length; i++) {
-            groupIdList.add(getGroupData[i]['LedgerId'].toString());
-            groupList.add(getGroupData[i]['Ledger'].toString());
-          }
-
-          customerDataList.clear();
-          customerIdDataList.clear();
-          balanceDataList.clear();
-          print(data['customerdata']);
-          List<dynamic> getCustomerName = data['customerdata'];
-          for (int i = 0; i < getCustomerName.length; i++) {
-            customerIdDataList.add(getCustomerName[i]['SupplierId'].toString());
-            customerDataList.add(getCustomerName[i]['Supplier'].toString());
-            balanceDataList.add(getCustomerName[i]['BalAmt'].toString());
-          }
-          payNoController.text = data['payNo'];
-        }
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Conn Err'),
-              content: const Text(
-                  "Please ReOpen this Page"), // Content of the dialog
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } catch (e) {
-      print("Error");
-      print(e);
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Conn Err'),
-            content:
-                const Text("Please ReOpen this Page"), // Content of the dialog
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
+  // Future<void> fetchReceiptData() async {
+  //   try {
+  //     String url = "${ipAddress}api/getReceipt/receiptData/$globalCompId";
+  //     print(url);
+  //     print("---------------------------ip--------------------------------");
+  //     final response = await http.get(
+  //       Uri.parse(url),
+  //     );
+  //
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> data = json.decode(response.body);
+  //       print(
+  //           "--------------------------------------------------------check 1-----------------------------------------------------");
+  //       print(data);
+  //       print(
+  //           "--------------------------------------------------------check 77-----------------------------------------------------");
+  //       print(data['valid']);
+  //       if (data['valid']) {
+  //         groupList.clear();
+  //         groupIdList.clear();
+  //
+  //         List<dynamic> getGroupData = data['bankdetiles'];
+  //         for (int i = 0; i < getGroupData.length; i++) {
+  //           groupIdList.add(getGroupData[i]['LedgerId'].toString());
+  //           groupList.add(getGroupData[i]['Ledger'].toString());
+  //         }
+  //
+  //         customerDataList.clear();
+  //         customerIdDataList.clear();
+  //         balanceDataList.clear();
+  //         print(data['customerdata']);
+  //         List<dynamic> getCustomerName = data['customerdata'];
+  //         for (int i = 0; i < getCustomerName.length; i++) {
+  //           customerIdDataList.add(getCustomerName[i]['SupplierId'].toString());
+  //           customerDataList.add(getCustomerName[i]['Supplier'].toString());
+  //           balanceDataList.add(getCustomerName[i]['BalAmt'].toString());
+  //         }
+  //         payNoController.text = data['payNo'];
+  //       }
+  //     } else {
+  //       showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: const Text('Conn Err'),
+  //             content: const Text(
+  //                 "Please ReOpen this Page"), // Content of the dialog
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 child: const Text('OK'),
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop(); // Close the dialog
+  //                 },
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     }
+  //   } catch (e) {
+  //     print("Error");
+  //     print(e);
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: const Text('Conn Err'),
+  //           content:
+  //               const Text("Please ReOpen this Page"), // Content of the dialog
+  //           actions: <Widget>[
+  //             TextButton(
+  //               child: const Text('OK'),
+  //               onPressed: () {
+  //                 Navigator.of(context).pop(); // Close the dialog
+  //               },
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   }
+  // }
   //----------------------------------------------------------------------------------------------------------------------------------
 
-  Future<void> fetchListData(var supplierId) async {
-    try {
-      String url =
-          "${ipAddress}api/getReceipt/receiptDataList/$globalCompId/$supplierId";
-      print(url);
-      print("---------------------------ip1--------------------------------");
-      final response = await http.get(
-        Uri.parse(url),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        print(
-            "--------------------------------------------------------check00-----------------------------------------------------");
-        print(data);
-        print(
-            "--------------------------------------------------------check 00-----------------------------------------------------");
-        print(data['valid']);
-        if (data['valid']) {
-          List<dynamic> invdata = data["listdetiles"];
-          for (int i = 0; i < invdata.length; i++) {
-            listreceiptdata.add(ListReceiptclass(
-                invdata[i]["TransNo"].toString(),
-                invdata[i]["Supplier"].toString(),
-                double.parse(invdata[i]["Amount"].toString()),
-                double.parse(invdata[i]["Amount"].toString()),
-                invdata[i]["TransDate"].toString(),
-                invdata[i]["SupplierId"].toString()));
-          }
-          setState(() {
-            _listDataSource = ListDataSource(Listdata: listreceiptdata);
-          });
-        }
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Conn Err'),
-              content: const Text(
-                  "Please ReOpen this Page"), // Content of the dialog
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } catch (e) {
-      print("Error");
-      print(e);
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Conn Err'),
-            content:
-                const Text("Please ReOpen this Page"), // Content of the dialog
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
+  // Future<void> fetchListData(var supplierId) async {
+  //   try {
+  //     String url =
+  //         "${ipAddress}api/getReceipt/receiptDataList/$globalCompId/$supplierId";
+  //     print(url);
+  //     print("---------------------------ip1--------------------------------");
+  //     final response = await http.get(
+  //       Uri.parse(url),
+  //     );
+  //
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> data = json.decode(response.body);
+  //       print(
+  //           "--------------------------------------------------------check00-----------------------------------------------------");
+  //       print(data);
+  //       print(
+  //           "--------------------------------------------------------check 00-----------------------------------------------------");
+  //       print(data['valid']);
+  //       if (data['valid']) {
+  //         List<dynamic> invdata = data["listdetiles"];
+  //         for (int i = 0; i < invdata.length; i++) {
+  //           listreceiptdata.add(ListReceiptclass(
+  //               invdata[i]["TransNo"].toString(),
+  //               invdata[i]["Supplier"].toString(),
+  //               double.parse(invdata[i]["Amount"].toString()),
+  //               double.parse(invdata[i]["Amount"].toString()),
+  //               invdata[i]["TransDate"].toString(),
+  //               invdata[i]["SupplierId"].toString()));
+  //         }
+  //         setState(() {
+  //           _listDataSource = ListDataSource(Listdata: listreceiptdata);
+  //         });
+  //       }
+  //     } else {
+  //       showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: const Text('Conn Err'),
+  //             content: const Text(
+  //                 "Please ReOpen this Page"), // Content of the dialog
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 child: const Text('OK'),
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop(); // Close the dialog
+  //                 },
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     }
+  //   } catch (e) {
+  //
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: const Text('Conn Err'),
+  //           content:
+  //               const Text("Please ReOpen this Page"), // Content of the dialog
+  //           actions: <Widget>[
+  //             TextButton(
+  //               child: const Text('OK'),
+  //               onPressed: () {
+  //                 Navigator.of(context).pop(); // Close the dialog
+  //               },
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   }
+  // }
 
   @override
   void initState() {
@@ -398,10 +391,10 @@ class _ReceiptScreenState extends State<ReceiptPage> {
     date.text = DateTime.now().toString().split(' ')[0];
     edate = DateTime.now().toString().split(' ')[0];
 
-    _ReceiptDataSource = ReceiptDataSource(receiptdata: receiptdata);
-    _listDataSource = ListDataSource(Listdata: listreceiptdata); // });
+    _receiptDataSource = PaymentSource(paymentData: paymentData);
+    _listDataSource = ListDataSource(listData: listReceiptData); // });
 
-    fetchReceiptData();
+    // fetchReceiptData();
   }
 
   @override
@@ -416,7 +409,7 @@ class _ReceiptScreenState extends State<ReceiptPage> {
             onMenuPressed: () {
               Scaffold.of(context).openDrawer();
             },
-            barTitle: "RECEIPT"),
+            barTitle: "PAYMENT"),
         drawer: const customDrawer(
           stkTransferCheck: false,
           brhTransferCheck: false,
@@ -454,8 +447,7 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                             Radius.circular(10)),
                                       ),
                                       labelText: 'Pay No',
-                                      prefixIcon:
-                                          const Icon(Icons.payment_outlined),
+                                      prefixIcon: Icon(Icons.payment_outlined),
                                       fillColor: Colors.white,
                                       // contentPadding: EdgeInsets.symmetric(vertical: height*0.01),
                                     ),
@@ -546,14 +538,14 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                   },
                                   validator: (value) {
                                     if (!groupList.contains(value.toString())) {
-                                      return 'Please select the Bank';
+                                      return 'Please select the Bank/Cash';
                                     }
                                     return null;
                                   },
                                   decoratorProps: DropDownDecoratorProps(
                                     expands: false,
                                     decoration: InputDecoration(
-                                      label: Text("Bank"),
+                                      label: const Text("Bank/Cash"),
 
                                       prefixIcon:
                                           const Icon(Icons.account_balance),
@@ -566,7 +558,7 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                         horizontal: 15,
                                       ),
                                       hintText:
-                                          'Enter the Bank', // Placeholder text
+                                          'Enter the Bank/Cash', // Placeholder text
                                     ),
                                   ),
                                   popupProps:
@@ -668,7 +660,7 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                             customerDataList.indexOf(customer);
                                         if (idx != -1) {
                                           customerId = customerIdDataList[idx];
-                                          balamount = balanceDataList[idx];
+                                          balAmount = balanceDataList[idx];
                                         }
                                       });
                                     },
@@ -682,7 +674,7 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                     decoratorProps: DropDownDecoratorProps(
                                         expands: false,
                                         decoration: InputDecoration(
-                                            label: Text("Customer"),
+                                            label: const Text("Customer"),
                                             prefixIcon: const Icon(Icons.group),
                                             border: OutlineInputBorder(
                                                 borderRadius:
@@ -717,7 +709,7 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                   child: TextFormField(
                                     readOnly: true,
                                     controller: TextEditingController()
-                                      ..text = balamount,
+                                      ..text = balAmount,
                                     decoration: const InputDecoration(
                                       contentPadding:
                                           EdgeInsets.fromLTRB(15, 0, 0, 0),
@@ -786,41 +778,36 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              print("CHECK1");
                               if (double.parse(amount) > 0.0) {
                                 var exist = false;
-                                for (int i = 0; i < receiptdata.length; i++) {
-                                  if (receiptdata[i].customer == customer) {
+                                for (int i = 0; i < paymentData.length; i++) {
+                                  if (paymentData[i].customer == customer) {
                                     exist = true;
-                                    print("exist:$exist");
                                     break;
                                   }
-                                  print(exist);
                                 }
                                 if (!exist) {
-                                  print("CHECK2");
-                                  receiptdata.add(Receiptclass(
-                                      receiptdata.length + 1,
+                                  paymentData.add(PaymentClass(
+                                      paymentData.length + 1,
                                       customer,
-                                      double.parse(balamount),
+                                      double.parse(balAmount),
                                       double.parse(AMOUNT.text.toString()),
                                       double.parse(AMOUNT.text.toString()) -
-                                          double.parse(balamount),
+                                          double.parse(balAmount),
                                       customerId));
-                                  print("CHECK3");
 
                                   setState(() {
-                                    _ReceiptDataSource = ReceiptDataSource(
-                                        receiptdata: receiptdata);
+                                    _receiptDataSource =
+                                        PaymentSource(paymentData: paymentData);
                                     _listDataSource = ListDataSource(
-                                        Listdata: listreceiptdata);
+                                        listData: listReceiptData);
                                   });
 
                                   int customerIdx =
                                       customerDataList.indexOf(customer);
                                   var supplierId =
                                       customerIdDataList[customerIdx];
-                                  fetchListData(supplierId);
+                                  // fetchListData(supplierId);
                                 } else {
                                   showDialog(
                                     context: context,
@@ -865,25 +852,24 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                   onPressed: () {
                                     if (idx != -1) {
                                       var deletedCustomerName =
-                                          receiptdata[idx - 1].customer;
-                                      receiptdata.removeAt(idx - 1);
+                                          paymentData[idx - 1].customer;
+                                      paymentData.removeAt(idx - 1);
                                       for (int i = 0;
-                                          i < receiptdata.length;
+                                          i < paymentData.length;
                                           i++) {
-                                        receiptdata[i].sno = i + 1;
+                                        paymentData[i].sno = i + 1;
                                       }
 
                                       List<int> deleteArray = [];
-                                      listreceiptdata.removeWhere((value) =>
+                                      listReceiptData.removeWhere((value) =>
                                           value.customer ==
                                           deletedCustomerName);
-                                      print(deleteArray);
 
                                       setState(() {
-                                        _ReceiptDataSource = ReceiptDataSource(
-                                            receiptdata: receiptdata);
+                                        _receiptDataSource = PaymentSource(
+                                            paymentData: paymentData);
                                         _listDataSource = ListDataSource(
-                                            Listdata: listreceiptdata);
+                                            listData: listReceiptData);
                                       });
                                     }
                                   },
@@ -915,7 +901,7 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    content: Container(
+                                    content: SizedBox(
                                         height: 300,
                                         width: 700,
                                         child: SingleChildScrollView(
@@ -942,7 +928,7 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                               // Set a fixed height for the DataGrid
                                               child: SfDataGrid(
                                                 allowEditing: true,
-                                                controller: ListGridController,
+                                                controller: listGridController,
                                                 selectionMode:
                                                     SelectionMode.single,
                                                 headerGridLinesVisibility:
@@ -1055,20 +1041,10 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                                 ],
                                                 onSelectionChanged:
                                                     (addedRows, removedRows) {
-                                                  // print(addedRows.toString() + "addedRows");
-                                                  // idx = dataGridController.currentCell.rowIndex;
-                                                  // print(index.toString() + "index");
-
-                                                  print(ListGridController
-                                                      .selectedRow
-                                                      ?.getCells()[0]
-                                                      .value);
-                                                  idx = ListGridController
+                                                  idx = listGridController
                                                       .selectedRow
                                                       ?.getCells()[0]
                                                       .value;
-                                                  print(
-                                                      idx.toString() + "index");
                                                 },
                                               ),
                                             ),
@@ -1079,7 +1055,7 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                           onPressed: () {
                                             Navigator.of(context).pop();
                                           },
-                                          child: Text("OK"))
+                                          child: const Text("OK"))
                                     ],
                                   );
                                 },
@@ -1128,7 +1104,7 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                               headerGridLinesVisibility:
                                   GridLinesVisibility.both,
                               // navigationMode: GridNavigationMode.cell,
-                              source: _ReceiptDataSource,
+                              source: _receiptDataSource,
                               editingGestureType: EditingGestureType.tap,
                               columnWidthCalculationRange:
                                   ColumnWidthCalculationRange.visibleRows,
@@ -1201,17 +1177,9 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                 ),
                               ],
                               onSelectionChanged: (addedRows, removedRows) {
-                                // print(addedRows.toString() + "addedRows");
-                                // idx = dataGridController.currentCell.rowIndex;
-                                // print(index.toString() + "index");
-
-                                print(dataGridController.selectedRow
-                                    ?.getCells()[0]
-                                    .value);
                                 idx = dataGridController.selectedRow
                                     ?.getCells()[0]
                                     .value;
-                                print(idx.toString() + "index");
                               },
                             ),
                           ),
@@ -1229,34 +1197,35 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: Text("Alert"),
-                                        content: Text("Please Select the Bank"),
+                                        title: const Text("Alert"),
+                                        content: const Text(
+                                            "Please Select the Bank"),
                                         actions: [
                                           TextButton(
                                               onPressed: () {
                                                 Navigator.of(context).pop();
                                               },
-                                              child: Text("OK"))
+                                              child: const Text("OK"))
                                         ],
                                       );
                                     });
                                 return;
                               }
-                              //add paymode validation
+                              //add PayMode validation
                               if (item == "") {
                                 showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: Text("Alert"),
-                                        content:
-                                            Text("Please Select the Pay mode"),
+                                        title: const Text("Alert"),
+                                        content: const Text(
+                                            "Please Select the Pay mode"),
                                         actions: [
                                           TextButton(
                                               onPressed: () {
                                                 Navigator.of(context).pop();
                                               },
-                                              child: Text("OK"))
+                                              child: const Text("OK"))
                                         ],
                                       );
                                     });
@@ -1267,22 +1236,22 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: Text("Alert"),
-                                        content:
-                                            Text("Please Select the Customer"),
+                                        title: const Text("Alert"),
+                                        content: const Text(
+                                            "Please Select the Customer"),
                                         actions: [
                                           TextButton(
                                               onPressed: () {
                                                 Navigator.of(context).pop();
                                               },
-                                              child: Text("OK"))
+                                              child: const Text("OK"))
                                         ],
                                       );
                                     });
                                 return;
                               }
 
-                              if (receiptdata.length == 0) {
+                              if (paymentData.length == 0) {
                                 return;
                               }
                               List<dynamic> textData = [];
@@ -1292,35 +1261,34 @@ class _ReceiptScreenState extends State<ReceiptPage> {
                                 "EDATE": date.text.toString(),
                                 "BANK": groupName,
                                 "BANKID": groupId,
-                                "PAYTYPE": item,
-                                "CompId": globalCompId
+                                "PAYTYPE": item
                               });
 
                               List<dynamic> reciptDataList = [];
-                              for (int i = 0; i < receiptdata.length; i++) {
+                              for (int i = 0; i < paymentData.length; i++) {
                                 reciptDataList.add({
-                                  "CUSTOMER": receiptdata[i].customer,
-                                  "CUSTOMERID": receiptdata[i].customerId,
-                                  "BALAMT": receiptdata[i].balAmt,
-                                  "AMOUNT": receiptdata[i].amount,
-                                  "ADVAMOUNT": receiptdata[i].advAmount,
+                                  "CUSTOMER": paymentData[i].customer,
+                                  "CUSTOMERID": paymentData[i].customerId,
+                                  "BALAMT": paymentData[i].balAmt,
+                                  "AMOUNT": paymentData[i].amount,
+                                  "ADVAMOUNT": paymentData[i].advAmount,
                                 });
                               } //Store the receipt data
 
                               List<dynamic> listReceiptDataList = [];
-                              for (int i = 0; i < listreceiptdata.length; i++) {
+                              for (int i = 0; i < listReceiptData.length; i++) {
                                 listReceiptDataList.add({
-                                  "TRANSNO": listreceiptdata[i].tranSno,
-                                  "TRANSDATE": listreceiptdata[i].transDate,
-                                  "CUSTOMER": listreceiptdata[i].customer,
-                                  "CUSTOMERID": listreceiptdata[i].customerId,
-                                  "BALAMT": listreceiptdata[i].balAmt,
-                                  "RECAMOUNT": listreceiptdata[i].recAmount,
+                                  "TRANSNO": listReceiptData[i].tranSno,
+                                  "TRANSDATE": listReceiptData[i].transDate,
+                                  "CUSTOMER": listReceiptData[i].customer,
+                                  "CUSTOMERID": listReceiptData[i].customerId,
+                                  "BALAMT": listReceiptData[i].balAmt,
+                                  "RECAMOUNT": listReceiptData[i].recAmount,
                                 });
                               } //Store the receipt data
-
-                              saveData(textData, reciptDataList,
-                                  listReceiptDataList);
+                              //
+                              // saveData(textData, reciptDataList,
+                              //     listReceiptDataList);
                             },
                             style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.black,
@@ -1347,8 +1315,8 @@ class _ReceiptScreenState extends State<ReceiptPage> {
   }
 }
 
-class Receiptclass {
-  Receiptclass(this.sno, this.customer, this.balAmt, this.amount,
+class PaymentClass {
+  PaymentClass(this.sno, this.customer, this.balAmt, this.amount,
       this.advAmount, this.customerId);
 
   int sno;
@@ -1359,10 +1327,9 @@ class Receiptclass {
   String customerId;
 }
 
-class ReceiptDataSource extends DataGridSource {
-  ReceiptDataSource({required List<Receiptclass> receiptdata}) {
-    print(receiptdata.toString() + "receiptdata");
-    _ReceiptData = receiptdata
+class PaymentSource extends DataGridSource {
+  PaymentSource({required List<PaymentClass> paymentData}) {
+    _paymentData = paymentData
         .map<DataGridRow>((dataGridRow) => DataGridRow(
               cells: [
                 DataGridCell<int>(columnName: 'sno', value: dataGridRow.sno),
@@ -1379,10 +1346,10 @@ class ReceiptDataSource extends DataGridSource {
         .toList();
   }
 
-  List<DataGridRow> _ReceiptData = [];
+  List<DataGridRow> _PaymentData = [];
 
   @override
-  List<DataGridRow> get rows => _ReceiptData;
+  List<DataGridRow> get rows => _PaymentData;
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
@@ -1390,15 +1357,15 @@ class ReceiptDataSource extends DataGridSource {
         cells: row.getCells().map<Widget>((e) {
       return Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Text(e.value.toString()),
       );
     }).toList());
   }
 }
 
-class ListReceiptclass {
-  ListReceiptclass(this.tranSno, this.customer, this.balAmt, this.recAmount,
+class ListPaymentClass {
+  ListPaymentClass(this.tranSno, this.customer, this.balAmt, this.recAmount,
       this.transDate, this.customerId);
 
   String tranSno;
@@ -1410,22 +1377,23 @@ class ListReceiptclass {
 }
 
 class ListDataSource extends DataGridSource {
-  ListDataSource({required List<ListReceiptclass> Listdata}) {
-    print(Listdata.toString() + "Listdata");
-    _ListData = Listdata.map<DataGridRow>((dataGridRow) => DataGridRow(
-          cells: [
-            DataGridCell<String>(
-                columnName: 'tranSno', value: dataGridRow.tranSno),
-            DataGridCell<String>(
-                columnName: 'transDate', value: dataGridRow.transDate),
-            DataGridCell<String>(
-                columnName: 'customer', value: dataGridRow.customer),
-            DataGridCell<double>(
-                columnName: 'BalAmt', value: dataGridRow.balAmt),
-            DataGridCell<double>(
-                columnName: 'recAmount', value: dataGridRow.recAmount),
-          ],
-        )).toList();
+  ListDataSource({required List<ListPaymentClass> listData}) {
+    _ListData = listData
+        .map<DataGridRow>((dataGridRow) => DataGridRow(
+              cells: [
+                DataGridCell<String>(
+                    columnName: 'tranSno', value: dataGridRow.tranSno),
+                DataGridCell<String>(
+                    columnName: 'transDate', value: dataGridRow.transDate),
+                DataGridCell<String>(
+                    columnName: 'customer', value: dataGridRow.customer),
+                DataGridCell<double>(
+                    columnName: 'BalAmt', value: dataGridRow.balAmt),
+                DataGridCell<double>(
+                    columnName: 'recAmount', value: dataGridRow.recAmount),
+              ],
+            ))
+        .toList();
   }
 
   List<DataGridRow> _ListData = [];
@@ -1439,7 +1407,7 @@ class ListDataSource extends DataGridSource {
         cells: row.getCells().map<Widget>((e) {
       return Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Text(e.value.toString()),
       );
     }).toList());
