@@ -268,7 +268,26 @@ class _ReceiptScreenState extends State<ReceiptPage> {
             customerDataList.add(getCustomerName[i]['Supplier'].toString());
             balanceDataList.add(getCustomerName[i]['BalAmt'].toString());
           }
-          payNoController.text = data['payNo'];
+          try {
+            DateTime now = DateTime.now();
+            var startYear;
+            if (now.month >= 4) {
+              startYear = now.year % 100; // Extract last two digits of the year
+            } else {
+              startYear = (now.year - 1) %
+                  100; // Extract last two digits of the previous year
+            }
+            var payNo = globalPrefix +
+                "/" +
+                "PRC" +
+                "/" +
+                startYear.toString() +
+                "/" +
+                data['payNo'].toString();
+            payNoController.text = payNo;
+          } catch (e) {
+            print(e);
+          }
         }
       } else {
         showDialog(
